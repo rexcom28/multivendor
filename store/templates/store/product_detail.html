@@ -6,6 +6,11 @@
 
 
 {% block content %}
+    {% if product.image %}
+        <div class="image mb-4">
+            <img src="{{product.image.url}}" alt="Image of {{product.title}}">
+        </div>
+    {% endif %}
     <h1 class="text-xl">{{product.title}}</h1>
     <p class="text-xs text-gray-500">
         $ {{product.get_display_price}}
