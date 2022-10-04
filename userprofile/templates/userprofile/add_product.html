@@ -1,12 +1,15 @@
 {% extends 'core/base.html' %}
 
-{% block title %} {{title}}{% endblock title %}
+{% block title %} {{title}} product{% endblock title %}
 
 {% block content %}
-    <h1 class="text-2xl"> {{title}}</h1>
+    <h1 class="text-2xl"> {{title}} product</h1>
     <form action="." method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{form.as_p}}
         <button class="mt-6 py-4 px-8 bg-teal-500 text-white hover:bg-teal-800">Submit</button>
     </form>
+    {% if title == "Edit" %}
+      <a href="#" class="mt-2 inline-block py-4 px-8 bg-red-500 text-white"> Delete product</a>
+    {% endif %}
 {% endblock content %}
