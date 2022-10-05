@@ -11,6 +11,9 @@
             <b>Title: </b>{{item.product.title}}<br>
             <b>Quantity: </b>{{item.quantity}}<br>
             <b>Price: </b>{{item.product.price}}<br>
+            <a href="{% url 'change_quantity' item.product.id %}?action=increase">Increase +</a>
+            <a href="{% url 'change_quantity' item.product.id %}?action=decrease">Decrease -</a>
+
             <a href="{% url 'remove_from_cart' item.product.id %}" class="inline-block px-8 py-4 bg-teal-500 text-white">Remove from cart</a>
         </p>
         <hr>        

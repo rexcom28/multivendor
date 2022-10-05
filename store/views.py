@@ -23,6 +23,15 @@ def cart_view(request):
         'cart':cart
     })
 
+def change_quantity(request, product_id):
+    cart = Cart(request)
+    action = request.GET.get('action', '')
+    
+    quantity = 1 if action=='increase' else -1
+    cart.add(product_id, quantity, True)
+    
+    return redirect('cart_view')
+
 #---------------------------------------------------
 def search(request):
     query    = request.GET.get('query', '')
