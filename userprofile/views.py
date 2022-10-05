@@ -1,5 +1,6 @@
 
 
+
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -8,13 +9,14 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.utils.text import slugify
 from . models import Userprofile
+from .forms import UserEditForm
 
 from store.forms import ProductForm
 from store.models import Product
 
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
-    products =  user.products.filter(status=Product.ACTIVE)
+    products =  user.products.filter(status = Product.ACTIVE)
     return render(request, 'userprofile/vendor_detail.html', {
         'user':user, 
         'products':products,
@@ -79,7 +81,17 @@ def delete_product(request, pk):
 
 @login_required
 def myaccount(request):
-    return render(request, 'userprofile/myaccount.html')
+    u = User.objects.get(pk=request.user.id)
+    
+    if request.method == 'POST':
+        form = UserEditForm(request.POST, instance=u)
+        if form.is_valid():
+            form.save()
+            redirect('myaccount')
+    else:
+        form = UserEditForm(instance=u)
+            
+    return render(request, 'userprofile/myaccount.html', {'form':form})
   
 def sigup(request):
     if request.method == 'POST':
