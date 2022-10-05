@@ -14,7 +14,7 @@ from store.models import Product
 
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
-    products =  User.products.filter(status=Product.ACTIVE)
+    products =  user.products.filter(status=Product.ACTIVE)
     return render(request, 'userprofile/vendor_detail.html', {
         'user':user, 
         'products':products,
