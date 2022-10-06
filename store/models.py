@@ -1,3 +1,5 @@
+from email.policy import default
+from itertools import product
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -85,4 +87,33 @@ class Product(models.Model):
         name = image.name.replace('uploads/product_images/', '')
         thumbnail = File(thumb_io, name=name)
 
-        return thumbnail    
+        return thumbnail
+    
+    
+    
+class Order(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    zipcode = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    
+    paid_amount = models.IntegerField(blank=True, null=True)
+    is_paid = models.BooleanField(default=False)
+    merchant_id = models.CharField(max_length=255)
+    
+    created_by = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f'Name: {self.first_name} Last Name: {self.last_name}    --- is paid ?: {self.is_paid}   --- id: {self.id}'
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='items', on_delete=models.CASCADE)
+    price = models.IntegerField()
+    quantity = models.IntegerField(default=1)
+    
+    def __str__(self) -> str:
+        return f'Order: {self.order.id}-----, Product: {self.product} x {self.quantity}'
+    
