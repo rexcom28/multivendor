@@ -1,10 +1,11 @@
 
 
-from wsgiref.validate import validator
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.template.defaultfilters import slugify
+
 
 from io import BytesIO
 from PIL import Image
@@ -69,6 +70,11 @@ class Product(models.Model):
     
     def get_thumbnail(self):
         if self.thumbnail:
+            origin= self.thumbnail.field.upload_to
+            print(self.thumbnail.field.upload_to )
+            print(self.thumbnail)
+            
+            #print('MEDIA_URL', settings.MEDIA_URL, '   STATIC_URL',settings.STATIC_URL)
             return self.thumbnail.url
         else:
             if self.image:
@@ -87,7 +93,8 @@ class Product(models.Model):
 
         thumb_io = BytesIO()
         #check formats -> python -m PIL
-        img.save(thumb_io, formats=['JPEG','PNG'], quality=85)
+        ext = image.name.split('.')[-1].upper()
+        img.save(thumb_io, ext, quality=85)
         name = image.name.replace('uploads/product_images/', '')
         thumbnail = File(thumb_io, name=name)
 
