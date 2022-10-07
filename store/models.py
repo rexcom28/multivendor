@@ -43,7 +43,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     price = models.IntegerField()
-    image = models.ImageField(upload_to='uploads/product_images/', blank=True, null=True, validators=[validate_file_extension])
+    image = models.ImageField(upload_to='uploads/product_images/', blank=True, null=True)
     thumbnail = models.ImageField(upload_to='uploads/product_images/thumbnail/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -56,12 +56,13 @@ class Product(models.Model):
         return self.title
     
     
-    
     #overriden method for slug file
     def save(self, *args, **kwargs):
         
         self.slug = slugify(self.title)
-        
+        print('self._state.adding---',self._state.adding)
+        print(self.thumbnail,'!= ',args)
+        print(kwargs)
         return super().save(*args, **kwargs)
         
     def get_display_price(self):
@@ -69,12 +70,13 @@ class Product(models.Model):
     
     
     def get_thumbnail(self):
+
+
         if self.thumbnail:
+
             origin= self.thumbnail.field.upload_to
-            print(self.thumbnail.field.upload_to )
-            print(self.thumbnail)
-            
-            #print('MEDIA_URL', settings.MEDIA_URL, '   STATIC_URL',settings.STATIC_URL)
+            #print(origin)
+            #print(self.thumbnail )
             return self.thumbnail.url
         else:
             if self.image:

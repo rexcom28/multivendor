@@ -58,6 +58,8 @@ def edit_product(request, pk):
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
+        #print(form.instance.thumbnail)
+        #print(request.FILES['image'])
         if form.is_valid():
             form.save()
             messages.success(request, 'The changes was saved!')
