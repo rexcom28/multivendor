@@ -60,10 +60,9 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         
         self.slug = slugify(self.title)
-        self.get_thumbnail()
+        
         return super().save(*args, **kwargs)
-    
-    
+        
     def get_display_price(self):
         return self.price /100
     
