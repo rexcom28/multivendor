@@ -1,5 +1,6 @@
-from email.policy import default
-from itertools import product
+
+
+from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -7,7 +8,7 @@ from django.template.defaultfilters import slugify
 
 from io import BytesIO
 from PIL import Image
-
+from .validators import validate_file_extension
 
 class Category(models.Model):
     
@@ -41,7 +42,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     price = models.IntegerField()
-    image = models.ImageField(upload_to='uploads/product_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='uploads/product_images/', blank=True, null=True, validators=[validate_file_extension])
     thumbnail = models.ImageField(upload_to='uploads/product_images/thumbnail/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -53,10 +54,13 @@ class Product(models.Model):
     def __str__(self):
         return self.title
     
+    
+    
     #overriden method for slug file
     def save(self, *args, **kwargs):
         
         self.slug = slugify(self.title)
+        self.get_thumbnail()
         return super().save(*args, **kwargs)
     
     

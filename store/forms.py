@@ -27,7 +27,7 @@ class ProductForm(forms.ModelForm):
                 'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
             }),
            
-            'image': forms.FileInput(attrs={
+            'image': forms.ClearableFileInput(attrs={
                 'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
             }),
             'status': forms.Select(attrs={

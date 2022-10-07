@@ -9,6 +9,11 @@ def frontpage(request):
         'products':products
     })
 
+def frontpage2(request):
+    products = Product.objects.filter(status=Product.ACTIVE)[0:6]
+    return render(request, 'core/frontpage2.html',{
+        'products':products
+    })
 
 def about(request):
     return render(request, 'core/about.html')

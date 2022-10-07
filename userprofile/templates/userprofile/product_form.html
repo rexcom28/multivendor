@@ -4,6 +4,9 @@
 
 {% block content %}
     <h1 class="text-2xl"> {{title}} product</h1>
+    <figure class="img-fluid" style="width: 20%;" >
+      <img src="{{ product.get_thumbnail }}" alt="">
+    </figure>
     <form action="." method="post" enctype="multipart/form-data" class="space-y-5">
         {% csrf_token %}
         {{form.as_p}}

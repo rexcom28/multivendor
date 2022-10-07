@@ -3,14 +3,17 @@ from django.conf.urls.static import static
 from xml.etree.ElementInclude import include
 from django.contrib import admin
 from django.urls import path, include
-from core.views import frontpage, about
+from core.views import frontpage, about, frontpage2
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('about/', about, name='about'),
+    path('f2/', frontpage2, name='frontpage2'),
     path('', include('userprofile.urls')),    
     path('', include('store.urls')),
     path('', frontpage, name='frontpage'),
+    
+    
     
 ]
 if settings.DEBUG:
