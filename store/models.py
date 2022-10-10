@@ -1,6 +1,7 @@
 
 
 
+from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -9,7 +10,7 @@ from django.template.defaultfilters import slugify
 
 from io import BytesIO
 from PIL import Image
-from .validators import validate_file_extension
+from .validators import validate_file_extension, valid_ext_dict
 
 class Category(models.Model):
     
@@ -43,7 +44,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=50, blank=True)
     description = models.TextField(blank=True)
     price = models.IntegerField()
-    image = models.ImageField(upload_to='uploads/product_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='uploads/product_images/', blank=True, null=True, validators=[validate_file_extension])
     thumbnail = models.ImageField(upload_to='uploads/product_images/thumbnail/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -60,9 +61,9 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         
         self.slug = slugify(self.title)
-        print('self._state.adding---',self._state.adding)
-        print(self.thumbnail,'!= ',args)
-        print(kwargs)
+        # print('self._state.adding---',self._state.adding)
+        # print(self.thumbnail,'!= ',args)
+        # print(kwargs)
         return super().save(*args, **kwargs)
         
     def get_display_price(self):
@@ -70,13 +71,9 @@ class Product(models.Model):
     
     
     def get_thumbnail(self):
-
-
+        #print(self.thumbnail.url,' -------=====  ',self.thumbnail.field.upload_to)
         if self.thumbnail:
-
             origin= self.thumbnail.field.upload_to
-            #print(origin)
-            #print(self.thumbnail )
             return self.thumbnail.url
         else:
             if self.image:
@@ -92,10 +89,10 @@ class Product(models.Model):
         img = Image.open(image)
         img.convert('RGB')
         img.thumbnail(size)
-
         thumb_io = BytesIO()
         #check formats -> python -m PIL
-        ext = image.name.split('.')[-1].upper()
+        ext = valid_ext_dict.get(f".{image.name.split('.')[-1]}")
+        
         img.save(thumb_io, ext, quality=85)
         name = image.name.replace('uploads/product_images/', '')
         thumbnail = File(thumb_io, name=name)
@@ -118,8 +115,8 @@ class Order(models.Model):
     created_by = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:
-        return f'Name: {self.first_name} Last Name: {self.last_name}    --- is paid ?: {self.is_paid}   --- id: {self.id}'
+    # def __str__(self) -> str:
+    #     return f'Name: {self.first_name} Last Name: {self.last_name}    --- is paid ?: {self.is_paid}   --- id: {self.id}'
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
@@ -127,6 +124,8 @@ class OrderItem(models.Model):
     price = models.IntegerField()
     quantity = models.IntegerField(default=1)
     
-    def __str__(self) -> str:
-        return f'Order: {self.order.id}-----, Product: {self.product} x {self.quantity}'
+    # def __str__(self) -> str:
+    #     return f'Order: {self.order.id}-----, Product: {self.product} x {self.quantity}'
     
+    def get_display_price(self):
+        return self.price /100
