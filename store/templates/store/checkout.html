@@ -8,11 +8,20 @@
 
     <h2 class="text-xl text-gray-500">Total cost: ${{ cart.get_total_cost }}</h2>
 
-    <form action="." method="post">
-        {% csrf_token %}
     
-        {{form.as_p}}
+    {{form.as_p}}
     
-        <button class="inline-block px-8 py-4 bg-teal-500 text-white">Checkout</button>
-    </form>
+    <button class="inline-block px-8 py-4 bg-teal-500 text-white" onclick="buy(event)">Checkout</button>    
 {% endblock content %}
+
+
+{% block scripts %}
+<script type="application/javascript" src="https://js.stripe.com/v3/"></script>
+<script >
+
+    function buy(event){
+        event.preventDefault();
+        return false;
+    }
+</script>
+{% endblock scripts %}
