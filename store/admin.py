@@ -1,10 +1,20 @@
 from django.contrib import admin
 from .models import Category, Product, Order, OrderItem
-
+from django.conf import settings
+import stripe
 
 @admin.action(description='Verified payment')
 def verified_payment(modeladmin,request,queryset):
-    pass
+    for p in queryset:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        response = stripe.PaymentIntent.retrieve(
+            p.payment_intent,
+        )
+        paid = True if response.status=='succeeded' else False
+        print('paid', paid, response.status)
+        p.is_paid= paid
+        p.save()
+        
 
 class OrderAdmin(admin.ModelAdmin):
     
@@ -14,6 +24,7 @@ class OrderAdmin(admin.ModelAdmin):
     
     list_display = ['first_name', 'last_name','paid_amount_get', 'is_paid', 'created_by']
     search_fields = ['first_name','paid_amount', 'payment_intent','created_by_id__username']
+    actions = [verified_payment]
 
 admin.site.register(Category)
 admin.site.register(Product)
