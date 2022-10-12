@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Category, Product, Order, OrderItem
 from .forms import OrderForm
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from .cart import Cart
@@ -20,7 +21,54 @@ def add_to_cart(request, product_id):
     return redirect('cart_view')
 
 def success(request):
-    return render(request, 'store/success.html')
+    form = OrderForm()
+    orders = Order.objects.filter(created_by=request.user)
+    
+    return render(request, 'store/success.html',{
+        'form':form,
+        'orders':orders
+    })
+
+def verified(request):
+    orders = Order.objects.filter(created_by=request.user)
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        response = stripe.PaymentIntent.retrieve(
+            data['payment_intent'],
+        )
+        
+        order = Order.objects.get(payment_intent=data['payment_intent'])
+        order.is_paid = True if response.status=='succeeded' else False
+        order.save()
+        return JsonResponse({'verified':response.status})
+    else:
+        form = OrderForm()
+    return render(request, 'store/success.html',{
+        'form':form,
+        'orders':orders
+    })
+
+
+@login_required
+def order_view(request, pk):
+    
+    order  = Order.objects.get(id=pk)
+    
+    if request.method == 'POST':
+        form = OrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+        return redirect ('success')
+    else:
+         form = OrderForm(instance=order)
+    return render(request, 'store/OrderForm.html',{
+        'form':form,
+        
+    })
 
 def remove_from_cart(request, product_id):
     cart = Cart(request)
@@ -82,7 +130,7 @@ def checkout(request):
             zipcode    = data['zipcode'],
             city       = data['city'],
             created_by = request.user,
-            is_paid = True,
+            #is_paid = True,
             payment_intent = payment_intent,
             paid_amount = total_price
         )

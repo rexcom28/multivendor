@@ -114,7 +114,11 @@ class Order(models.Model):
     
     created_by = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    class Meta:
+        ordering = ('-created_at',)
+        
+    def get_display_price(self):
+        return self.paid_amount /100
     # def __str__(self) -> str:
     #     return f'Name: {self.first_name} Last Name: {self.last_name}    --- is paid ?: {self.is_paid}   --- id: {self.id}'
 

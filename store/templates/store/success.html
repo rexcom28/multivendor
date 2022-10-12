@@ -6,4 +6,120 @@
 {% block content %}
     <h1 class="mb-6 text-xl"> Success </h1>
     <p>Thank you for shopping with us!</p>
+    
+    <!--Used to make csrftoken appers in html template-->
+    {{form.as_hidden}}
+
+    <div class="flex flex-col">
+        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="py-4 inline-block min-w-full sm:px-6 lg:px-8">
+            <div class="overflow-hidden">
+              <table class="min-w-full text-center">
+                <thead class="border-b bg-teal-800">
+                  <tr>
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                      
+                        # orders
+                      
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                        verified ? 
+                      </th>
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                      Name
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                      address
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                      paid amount
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                        -
+                    </th>
+                  </tr>
+                </thead class="border-b">
+                <tbody>
+                    {% for order in orders %}        
+                        
+                            <tr class="bg-white border-b ">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {% if not order.is_paid %}
+                                        <button onclick="verified(event, '{{order.payment_intent}}')" class="py-4 px-8 bg-teal-500 text-white hover:bg-teal-800 rounded-xl">
+                                            {{order.payment_intent}}
+                                        </button>
+                                    {% else %}
+                                        {{order.payment_intent}}
+                                    {% endif %}
+                                    
+                                </td>
+                                <td class="{% if order.is_paid %}text-teal-600{% else %} {% endif %} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    {% if order.is_paid %}
+                                        verified
+                                    {% else %}    
+                                        not verified
+                                    {% endif %}                                                                
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    {{order.first_name}} {{order.last_name}}
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    {{order.address}}, {{order.zipcode}}
+                                </td>
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    ${{order.get_display_price}}
+                                </td>
+                                {% if not order.is_paid %}
+                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                        {% include "store/partials/actions_dropdownBtn.html" %}
+                                    </td>                                
+                                {% endif %}
+                                
+                            </tr class="bg-white border-b">                                                                                                                               
+                               
+                    {% endfor %}                                                     
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+    </div>
 {% endblock content %}
+
+
+{% block scripts %}
+<script type="application/javascript" src="https://js.stripe.com/v3/"></script>
+
+<script>
+    function verified(event, id){
+        
+        let data = {'payment_intent':id}
+        fetch('verified/',{
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{csrf_token}}'
+            },
+            credentials:'same-origin',
+            body: JSON.stringify(data)
+        })
+        .then(function(response){
+            return response.json()
+        })        
+        .then(function(result){
+            
+            
+            if(result.error){
+                alert('1)',result.error.message)
+            
+            }else{
+                location.reload();
+            }
+        })
+        .catch(function(error){
+            alert('2)', error)
+        });
+    }
+</script>
+
+{% endblock scripts %}
