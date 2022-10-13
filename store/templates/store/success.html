@@ -46,12 +46,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {% if not order.is_paid %}
                                         <button onclick="verified(event, '{{order.payment_intent}}')" class="py-4 px-8 bg-teal-500 text-white hover:bg-teal-800 rounded-xl">
-                                            {{order.payment_intent}}
+                                            {{order.payment_intent}} 
                                         </button>
                                     {% else %}
                                         {{order.payment_intent}}
                                     {% endif %}
-                                    
+                                    - {{order.id}}
                                 </td>
                                 <td class="{% if order.is_paid %}text-teal-600{% else %} {% endif %} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                                     {% if order.is_paid %}
@@ -71,7 +71,8 @@
                                 </td>
                                 {% if not order.is_paid %}
                                     <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                        {% include "store/partials/actions_dropdownBtn.html" %}
+                                        {% include "store/partials/actions_dropdownBtn.html" %}   
+                                        {% include 'store/partials/modal.html' %}                                                                             
                                     </td>                                
                                 {% endif %}
                                 
@@ -84,6 +85,10 @@
           </div>
         </div>
     </div>
+
+
+    
+
 {% endblock content %}
 
 
@@ -119,6 +124,48 @@
         .catch(function(error){
             alert('2)', error)
         });
+    }
+
+    function edit_order(event, id){
+        event.preventDefault();
+        
+        
+        /*
+        let data = {
+            'first_name': form.getElementById('id_first_name').value,
+            'last_name' : form.getElementById('id_last_name').value,
+            'address'   : form.getElementById('id_address').value,
+            'zipcode'   : form.getElementById('id_zipcode').value,
+            'city'      : form.getElementById('id_city').value,
+        }
+        
+        console.log('id', id, 'data', data)
+        fetch(`Orders/${id}/`, {
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{csrf_token}}'
+            },
+            credentials:'same-origin',
+            body: JSON.stringify(data)
+            
+        })
+        .then(function(response){
+            return response.json()
+        })
+       
+        .then(function(result){
+            console.log(result)
+            if(result.error){
+                console.log('1)',result.error.message)
+            }
+        })
+        .catch(function(error){
+            console.log('2)', error)
+        });
+        */
+        return false;
     }
 </script>
 

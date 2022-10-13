@@ -107,7 +107,6 @@ class Order(models.Model):
     address = models.CharField(max_length=255)
     zipcode = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
-    
     paid_amount = models.IntegerField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
     payment_intent = models.CharField(max_length=255)

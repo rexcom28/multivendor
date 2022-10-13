@@ -22,7 +22,7 @@ class OrderAdmin(admin.ModelAdmin):
     def paid_amount_get(self, obj):
         return f'$ {str(obj.paid_amount /100)}'
     
-    list_display = ['first_name', 'last_name','paid_amount_get', 'is_paid', 'created_by']
+    list_display = ['first_name', 'last_name','paid_amount', 'is_paid', 'created_by']
     search_fields = ['first_name','paid_amount', 'payment_intent','created_by_id__username']
     actions = [verified_payment]
 

@@ -58,16 +58,30 @@ def order_view(request, pk):
     
     order  = Order.objects.get(id=pk)
     
+    print(order.first_name)
     if request.method == 'POST':
-        form = OrderForm(request.POST, instance=order)
-        if form.is_valid():
-            form.save()
+                
+        if request.is_ajax():            
+            data = json.loads(request.body)
+            print('data', data)      
+            order.first_name= data['first_name']
+            order.last_name= data['last_name']
+            order.address= data['address']
+            order.zipcode= data['zipcode']
+            order.city= data['city']
+            order.save()
+            return  JsonResponse({'order':data})  
+        else:    
+            print('aqui no ')
+            form = OrderForm(request.POST, instance=order)
+        
+            if form.is_valid():
+                form.save()
         return redirect ('success')
     else:
-         form = OrderForm(instance=order)
+        form = OrderForm(instance=order)
     return render(request, 'store/OrderForm.html',{
-        'form':form,
-        
+        'form':form,        
     })
 
 def remove_from_cart(request, product_id):
