@@ -56,14 +56,12 @@ def verified(request):
 @login_required
 def order_view(request, pk):
     
-    order  = Order.objects.get(id=pk)
-    
-    print(order.first_name)
+    order  = Order.objects.get(id=pk)    
     if request.method == 'POST':
-                
+        
         if request.is_ajax():            
             data = json.loads(request.body)
-            print('data', data)      
+            
             order.first_name= data['first_name']
             order.last_name= data['last_name']
             order.address= data['address']
@@ -72,13 +70,17 @@ def order_view(request, pk):
             order.save()
             return  JsonResponse({'order':data})  
         else:    
-            print('aqui no ')
+            
             form = OrderForm(request.POST, instance=order)
         
             if form.is_valid():
                 form.save()
         return redirect ('success')
     else:
+        if request.is_ajax():
+            res = {}
+            res = list(Order.objects.values().filter(id=pk))
+            return  JsonResponse({'order': res})
         form = OrderForm(instance=order)
     return render(request, 'store/OrderForm.html',{
         'form':form,        
@@ -96,7 +98,7 @@ def cart_view(request):
     })
 
 
-@login_required
+@login_required#(login_url='/cart/checkout/')
 def checkout(request):
     cart = Cart(request)
     if cart.get_total_cost() == 0:
@@ -201,9 +203,9 @@ def category_detail(request, slug):
     })
 
 def product_detail(request, category_slug, slug):
-    
+    print('product_detail')
     product = get_object_or_404(Product, slug=slug, status=Product.ACTIVE) 
-    
+    print(product.user)
     return render(request, 'store/product_detail.html', {
         'product':product
     })

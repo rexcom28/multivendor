@@ -8,6 +8,7 @@
     <form action="." method="post">
         {% csrf_token %}
         {{form.as_p}}
+        <input type="hidden" name="next" value="{{ next }}">
         <button type="submit" class="py-4 px-8 bg-teal-800 text-white">Login</button>
     </form>
 

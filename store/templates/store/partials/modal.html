@@ -1,3 +1,5 @@
+{% load widget_tweaks %}
+
 <!-- Modal -->
 <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto"
   id="exampleModal{{order.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -15,12 +17,33 @@
         <div id="form{{order.id}}" class="modal-body relative p-4">
             
             {% csrf_token %}
-            {{form.as_p}}
-            
+            <div>
+                <label for="{{form.first_name.name}}"><strong> First Name </strong></label>
+                {% render_field form.first_name id+=order.id id+=form.first_name.name     placeholder=form.first_name.label class+=" mb-2 px-2 py-4 border border-gray-200"  type="text" autocomplete="off" %}
+                
+            </div>
+            <div>
+                <label for="{{form.last_name.name}}"><strong> Last Name </strong></label>
+                {% render_field form.last_name id+=order.id id+=form.last_name.name     placeholder=form.last_name.label class+=" mb-2 px-2 py-4 border border-gray-200"  type="text" autocomplete="off" %}
+            </div>
+            <div>
+                <label for="{{form.address.name}}"><strong> Address </strong></label>
+                {% render_field form.address id+=order.id id+=form.address.name     placeholder=form.address.label class+=" mb-2 px-2 py-4 border border-gray-200"  type="text" autocomplete="off" %}
+            </div>
+            <div>
+                <label for="{{form.zipcode.name}}"><strong> zipcode </strong></label>
+                {% render_field form.zipcode id+=order.id id+=form.zipcode.name     placeholder=form.zipcode.label class+=" mb-2 px-2 py-4 border border-gray-200"  type="text" autocomplete="off" %}
+            </div>
+            <div>
+                <label for="{{form.city.name}}"><strong> City </strong></label>
+                {% render_field form.city id+=order.id id+=form.city.name     placeholder=form.city.label class+=" mb-2 px-2 py-4 border border-gray-200"  type="text" autocomplete="off" %}
+            </div>
+
+
         </div>
         <div
             class="modal-footer flex flex-shrink-0 flex-wrap items-center justify-end p-4 border-t border-gray-200 rounded-b-md">
-            <button type="button" class="px-6
+            <button id="close{{order.id}}" type="button" class="px-6
             py-2.5
             bg-purple-600
             text-white
@@ -53,7 +76,7 @@
                 transition
                 duration-150
                 ease-in-out
-            ml-1"
+                ml-1"
             >Save changes</button>
         </div>
         </div>

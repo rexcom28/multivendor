@@ -67,25 +67,27 @@
       "
       aria-labelledby="dropdownMenuButton8"
     >
-      <li>
-        <a
-          class="
-            dropdown-item
-            text-sm
-            py-2
-            px-4
-            font-normal
-            block
-            w-full
-            whitespace-nowrap
-            bg-transparent
-            text-gray-700
-            hover:bg-gray-100
-          "
-          href="{% block A1_href %}{% endblock A1_href %}"
-          >{% block A1 %}{% endblock A1 %}</a
-        >
-      </li>
+      {% if request.user.is_staff %}
+        <li>
+          <a
+            class="
+              dropdown-item
+              text-sm
+              py-2
+              px-4
+              font-normal
+              block
+              w-full
+              whitespace-nowrap
+              bg-transparent
+              text-gray-700
+              hover:bg-gray-100
+            "
+            href="{% block A1_href %}{% endblock A1_href %}"
+            >{% block A1 %}{% endblock A1 %}</a
+          >
+        </li>
+      {% endif %}
       <li>
         <a
           class="
@@ -142,8 +144,8 @@
               active:bg-blue-800 active:shadow-lg
               transition
               duration-150
-              ease-in-out" data-bs-toggle="modal" data-bs-target="#exampleModal{{order.id}}">
-          Launch demo modal
+              ease-in-out" onclick="loadOrder(event,{{order.id}})" data-bs-toggle="modal" data-bs-target="#exampleModal{{order.id}}">
+          Edit Order
       </button>
         
         

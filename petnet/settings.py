@@ -33,11 +33,12 @@ CART_SESSION_ID = 'cart'
 
 LOGIN_URL= 'login'
 LOGOUT_REDIRECT_URL = 'frontpage'
-LOGIN_REDIRECT_URL ='myaccount'
+#LOGIN_REDIRECT_URL ='myaccount'
 
 # Application definition
 
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +46,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    #3rd party packages
+    'widget_tweaks',
+    
+    #apps
     'core',
     'userprofile',
     'store',

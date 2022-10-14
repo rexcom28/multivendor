@@ -1,0 +1,28 @@
+{% extends 'store/partials/modal_alert_base.html' %}
+
+
+
+
+{% block title_modal %}Add to Cart {{product.title}}{% endblock title_modal %}
+{% block body_modal %} this product belongs to you, are you sure, do you want to add to cart ?{% endblock body_modal %} 
+
+
+{% block normal_btn %}
+    <a id="add_to_cart" href="{% url 'add_to_cart' product.id %}" class="px-6
+    py-2.5
+    bg-teal-600
+    text-white
+    font-medium
+    text-xs
+    leading-tight
+    uppercase
+    rounded
+    shadow-md
+    hover:bg-teal-700 hover:shadow-lg
+    focus:bg-teal-700 focus:shadow-lg focus:outline-none focus:ring-0
+    active:bg-teal-800 active:shadow-lg
+    transition
+    duration-150
+    ease-in-out
+    ml-1">Add to cart</a>
+{% endblock normal_btn %}

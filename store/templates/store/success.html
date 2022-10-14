@@ -10,21 +10,19 @@
     <!--Used to make csrftoken appers in html template-->
     {{form.as_hidden}}
 
-    <div class="flex flex-col">
-        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div class="py-4 inline-block min-w-full sm:px-6 lg:px-8">
+    <div class="flex flex-col ">
+        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+          <div class="py-4 inline-block min-w-full sm:px-6 lg:px-8 rounded">
             <div class="overflow-hidden">
-              <table class="min-w-full text-center">
-                <thead class="border-b bg-teal-800">
+              <table class="table table-hover ">
+                <thead class="border-b bg-teal-600 ">
                   <tr>
-                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
-                      
-                        # orders
-                      
+                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">                      
+                        # orders                      
                     </th>
                     <th scope="col" class="text-sm font-medium text-white px-6 py-4">
-                        verified ? 
-                      </th>
+                        verified? 
+                    </th>
                     <th scope="col" class="text-sm font-medium text-white px-6 py-4">
                       Name
                     </th>
@@ -38,7 +36,7 @@
                         -
                     </th>
                   </tr>
-                </thead class="border-b">
+                </thead >
                 <tbody>
                     {% for order in orders %}        
                         
@@ -50,8 +48,7 @@
                                         </button>
                                     {% else %}
                                         {{order.payment_intent}}
-                                    {% endif %}
-                                    - {{order.id}}
+                                    {% endif %}                                    
                                 </td>
                                 <td class="{% if order.is_paid %}text-teal-600{% else %} {% endif %} text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                                     {% if order.is_paid %}
@@ -126,20 +123,61 @@
         });
     }
 
+    function loadOrder(event,id){
+        console.log(id)
+
+        fetch(`Orders/${id}/`, {
+            method: 'GET',
+            headers:{
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{csrf_token}}'
+            },
+            //credentials:'same-origin',
+            
+            
+        })
+        .then(function(response){
+            return response.json()
+        })
+       
+        .then(function(result){
+            
+            if(result.error){
+                console.log('1)',result.error.message)
+            }else{
+                console.log(result['order'][0])
+                data = result['order'][0]
+                
+                document.getElementById(`first_name ${id}`).value =data['first_name']                
+                document.getElementById(`last_name ${id}`).value =data['last_name']
+                document.getElementById(`address ${id}`).value=data['address']
+                document.getElementById(`zipcode ${id}`).value=data['zipcode']
+                document.getElementById(`city ${id}`).value=data['city']
+
+            }
+        })
+        .catch(function(error){
+            console.log('2)', error)
+        });
+
+    }
+
     function edit_order(event, id){
         event.preventDefault();
         
         
-        /*
+    
         let data = {
-            'first_name': form.getElementById('id_first_name').value,
-            'last_name' : form.getElementById('id_last_name').value,
-            'address'   : form.getElementById('id_address').value,
-            'zipcode'   : form.getElementById('id_zipcode').value,
-            'city'      : form.getElementById('id_city').value,
+            'first_name': document.getElementById(`first_name ${id}`).value,
+            'last_name' : document.getElementById(`last_name ${id}`).value,
+            'address'   : document.getElementById(`address ${id}`).value,
+            'zipcode'   : document.getElementById(`zipcode ${id}`).value,
+            'city'      : document.getElementById(`city ${id}`).value,
         }
         
         console.log('id', id, 'data', data)
+        
         fetch(`Orders/${id}/`, {
             method: 'POST',
             headers:{
@@ -164,7 +202,10 @@
         .catch(function(error){
             console.log('2)', error)
         });
-        */
+        closebtn = document.getElementById(`close${id}`)
+        closebtn.click()
+        setTimeout(function(){},1500)
+        location.reload();
         return false;
     }
 </script>
