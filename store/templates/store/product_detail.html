@@ -23,8 +23,9 @@
     {% if product.description %}
         <p class="mt-4 mb-4">{{product.description}}</p>
     {% endif %}
-    
-    
+        
+    <p class="mt-4 mb-4"> <a href="{% url 'category_detail' product.category.slug %}"> <strong>{{product.category}}</strong></a></p>
+
     {% if request.user == product.user %}
         <button onclick="check_add_to_cart(event)"  type="button" 
         class="px-6

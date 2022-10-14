@@ -81,8 +81,7 @@
         {% for category in categories %}
             
             <li>
-                <a
-                    class="
+                <a class="
                     dropdown-item
                     text-sm
                     py-2
@@ -96,9 +95,8 @@
                     hover:bg-gray-100
                     "
                     href="{% url 'category_detail' category.slug %}"
-                    >{{category.title}}</a
-                >
-                </li>
+                >{{category.title}}</a>
+            </li>
         {% endfor %}
         
     </ul>

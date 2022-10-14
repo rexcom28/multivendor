@@ -203,9 +203,9 @@ def category_detail(request, slug):
     })
 
 def product_detail(request, category_slug, slug):
-    print('product_detail')
+    
     product = get_object_or_404(Product, slug=slug, status=Product.ACTIVE) 
-    print(product.user)
+    
     return render(request, 'store/product_detail.html', {
         'product':product
     })

@@ -33,7 +33,7 @@ CART_SESSION_ID = 'cart'
 
 LOGIN_URL= 'login'
 LOGOUT_REDIRECT_URL = 'frontpage'
-#LOGIN_REDIRECT_URL ='myaccount'
+LOGIN_REDIRECT_URL ='/'
 
 # Application definition
 
