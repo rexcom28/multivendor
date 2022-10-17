@@ -10,9 +10,9 @@
     <!--Used to make csrftoken appers in html template-->
     {{form.as_hidden}}
 
-    <div class="flex flex-col ">
+    <div class="flex flex-col">
         <div class="overflow-x-auto sm:-mx-6 lg:-mx-8 ">
-          <div class="py-4 inline-block min-w-full sm:px-6 lg:px-8 rounded">
+          <div class="py-4 inline-block min-w-full sm:px-6 lg:px-8 ">
             <div class="overflow-hidden">
               <table class="table table-hover ">
                 <thead class="border-b bg-teal-600 ">
@@ -61,7 +61,7 @@
                                     {{order.first_name}} {{order.last_name}}
                                 </td>
                                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                    {{order.address}}, {{order.zipcode}}
+                                    {{order.address}}, {{order.zipcode}}, {{order.city}}
                                 </td>
                                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                                     ${{order.get_display_price}}
