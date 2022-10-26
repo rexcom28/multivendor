@@ -1,4 +1,5 @@
-import json 
+import json
+from requests import delete 
 import stripe
 from django.http import JsonResponse
 from django.conf import settings
@@ -15,15 +16,19 @@ from .cart import Cart
 
 #-------------Cart functions
 
+
+
 def add_to_cart(request, product_id):
     cart = Cart(request)
     cart.add(product_id)
     return redirect('cart_view')
 
+
+@login_required
 def success(request):
     form = OrderForm()
     orders = Order.objects.filter(created_by=request.user)
-    
+
     return render(request, 'store/success.html',{
         'form':form,
         'orders':orders
@@ -52,14 +57,17 @@ def verified(request):
         'orders':orders
     })
 
-
+def order_delete(request):
+    pass
+    
 @login_required
 def order_view(request, pk):
     
     order  = Order.objects.get(id=pk)    
     if request.method == 'POST':
         
-        if request.is_ajax():            
+        if request.is_ajax():    
+            print('is_ajax')        
             data = json.loads(request.body)
             
             order.first_name= data['first_name']
@@ -70,16 +78,24 @@ def order_view(request, pk):
             order.save()
             return  JsonResponse({'order':data})  
         else:    
-            
+            print('no is_ajax') 
             form = OrderForm(request.POST, instance=order)
         
             if form.is_valid():
                 form.save()
         return redirect ('success')
     else:
+        print('1',request)
         if request.is_ajax():
+            d = request.GET.get('del',False)
             res = {}
-            res = list(Order.objects.values().filter(id=pk))
+            print('2', d)
+            if d:
+                order = get_object_or_404(Order, id=pk)
+                if order:
+                    order.delete()                     
+            else:                               
+                res = list(Order.objects.values().filter(id=pk))
             return  JsonResponse({'order': res})
         form = OrderForm(instance=order)
     return render(request, 'store/OrderForm.html',{
@@ -96,7 +112,6 @@ def cart_view(request):
     return render(request, 'store/cart_view.html', {
         'cart':cart
     })
-
 
 @login_required#(login_url='/cart/checkout/')
 def checkout(request):

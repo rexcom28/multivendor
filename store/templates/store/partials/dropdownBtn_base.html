@@ -119,10 +119,11 @@
             w-full
             whitespace-nowrap
             bg-transparent
-            text-gray-700
-            hover:bg-gray-100
-          "
-          href="{% block A3_href %}{% endblock A3_href %}"
+            text-red-700
+            hover:bg-red-100"
+          
+            onclick="loadOrder(event,{{order.id}},true)"  
+            href="{% block A3_href %}{% endblock A3_href %}"
           >{% block A3 %}{% endblock A3 %}</a
         >
       </li>

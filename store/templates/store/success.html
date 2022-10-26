@@ -123,10 +123,15 @@
         });
     }
 
-    function loadOrder(event,id){
-        console.log(id)
-
-        fetch(`Orders/${id}/`, {
+    function loadOrder(event,id, del=false){
+        console.log('loadOrder', id, del)
+    
+        let url = `Orders/${id}`
+        if(del==true){
+            url +='/?del=True'
+        }
+        //fetch(`Orders/${id}/`, {
+        fetch(url, {
             method: 'GET',
             headers:{
                 'Content-Type': 'application/json',
@@ -142,7 +147,10 @@
         })
        
         .then(function(result){
-            
+            if(del==true){
+                location.reload();
+                return
+            }
             if(result.error){
                 console.log('1)',result.error.message)
             }else{
@@ -154,7 +162,7 @@
                 document.getElementById(`address ${id}`).value=data['address']
                 document.getElementById(`zipcode ${id}`).value=data['zipcode']
                 document.getElementById(`city ${id}`).value=data['city']
-
+                
             }
         })
         .catch(function(error){
@@ -176,7 +184,7 @@
             'city'      : document.getElementById(`city ${id}`).value,
         }
         
-        console.log('id', id, 'data', data)
+        console.log('edit_order', 'id', id, 'data', data)
         
         fetch(`Orders/${id}/`, {
             method: 'POST',
