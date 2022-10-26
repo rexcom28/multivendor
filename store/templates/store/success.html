@@ -10,29 +10,27 @@
     <!--Used to make csrftoken appers in html template-->
     {{form.as_hidden}}
 
-    <div class="flex flex-col">
+    <div class="flex flex-col">        
         <div class="overflow-x-auto sm:-mx-6 lg:-mx-8 ">
-          <div class="py-4 inline-block min-w-full sm:px-6 lg:px-8 ">
-            <div class="overflow-hidden">
-              <table class="table table-hover ">
-                <thead class="border-b bg-teal-600 ">
+            <table class="table">
+                <thead class="bg-teal-600">
                   <tr>
                     <th scope="col" class="text-sm font-medium text-white px-6 py-4">                      
                         # orders                      
                     </th>
-                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                    <th class="text-sm font-medium text-white px-6 py-4">
                         verified? 
                     </th>
-                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                    <th class="text-sm font-medium text-white px-6 py-4">
                       Name
                     </th>
-                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                    <th class="text-sm font-medium text-white px-6 py-4">
                       address
                     </th>
-                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                    <th class="text-sm font-medium text-white px-6 py-4">
                       paid amount
                     </th>
-                    <th scope="col" class="text-sm font-medium text-white px-6 py-4">
+                    <th class="text-sm font-medium text-white px-6 py-4">
                         -
                     </th>
                   </tr>
@@ -40,7 +38,7 @@
                 <tbody>
                     {% for order in orders %}        
                         
-                            <tr class="bg-white border-b ">
+                            <tr class="bg-white border-b">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {% if not order.is_paid %}
                                         <button onclick="verified(event, '{{order.payment_intent}}')" class="py-4 px-8 bg-teal-500 text-white hover:bg-teal-800 rounded-xl">
@@ -77,9 +75,7 @@
                                
                     {% endfor %}                                                     
                 </tbody>
-              </table>
-            </div>
-          </div>
+            </table>          
         </div>
     </div>
 

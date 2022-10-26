@@ -67,7 +67,7 @@ def order_view(request, pk):
     if request.method == 'POST':
         
         if request.is_ajax():    
-            print('is_ajax')        
+            print('is_ajax post ')        
             data = json.loads(request.body)
             
             order.first_name= data['first_name']
@@ -85,7 +85,7 @@ def order_view(request, pk):
                 form.save()
         return redirect ('success')
     else:
-        print('1',request)
+        print('1 GET request.is_ajax',request.is_ajax())
         if request.is_ajax():
             d = request.GET.get('del',False)
             res = {}
