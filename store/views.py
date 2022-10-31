@@ -12,54 +12,10 @@ from django.contrib.auth.decorators import login_required
 
 from .cart import Cart
 
+from .decorator import check_user_able_to_see_page
 
 
 #-------------Cart functions
-
-
-
-def add_to_cart(request, product_id):
-    cart = Cart(request)
-    cart.add(product_id)
-    return redirect('cart_view')
-
-
-@login_required
-def success(request):
-    form = OrderForm()
-    orders = Order.objects.filter(created_by=request.user)
-
-    return render(request, 'store/success.html',{
-        'form':form,
-        'orders':orders
-    })
-
-def verified(request):
-    orders = Order.objects.filter(created_by=request.user)
-    
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        
-        
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        response = stripe.PaymentIntent.retrieve(
-            data['payment_intent'],
-        )
-        
-        order = Order.objects.get(payment_intent=data['payment_intent'])
-        order.is_paid = True if response.status=='succeeded' else False
-        order.save()
-        return JsonResponse({'verified':response.status})
-    else:
-        form = OrderForm()
-    return render(request, 'store/success.html',{
-        'form':form,
-        'orders':orders
-    })
-
-def order_delete(request):
-    pass
-    
 @login_required
 def order_view(request, pk):
     
@@ -111,6 +67,62 @@ def cart_view(request):
     cart = Cart(request)
     return render(request, 'store/cart_view.html', {
         'cart':cart
+    })
+
+
+
+
+def add_to_cart(request, product_id):
+    cart = Cart(request)
+    cart.add(product_id)
+    return redirect('cart_view')
+
+
+@login_required
+def success(request):
+    form = OrderForm()
+    orders = Order.objects.filter(created_by=request.user)
+
+    return render(request, 'store/success.html',{
+        'form':form,
+        'orders':orders
+    })
+
+def verified(request):
+    orders = Order.objects.filter(created_by=request.user)
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        response = stripe.PaymentIntent.retrieve(
+            data['payment_intent'],
+        )
+        
+        order = Order.objects.get(payment_intent=data['payment_intent'])
+        order.is_paid = True if response.status=='succeeded' else False
+        order.save()
+        return JsonResponse({'verified':response.status})
+    else:
+        form = OrderForm()
+    return render(request, 'store/success.html',{
+        'form':form,
+        'orders':orders
+    })
+
+
+
+@login_required
+def re_order(request):
+    orders = Order.objects.filter(created_by=request.user)
+    if request.method == 'POST':
+        pass
+    else:    
+        form = OrderForm()
+    return render(request, 'store/success.html',{
+        'form':form,
+        'orders':orders
     })
 
 @login_required#(login_url='/cart/checkout/')
@@ -216,7 +228,9 @@ def category_detail(request, slug):
         'category':category,
         'products':products
     })
-
+    
+@login_required
+@check_user_able_to_see_page('mirones')
 def product_detail(request, category_slug, slug):
     
     product = get_object_or_404(Product, slug=slug, status=Product.ACTIVE) 
