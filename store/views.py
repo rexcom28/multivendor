@@ -25,7 +25,7 @@ def order_view(request, pk):
         if request.is_ajax():    
             print('is_ajax post ')        
             data = json.loads(request.body)
-            
+            print(data)
             order.first_name= data['first_name']
             order.last_name= data['last_name']
             order.address= data['address']
@@ -45,7 +45,7 @@ def order_view(request, pk):
         if request.is_ajax():
             d = request.GET.get('del',False)
             res = {}
-            print('2', d)
+            
             if d:
                 order = get_object_or_404(Order, id=int(pk))
                 if order:
@@ -68,9 +68,6 @@ def cart_view(request):
     return render(request, 'store/cart_view.html', {
         'cart':cart
     })
-
-
-
 
 def add_to_cart(request, product_id):
     cart = Cart(request)
@@ -111,18 +108,26 @@ def verified(request):
         'orders':orders
     })
 
-
-
 @login_required
 def re_order(request):
-    orders = Order.objects.filter(created_by=request.user)
+    
+    orders = {}
+    items = {}
     if request.method == 'POST':
-        pass
-    else:    
-        form = OrderForm()
-    return render(request, 'store/success.html',{
+        form = OrderForm(request.POST)
+        print('possssssssssssssssst')
+        
+    else:   
+        orderId = request.GET.get('oid', '')   
+        orders = Order.objects.get(id=orderId)
+        items = orders.items.all()
+        form = OrderForm(instance=orders)
+    #change template to a edit order 
+    
+    return render(request, 'store/OrderForm.html',{
         'form':form,
-        'orders':orders
+        #'orders':orders
+        'items':items
     })
 
 @login_required#(login_url='/cart/checkout/')

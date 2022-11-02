@@ -7,7 +7,7 @@
 {% block A1_href %}{% url 'order_view' order.id %} {% endblock A1_href %}
 {% block A1 %}Edit Order{% endblock A1 %}
 
-{% block A2_href %}#{% endblock A2_href %}
+{% block A2_href %}{% url 're_order' %}?oid={{order.id}}{% endblock A2_href %}
 {% block A2 %}Re Order {% endblock A2 %}
 
 {% block A3_href %}#{% endblock A3_href %}
