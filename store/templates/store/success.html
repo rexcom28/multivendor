@@ -92,7 +92,8 @@
     function verified(event, id){
         
         let data = {'payment_intent':id}
-        fetch('verified/',{
+        //fetch('verified/',{
+        fetch('{% url 'verified' %}',{            
             method: 'POST',
             headers:{
                 'Content-Type': 'application/json',
@@ -120,12 +121,15 @@
     }
 
     function loadOrder(event,id, del=false){
-        console.log('loadOrder', id, del)
-    
-        let url = `Orders/${id}`
+        
+        let url = `{% url 'order_view' 1234567890 %}`
+        
+        url = url.replace("1234567890",id)
+        
         if(del==true){
-            url +='/?del=True'
+            url +='?del=True'
         }
+        console.log(url)
         //fetch(`Orders/${id}/`, {
         fetch(url, {
             method: 'GET',
@@ -181,8 +185,13 @@
         }
         
         console.log('edit_order', 'id', id, 'data', data)
+
+        let url = `{% url 'order_view' 1234567890 %}`
         
-        fetch(`Orders/${id}/`, {
+        url = url.replace("1234567890",id)
+        
+        fetch(url, {
+        
             method: 'POST',
             headers:{
                 'Content-Type': 'application/json',

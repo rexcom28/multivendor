@@ -19,7 +19,7 @@ from .decorator import check_user_able_to_see_page
 @login_required
 def order_view(request, pk):
     
-    order  = Order.objects.get(id=pk)    
+    order  = Order.objects.get(id=int(pk))    
     if request.method == 'POST':
         
         if request.is_ajax():    
@@ -47,11 +47,11 @@ def order_view(request, pk):
             res = {}
             print('2', d)
             if d:
-                order = get_object_or_404(Order, id=pk)
+                order = get_object_or_404(Order, id=int(pk))
                 if order:
                     order.delete()                     
             else:                               
-                res = list(Order.objects.values().filter(id=pk))
+                res = list(Order.objects.values().filter(id=int(pk)))
             return  JsonResponse({'order': res})
         form = OrderForm(instance=order)
     return render(request, 'store/OrderForm.html',{
@@ -99,7 +99,7 @@ def verified(request):
         response = stripe.PaymentIntent.retrieve(
             data['payment_intent'],
         )
-        
+        print(response)
         order = Order.objects.get(payment_intent=data['payment_intent'])
         order.is_paid = True if response.status=='succeeded' else False
         order.save()
