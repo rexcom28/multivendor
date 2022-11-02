@@ -7,8 +7,91 @@
 
     <form action="." method="post">
         {% csrf_token %}
-        {{form.as_p}}
+        
+        <div class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            {{ form.username.errors }}
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            <p>{{form.username.help_text}}</p>            
+        </div>
+        
+        <div class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            {{ form.password1.errors }}
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            <p>{{form.password1.help_text}}</p>            
+        </div>
+       
+        <div class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            {{ form.password2.errors }}
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            <p>{{form.password2.help_text}}</p>            
+        </div>
+       
+        <div class="form-row">
+            {{ profile_form.user.errors }}
+            {{ profile_form.user }}
+        </div>
+        <div class="flex items-start mb-6">
+            {{ profile_form.is_vendor.errors }}
+            <div class="flex items-center h-5">
+                {{ profile_form.is_vendor }}
+            </div>
+            <div class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                {{ profile_form.is_vendor.label_tag }} 
+            </div>
+            
+        </div>
+        <div id="rfc_div" class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            {{ profile_form.RFC.errors }}                                        
+            {{ profile_form.RFC.label_tag }} {{ profile_form.RFC }}
+            <p>{{profile_form.RFC.help_text}}</p>
+        </div>
         <button type="submit" class="py-4 px-8 bg-teal-800 text-white">Sig up</button>
     </form>
-
 {% endblock content %}
+
+
+{% block scripts %}
+
+    <script>
+        
+        window.addEventListener('load', (event)=>{
+            if(!document.getElementById('id_is_vendor').checked)
+            {
+                rfc_div.style.display="none"
+            }else{
+                rfc_div.style.display="block"
+            }
+        })
+        
+        let id_is_vendor = document.getElementById('id_is_vendor').addEventListener('click',(e)=>{
+            
+            if(!document.getElementById('id_is_vendor').checked){
+                rfc_div.style.display="none"
+                id_RFC.required=false
+            }else{
+                id_RFC.required=true
+                rfc_div.style.display="block"
+            }
+            /*
+            let id_RFC = document.getElementById('id_RFC').type="text"
+            if(id_RFC.getAttribute('type')==="text")
+            {
+                console.log('yes')
+                id_RFC.type="hidden"
+                id_RFC.value=null
+            }else{
+                console.log('no')
+                id_RFC.type="text"
+                rfc_div.style.display="in-block"
+            }
+            */
+            
+
+        })
+        
+    </script>
+
+{% endblock scripts %}
