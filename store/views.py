@@ -111,23 +111,48 @@ def verified(request):
 @login_required
 def re_order(request):
     
-    orders = {}
+    
     items = {}
+    strip_items = []
     if request.method == 'POST':
-        form = OrderForm(request.POST)
-        print('possssssssssssssssst')
+        orders = Order.objects.get(id=request.POST['id'])
+        orderId=orders.id
+        items = orders.items.all()
+        form = OrderForm(request.POST, instance=orders)
+        #print('---------',order.id)
+        if form.is_valid():            
+            form.save()
+            return redirect('success')    
+        #print(f'{request.POST}possssssssssssssssst', form.is_valid())
+        
         
     else:   
-        orderId = request.GET.get('oid', '')   
+        orderId = request.GET.get('oid', '') 
         orders = Order.objects.get(id=orderId)
-        items = orders.items.all()
-        form = OrderForm(instance=orders)
+        #print(orders.id)
+        if orders.first_name and orders.last_name:            
+            items = orders.items.all()
+            for item in items:
+                strip_items.append({                    
+                    'price_data':{
+                        'currency':'usd',
+                        'product_data':{
+                            'name':item.product.title,
+                        },
+                        'unit_amount':item.price
+                    },
+                    'quantity':item.quantity
+                })
+            
+                
+        
+        form = OrderForm(instance=orders, initial={'id':orderId})
     #change template to a edit order 
     
     return render(request, 'store/OrderForm.html',{
-        'form':form,
-        #'orders':orders
-        'items':items
+        'form':form,        
+        'items':items,
+        'orderId':orderId
     })
 
 @login_required#(login_url='/cart/checkout/')

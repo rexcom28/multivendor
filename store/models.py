@@ -118,8 +118,9 @@ class Order(models.Model):
         
     def get_display_price(self):
         return self.paid_amount /100
-    # def __str__(self) -> str:
-    #     return f'Name: {self.first_name} Last Name: {self.last_name}    --- is paid ?: {self.is_paid}   --- id: {self.id}'
+    
+    def __str__(self):
+        return f'{self.id}'
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)

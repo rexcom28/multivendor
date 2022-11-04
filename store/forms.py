@@ -4,10 +4,12 @@ from django import forms
 from . models import Product, Order
 
 class OrderForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput)
     class Meta:
-        model= Order
-        fields = ('first_name', 'last_name', 'address', 'zipcode', 'city',)
-
+        model= Order        
+        fields = ('first_name', 'last_name', 'address', 'zipcode', 'city','id',)
+        
+        
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
