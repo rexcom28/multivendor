@@ -115,21 +115,35 @@ def re_order(request):
     items = {}
     strip_items = []
     if request.method == 'POST':
-        orders = Order.objects.get(id=request.POST['id'])
-        orderId=orders.id
-        items = orders.items.all()
-        form = OrderForm(request.POST, instance=orders)
-        #print('---------',order.id)
-        if form.is_valid():            
-            form.save()
+        if request.is_ajax:            
+            data = json.loads(request.body)
+            first_name , last_name, address,zipcode, city, orderId = data.values()
+            print(request.POST)
+            if orderId and first_name and last_name and address and zipcode and city :
+                form = OrderForm(data=data)
+                print(form.is_valid(),form.errors)
+                
+                return JsonResponse({
+                    'session':'session', 
+                    'order':'payment_intent', 
+                    'redirect':'/cart/success/'
+                })
+        else:   
+            #this section triggers if the function reOrder in orderForm.html 
+            #take off the event.preventDefault             
+            orders = Order.objects.get(id=request.POST['id'])            
+            orderId= orders.id
+            items  = orders.items.all()
+            form   = OrderForm(request.POST, instance=orders)
+            
+            if form.is_valid():            
+                form.save()
             return redirect('success')    
-        #print(f'{request.POST}possssssssssssssssst', form.is_valid())
-        
-        
+    
     else:   
         orderId = request.GET.get('oid', '') 
         orders = Order.objects.get(id=orderId)
-        #print(orders.id)
+        
         if orders.first_name and orders.last_name:            
             items = orders.items.all()
             for item in items:
@@ -143,9 +157,6 @@ def re_order(request):
                     },
                     'quantity':item.quantity
                 })
-            
-                
-        
         form = OrderForm(instance=orders, initial={'id':orderId})
     #change template to a edit order 
     

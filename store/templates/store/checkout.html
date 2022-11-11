@@ -72,7 +72,7 @@
 
             let stripe = Stripe('{{ pub_key }}');
             
-            fetch('/cart/checkout/', {
+            fetch(`{% url 'checkout' %}`, {
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json',

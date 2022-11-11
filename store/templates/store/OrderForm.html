@@ -4,6 +4,8 @@
 {% block title %}Order Edit {% endblock title %}
 
 {% block content %}
+
+
     <h1 class="mb-6 text-xl"> Order Edit {{orderId}} </h1>
 
     
@@ -18,13 +20,104 @@
         
     {% endif %}
         
-
-    <form action="." method="post">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit" class="py-4 px-8 bg-teal-800 text-white">Save</button>
-    </form>
-
+    <div id="errors" class="hidden my-3 px-4 py-4 bg-red-200 rounded-xl"></div>
+<form action="" method="post">
+    {{form.as_p}}
+    
+    <button type="submit" onclick="reOrder(event)" class="py-4 px-8 bg-teal-800 text-white">Save</button>
+</form>    
+    
 
     
 {% endblock content%}
+
+{% block scripts %}
+<script type="application/javascript" src="https://js.stripe.com/v3/"></script>
+<script>
+    function validate(first_name, last_name, address, zipcode, city){
+        let errors = [];
+
+        if(first_name == ''){
+            errors.push('The first name is missing.');
+        }
+        if(last_name == ''){            
+            errors.push('The last name is missing.');
+        }
+        if(address == ''){            
+            errors.push('The address is missing.');
+        }
+        if(zipcode == ''){            
+            errors.push('The zipcode is missing.');
+        }
+        if(city == ''){            
+            errors.push('The city is missing.');
+        }
+        
+        let html =''
+        
+        for(let i =0; i < errors.length; i++){
+            html += errors[i] + '<br>';
+        }
+
+        let errorElement = document.getElementById('errors');
+
+        if(errors.length){
+            errorElement.classList.remove('hidden');
+            errorElement.innerHTML = html;
+            return false;
+        }else{
+            errorElement.classList.add('hidden');
+            return true;
+        }
+    }
+    function reOrder(event){
+        event.preventDefault()
+        const first_name = document.getElementById('id_first_name').value;
+        const last_name  = document.getElementById('id_last_name').value;
+        const address    = document.getElementById('id_address').value;
+        const zipcode    = document.getElementById('id_zipcode').value;
+        const city       = document.getElementById('id_city').value
+        const oid        = document.getElementById('id_id').value
+        if(validate(first_name,last_name,address,zipcode,city) ){
+            let data = {
+                'first_name': first_name,
+                'last_name' : last_name,
+                'address'   : address,
+                'zipcode'   : zipcode,
+                'city'      : city,
+                'id'       : oid,
+            }
+            //let stripe = Stripe('{{ pub_key }}')
+            fetch(`{% url 're_order' %}`,{
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{csrf_token}}'
+                },
+                credentials:'same-origin',
+                body: JSON.stringify(data)
+            })
+            .then(function(response){
+                console.log(response)
+                return response.json()
+            })
+            //.then(function(session){
+            //    console.log(session)
+                //return stripe.redirectToCheckout({sessionId:session.session.id})
+            //})
+            .then(function(result){
+                console.log(result)
+                window.location.href=result.redirect
+                if(result.error){
+                    alert('1)',result.error.message)
+                }
+            })
+            .catch(function(error){
+                alert('2)', error)
+            });
+        }
+        return false
+    }
+</script>
+
+{% endblock scripts %}
