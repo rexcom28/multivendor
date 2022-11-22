@@ -9,7 +9,7 @@ from .models import Category, Product, Order, OrderItem
 from .forms import OrderForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-
+from django.urls import reverse
 from .cart import Cart
 
 from .decorator import check_user_able_to_see_page
@@ -247,6 +247,31 @@ def change_quantity(request, product_id):
     cart.add(product_id, quantity, True)
     
     return redirect('cart_view')
+
+def change_quantity_order(request):
+    oid = request.GET.get('oid', '')
+    action = request.GET.get('action', '')
+    item = request.GET.get('item', '')
+    
+    print(oid,'  ',item,' ',action)
+    orders = Order.objects.get(id=int(oid))
+    items = orders.items.all().filter(id=int(item))
+    
+    if orders :
+        oi = OrderItem.objects.get(id=int(item))        
+        print('oi', oi)
+        if action == 'increase':            
+            oi.quantity +=1
+        else:
+            oi.quantity -=1            
+        if oi.quantity==0:            
+            oi.delete()       
+        else:
+            oi.save()
+    url = reverse('re_order')
+    
+    url += f'?oid=51'
+    return redirect(url)
 
 #---------------------------------------------------
 def search(request):
