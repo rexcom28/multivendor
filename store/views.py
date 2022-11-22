@@ -250,28 +250,38 @@ def change_quantity(request, product_id):
 
 def change_quantity_order(request):
     oid = request.GET.get('oid', '')
-    action = request.GET.get('action', '')
     item = request.GET.get('item', '')
+    action = request.GET.get('action', '')
+    
     
     print(oid,'  ',item,' ',action)
-    orders = Order.objects.get(id=int(oid))
-    items = orders.items.all().filter(id=int(item))
+    order = Order.objects.get(id=int(oid))
+    items = order.items.all().filter(id=int(item))
     
-    if orders :
+    if order and items:
         oi = OrderItem.objects.get(id=int(item))        
         print('oi', oi)
         if action == 'increase':            
             oi.quantity +=1
         else:
             oi.quantity -=1            
-        if oi.quantity==0:            
-            oi.delete()       
+        if oi.quantity==0:
+            order.delete()
+                  
+            return redirect('success')
         else:
             oi.save()
-    url = reverse('re_order')
-    
-    url += f'?oid=51'
+            
+    url = reverse('re_order')    
+    url += f'?oid={oid}'
+    print(url)
     return redirect(url)
+
+def remove_from_re_order(request):
+    oid = request.GET.get('oid', '')
+    item = request.GET.get('item', '')
+    print(f'{oid}, {item}')
+    return redirect('success')
 
 #---------------------------------------------------
 def search(request):
