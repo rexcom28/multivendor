@@ -252,36 +252,47 @@ def change_quantity_order(request):
     oid = request.GET.get('oid', '')
     item = request.GET.get('item', '')
     action = request.GET.get('action', '')
-    
-    
-    print(oid,'  ',item,' ',action)
+    print(f'oid{oid}  item{item}  action {action}')
     order = Order.objects.get(id=int(oid))
-    items = order.items.all().filter(id=int(item))
-    
-    if order and items:
+    items = order.items.all().count()#filter(id=int(item))
+    print('items ', items)
+    if order:
         oi = OrderItem.objects.get(id=int(item))        
         print('oi', oi)
         if action == 'increase':            
             oi.quantity +=1
         else:
-            oi.quantity -=1            
-        if oi.quantity==0:
+            oi.quantity -=1  
+                      
+        if oi.quantity==0 and items==1:
             order.delete()
-                  
             return redirect('success')
+        if oi.quantity==0 and items >1:    
+            oi.delete()                  
+            
         else:
             oi.save()
             
     url = reverse('re_order')    
     url += f'?oid={oid}'
-    print(url)
+    
     return redirect(url)
 
 def remove_from_re_order(request):
     oid = request.GET.get('oid', '')
     item = request.GET.get('item', '')
-    print(f'{oid}, {item}')
-    return redirect('success')
+
+    order = Order.objects.get(id=int(oid))
+    items = order.items.all().count()
+    oi = OrderItem.objects.get(id=int(item))  
+    if order and oi:
+        
+        oi.delete()
+            
+    url = reverse('re_order')    
+    url += f'?oid={oid}'
+    
+    return redirect(url)
 
 #---------------------------------------------------
 def search(request):
