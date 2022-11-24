@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .cart import Cart
+from django.contrib import messages
 
 from .decorator import check_user_able_to_see_page
 
@@ -118,16 +119,47 @@ def re_order(request):
         if request.is_ajax:            
             data = json.loads(request.body)
             first_name , last_name, address,zipcode, city, orderId = data.values()
-            print(request.POST)
+            
             if orderId and first_name and last_name and address and zipcode and city :
-                form = OrderForm(data=data)
-                print(form.is_valid(),form.errors)
-                
-                return JsonResponse({
-                    'session':'session', 
-                    'order':'payment_intent', 
-                    'redirect':'/cart/success/'
-                })
+                Instance = Order.objects.get(id=orderId)
+                form = OrderForm(data=data, instance = Instance )
+                total_price = 0
+                if form.is_valid():
+                    for item in  Instance.items.all():
+                        print('item.product: ',item.product)
+                        print('item.price * quantity',item.product.price * item.quantity)
+                        total_price += item.product.price * item.quantity
+                        strip_items.append({
+                            'price_data':{
+                                'currency':'usd',
+                                'product_data':{
+                                    'name': item.product.title,                                    
+                                },
+                                'unit_amount': item.product.price
+                            },
+                            'quantity':item.quantity
+                        })
+                        
+                if form.is_valid():  
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
+                    session = stripe.checkout.Session.create(
+                    payment_method_types=['card'],
+                    line_items=strip_items,
+                    mode='payment',
+                    success_url=f'{settings.WEB_SITE_URL}cart/success/',
+                    cancel_url =f'{settings.WEB_SITE_URL}cart/success/'
+                    
+                    )
+                    payment_intent = session.payment_intent
+                    form.instance.payment_intent = payment_intent
+                    form.instance.paid_amount = total_price
+                    form.save()
+                    
+            return JsonResponse({
+                'session':session, 
+                'order':payment_intent, 
+                #'redirect':'/cart/success/'
+            })
         else:   
             #this section triggers if the function reOrder in orderForm.html 
             #take off the event.preventDefault             
@@ -135,7 +167,7 @@ def re_order(request):
             orderId= orders.id
             items  = orders.items.all()
             form   = OrderForm(request.POST, instance=orders)
-            
+            print('2)')
             if form.is_valid():            
                 form.save()
             return redirect('success')    
@@ -163,7 +195,8 @@ def re_order(request):
     return render(request, 'store/OrderForm.html',{
         'form':form,        
         'items':items,
-        'orderId':orderId
+        'orderId':orderId,
+        'pub_key': settings.STRIPE_PUB_KEY
     })
 
 @login_required#(login_url='/cart/checkout/')
@@ -252,13 +285,13 @@ def change_quantity_order(request):
     oid = request.GET.get('oid', '')
     item = request.GET.get('item', '')
     action = request.GET.get('action', '')
-    print(f'oid{oid}  item{item}  action {action}')
+    
     order = Order.objects.get(id=int(oid))
     items = order.items.all().count()#filter(id=int(item))
-    print('items ', items)
+    
     if order:
         oi = OrderItem.objects.get(id=int(item))        
-        print('oi', oi)
+        
         if action == 'increase':            
             oi.quantity +=1
         else:
@@ -285,10 +318,16 @@ def remove_from_re_order(request):
     order = Order.objects.get(id=int(oid))
     items = order.items.all().count()
     oi = OrderItem.objects.get(id=int(item))  
+    
     if order and oi:
+        if items == 1:
+            order.delete()
+            messages.add_message(request, messages.INFO, 'Order deleted !')
+            return redirect ('success')
+        else:
+            messages.add_message(request, messages.INFO, 'Item deleted !')
+            oi.delete()            
         
-        oi.delete()
-            
     url = reverse('re_order')    
     url += f'?oid={oid}'
     
