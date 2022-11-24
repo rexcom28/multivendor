@@ -97,7 +97,7 @@ def verified(request):
         response = stripe.PaymentIntent.retrieve(
             data['payment_intent'],
         )
-        print(response)
+        #print(response)
         order = Order.objects.get(payment_intent=data['payment_intent'])
         order.is_paid = True if response.status=='succeeded' else False
         order.save()
@@ -108,6 +108,19 @@ def verified(request):
         'form':form,
         'orders':orders
     })
+
+def verify_internal(request):
+    oid = request.GET.get('oid', '')    
+    order = Order.objects.get(id=oid)
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    response = stripe.PaymentIntent.retrieve(
+        order.payment_intent,
+    )
+    print('asqui mero')
+    
+    order.is_paid = True if response.status=='succeeded' else False
+    order.save()
+    return redirect('success')
 
 @login_required
 def re_order(request):
@@ -146,13 +159,14 @@ def re_order(request):
                     payment_method_types=['card'],
                     line_items=strip_items,
                     mode='payment',
-                    success_url=f'{settings.WEB_SITE_URL}cart/success/',
+                    success_url=f'{settings.WEB_SITE_URL}cart/success/reorder/verify_internal/?oid={orderId}',
                     cancel_url =f'{settings.WEB_SITE_URL}cart/success/'
                     
                     )
                     payment_intent = session.payment_intent
                     form.instance.payment_intent = payment_intent
                     form.instance.paid_amount = total_price
+
                     form.save()
                     
             return JsonResponse({

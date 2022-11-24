@@ -9,6 +9,7 @@ urlpatterns =[
     path('cart/success/reorder/', views.re_order, name ='re_order'),
     path('cart/success/reorder/item/', views.change_quantity_order, name ='re_order_item'),
     path('cart/success/reorder/delete/', views.remove_from_re_order, name ='re_order_remove'),
+    path('cart/success/reorder/verify_internal/', views.verify_internal, name ='verify_internal'),
     
     
     
