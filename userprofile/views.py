@@ -28,9 +28,11 @@ def vendor_detail(request, pk):
 def my_store(request):
     products = request.user.products.exclude(status=Product.DELETED)
     order_items = OrderItem.objects.filter(product__user=request.user)
+    discounts = Discount.objects.filter(created_by=request.user)
     return render(request, 'userprofile/my_store.html', {
         'products':products,
-        'order_items':order_items
+        'order_items':order_items,
+        'discounts':discounts,
     })
 
 @login_required

@@ -84,4 +84,11 @@
         <p class="mt-6 py-4 px-8 bg-gray-200">You don't have any products yet</p>
     {% endif %}
     
+<hr>
+<br>
+
+<a href="{% url 'discount_view' %}" class="mt-6 inline-block py-4 px-8 bg-teal-500 text-white">Add Discount code</a>
+{% include 'userprofile/inventory/partial_discount.html' %}
+<br>
+
 {% endblock content %}
