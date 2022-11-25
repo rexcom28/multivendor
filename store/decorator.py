@@ -28,5 +28,4 @@ def is_vendor():
             messages.add_message(request, messages.WARNING, 'You are not a vendor !')
             return redirect('frontpage')
         return wrapper
-
     return decorator

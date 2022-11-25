@@ -47,12 +47,27 @@ def my_store_order_detail(request, pk):
 def discount_view(request):
     
     if request.method == 'POST':
-        form = DiscountForm(data=request.POST)
+        code_name = request.POST['code_name']        
+        
+        try:
+            obj = Discount.objects.get(code_name=code_name)
+        except:
+            obj = None
+            
+        if obj:
+            form = DiscountForm(data=request.POST, instance=obj )
+        else:            
+            form = DiscountForm(data=request.POST)
         if form.is_valid():
             form.save()
-            return redirect('discount_view')
+        return redirect('discount_view')
     else:
-        form = DiscountForm(initial={'created_by':request.user})
+        id = request.GET.get('id', None)
+        if id:
+            discount = Discount.objects.get(id=id)
+            form = DiscountForm(instance=discount)
+        else:    
+            form = DiscountForm(initial={'created_by':request.user})
         
     discounts = Discount.objects.filter(created_by=request.user)
     return render(request, 'userprofile/inventory/discount.html', {
