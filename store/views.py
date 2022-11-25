@@ -90,14 +90,12 @@ def verified(request):
     orders = Order.objects.filter(created_by=request.user)
     
     if request.method == 'POST':
-        data = json.loads(request.body)
-        
-        
+        data = json.loads(request.body)                
         stripe.api_key = settings.STRIPE_SECRET_KEY
         response = stripe.PaymentIntent.retrieve(
             data['payment_intent'],
         )
-        #print(response)
+        
         order = Order.objects.get(payment_intent=data['payment_intent'])
         order.is_paid = True if response.status=='succeeded' else False
         order.save()
@@ -116,7 +114,7 @@ def verify_internal(request):
     response = stripe.PaymentIntent.retrieve(
         order.payment_intent,
     )
-    print('asqui mero')
+   
     
     order.is_paid = True if response.status=='succeeded' else False
     order.save()
@@ -138,9 +136,7 @@ def re_order(request):
                 form = OrderForm(data=data, instance = Instance )
                 total_price = 0
                 if form.is_valid():
-                    for item in  Instance.items.all():
-                        print('item.product: ',item.product)
-                        print('item.price * quantity',item.product.price * item.quantity)
+                    for item in  Instance.items.all():                        
                         total_price += item.product.price * item.quantity
                         strip_items.append({
                             'price_data':{

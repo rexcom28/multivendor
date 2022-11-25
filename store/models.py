@@ -1,7 +1,5 @@
 
 
-
-from wsgiref.validate import validator
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -11,6 +9,23 @@ from django.template.defaultfilters import slugify
 from io import BytesIO
 from PIL import Image
 from .validators import validate_file_extension, valid_ext_dict
+
+
+class Discount(models.Model):
+    created_by = models.ForeignKey(User, related_name='discounts', on_delete=models.CASCADE)    
+    code_name    = models.CharField(max_length=35, unique=True)
+    desc    = models.TextField()
+    stock   = models.IntegerField()
+    discount_percent = models.IntegerField()
+    active  = models.BooleanField(default=False)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateField(auto_now=True)
+    #deleted_at = models.DateField(blank=True)
+    
+    def __str__(self):
+        return f'Created: {self.created_by}   -Code:{self.code_name}'
+
+
 
 class Category(models.Model):
     
@@ -49,7 +64,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=ACTIVE)
-    
+    discount = models.ForeignKey(Discount, related_name='discount_id',on_delete=models.DO_NOTHING, null=True, blank=True)
     class Meta:
         ordering = ('-created_at', )
     
@@ -133,3 +148,28 @@ class OrderItem(models.Model):
     
     def get_display_price(self):
         return self.price /100
+
+
+class Product_Inventory(models.Model):
+    product_id  = models.ForeignKey(Product, related_name='product_inv', on_delete=models.CASCADE)
+    
+    quantity    = models.IntegerField()
+    created_at  = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateField(auto_now=True)
+    #deleted_at = models.DateField(blank=True)
+    # class Meta:        
+    #     abstract =True
+
+#this must be created with signal in orders
+class Payment_Detail(models.Model):
+    order_id    = models.ForeignKey(Order, related_name='payment_detail', on_delete=models.CASCADE)
+    amount      = models.IntegerField()
+    #provider can be another class with provider list or can be pyment type  
+    provider    = models.CharField(max_length=35,blank=True)
+    status      = models.CharField(max_length=10)
+    created_at  = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateField(auto_now=True)
+
+    # class Meta:
+    #     abstract=True
+

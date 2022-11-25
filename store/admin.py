@@ -1,7 +1,19 @@
 from django.contrib import admin
-from .models import Category, Product, Order, OrderItem
+from .models import (
+    Category, 
+    Product, 
+    Order, 
+    OrderItem, 
+    Discount, 
+    Product_Inventory, 
+    Payment_Detail,
+)
 from django.conf import settings
 import stripe
+
+
+
+
 
 @admin.action(description='Verified payment')
 def verified_payment(modeladmin,request,queryset):
@@ -31,4 +43,6 @@ admin.site.register(Product)
 
 admin.site.register(Order,OrderAdmin)
 admin.site.register(OrderItem)
-
+admin.site.register(Discount)
+admin.site.register(Product_Inventory)
+admin.site.register(Payment_Detail)

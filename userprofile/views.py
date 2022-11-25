@@ -8,9 +8,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 from . models import Userprofile
 from .forms import UserEditForm, ProfileForm
+from store.forms import DiscountForm
+from store.models import Discount
 
 from store.forms import ProductForm
 from store.models import Product, OrderItem, Order
+from store.decorator import is_vendor
+
 
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
@@ -37,9 +41,30 @@ def my_store_order_detail(request, pk):
         'order':order
     })
 
+
+@login_required
+@is_vendor()
+def discount_view(request):
+    
+    if request.method == 'POST':
+        form = DiscountForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('discount_view')
+    else:
+        form = DiscountForm(initial={'created_by':request.user})
+        
+    discounts = Discount.objects.filter(created_by=request.user)
+    return render(request, 'userprofile/inventory/discount.html', {
+        'form':form,
+        'discounts':discounts
+    })
+    
+    
+
 @login_required
 def add_product(request):
-    print(',m', request.method )
+    
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         print(form.is_valid)

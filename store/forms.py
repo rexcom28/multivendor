@@ -1,7 +1,7 @@
 
 
 from django import forms
-from . models import Product, Order
+from . models import Product, Order, Discount
 
 class OrderForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput)
@@ -11,9 +11,10 @@ class OrderForm(forms.ModelForm):
         
         
 class ProductForm(forms.ModelForm):
+    
     class Meta:
         model = Product
-        fields = ('category', 'title', 'description', 'price', 'image', 'status',)
+        fields = ('category', 'title', 'description', 'price', 'image', 'status','discount',)
         widgets = {
             'category': forms.Select(attrs={
                 'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
@@ -35,5 +36,28 @@ class ProductForm(forms.ModelForm):
             'status': forms.Select(attrs={
                 'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
             }),
-            
+            'discount': forms.Select(attrs={
+                'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
+            }),
+        }
+
+class DiscountForm(forms.ModelForm):
+    class Meta:
+        model = Discount
+        exclude = ('created_at','modified_at',)
+        widgets= {
+            'created_by':forms.HiddenInput(),
+            'code_name': forms.TextInput(attrs={
+                'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
+            }),
+            'desc': forms.Textarea(attrs={
+                'rows':3,
+                'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
+            }),
+            'stock': forms.NumberInput(attrs={
+                'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
+            }),
+            'discount_percent': forms.NumberInput(attrs={
+                'class': 'w-full mb-2 px-2 py-4 border border-gray-200'
+            }),
         }
