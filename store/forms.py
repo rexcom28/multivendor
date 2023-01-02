@@ -7,7 +7,15 @@ class OrderForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput)
     class Meta:
         model= Order        
-        fields = ('first_name', 'last_name', 'address', 'zipcode', 'city','id',)
+        fields = (
+            'first_name', 
+            'last_name', 
+            'address', 
+            'zipcode', 
+            'city',
+            'id',
+            'discount_code',
+        )
         
         
 class ProductForm(forms.ModelForm):
@@ -42,10 +50,12 @@ class ProductForm(forms.ModelForm):
         }
 
 class DiscountForm(forms.ModelForm):
+    id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     class Meta:
         model = Discount
         exclude = ('created_at','modified_at',)
         widgets= {
+            
             'created_by':forms.HiddenInput(),
             'code_name': forms.TextInput(attrs={
                 'class': 'w-full mb-2 px-2 py-4 border border-gray-200'

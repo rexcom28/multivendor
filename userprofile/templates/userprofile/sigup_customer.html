@@ -1,0 +1,280 @@
+{% extends 'core/base.html' %}
+{% block title %} Customer signup{% endblock title %}
+
+{% block header %}
+<div class="d-flex justify-content-center align-items-center py-2">
+    <div class="row">
+        <div <div class="col-12">
+            <h1><strong>Crear Cliente:</strong></h1>
+        </div>
+        
+    </div><br>
+    <div class="row">
+        <div <div class="col-12">
+            <small>si lo desea, para mejorar la experiencia de compra dar de alta<strong> Información de envío</strong></small> 
+        </div>            
+    </div>            
+</div>
+{% endblock header %}
+
+{% block content2 %}
+
+    <div style="min-height: 500px" class="row d-flex justify-content-center align-items-center h-100 mb-10">
+               
+        <div class="col-12 col-md-9 col-lg-7 col-xl-7">
+            <div style="border-radius: 15px;">
+                <form id="signupForm" action="." method="post">
+                    {% csrf_token %}
+                    <div class="accordion" id="accordionExample">
+                        <!--first accordion-->
+                        <div class="accordion-item bg-white border border-gray-200">
+                            <h2 class="accordion-header mb-0" id="headingOne">
+                                <button class="
+                                accordion-button
+                                relative
+                                flex
+                                items-center
+                                w-full
+                                py-4
+                                px-5
+                                text-base text-gray-800 text-left
+                                bg-white
+                                border-0
+                                rounded-none
+                                transition
+                                focus:outline-none
+                                " type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true"
+                                aria-controls="collapseOne">
+                                Información de Usuario
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body py-4 px-5">
+                                    <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                        {{ form.username.errors }}
+                                        {{ form.username.label_tag }}
+                                        {{ form.username }}
+                                        <p>{{form.username.help_text}}</p>
+                                    </div>
+                                    <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                        {{ form.last_name.errors }}
+                                        {{ form.last_name.label_tag }}
+                                        {{ form.last_name }}
+                                        <p>{{form.last_name.help_text}}</p>
+                                    </div>
+            
+                                    <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                        {{ form.first_name.errors }}
+                                        {{ form.first_name.label_tag }}
+                                        {{ form.first_name }}
+                                        <p>{{form.first_name.help_text}}</p>
+                                    </div>
+            
+                                    <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                        {{ form.email.errors }}
+                                        {{ form.email.label_tag }}
+                                        {{ form.email }}
+                                        <p>{{form.email.help_text}}</p>
+                                    </div>
+                                    <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                        {{ form.password1.errors }}
+                                        {{ form.password1.label_tag }}
+                                        {{ form.password1 }}
+                                        <p>{{form.password1.help_text}}</p>
+                                    </div>
+                                    
+                                    <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-500 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                        {{ form.password2.errors }}
+                                        {{ form.password2.label_tag }}
+                                        {{ form.password2 }}
+                                        <p>{{form.password2.help_text}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!--second accordion-->
+                        <div class="accordion-item bg-white border border-gray-200">
+                            <h2 class="accordion-header mb-0" id="headingTwo">
+                                <button class="
+                                accordion-button
+                                collapsed
+                                relative
+                                flex
+                                items-center
+                                w-full
+                                py-4
+                                px-5
+                                text-base text-gray-800 text-left
+                                bg-white
+                                border-0
+                                rounded-none
+                                transition
+                                focus:outline-none
+                                " type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false"
+                                aria-controls="collapseTwo">
+                                Información de envío
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body py-4 px-5">
+                                    <div class="row">
+                                        <div class="col-md-5 mb-2 pb-2">
+                                            <div class="mb-4 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.city.errors }}
+                                                {{ customer_form.city.label_tag }}
+                                                {{ customer_form.city }}
+                                                <p>{{customer_form.city.help_text}}</p>                            
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-7 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.country.errors }}
+                                                {{ customer_form.country.label_tag }}
+                                                {{ customer_form.country }}
+                                                <p>{{customer_form.country.help_text}}</p>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.postal_code.errors }}
+                                                {{ customer_form.postal_code.label_tag }}
+                                                {{ customer_form.postal_code }}
+                                                <p>{{customer_form.postal_code.help_text}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.state.errors }}
+                                                {{ customer_form.state.label_tag }}
+                                                {{ customer_form.state }}
+                                                <p>{{customer_form.state.help_text}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.phone.errors }}
+                                                {{ customer_form.phone.label_tag }}
+                                                {{ customer_form.phone }}
+                                                <p>{{customer_form.phone.help_text}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.line1.errors }}
+                                                {{ customer_form.line1.label_tag }}
+                                                {{ customer_form.line1 }}
+                                                <p>{{customer_form.line1.help_text}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.line2.errors }}
+                                                {{ customer_form.line2.label_tag }}
+                                                {{ customer_form.line2 }}
+                                                <p>{{customer_form.line2.help_text}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-12 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.email2.errors }}
+                                                {{ customer_form.email2.label_tag }}
+                                                {{ customer_form.email2 }}
+                                                <p>{{customer_form.email2.help_text}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mb-2 pb-2">
+                                            <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                                                {{ customer_form.name.errors }}
+                                                {{ customer_form.name.label_tag }}
+                                                {{ customer_form.name }}
+                                                <p>{{customer_form.name.help_text}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <!--third accordion-->
+                        <div class="accordion-item bg-white border border-gray-200">
+                            <h2 class="accordion-header mb-0" id="headingThree">
+                                <button class="
+                                accordion-button
+                                collapsed
+                                relative
+                                flex
+                                items-center
+                                w-full
+                                py-4
+                                px-5
+                                text-base text-gray-800 text-left
+                                bg-white
+                                border-0
+                                rounded-none
+                                transition
+                                focus:outline-none
+                                " type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false"
+                                aria-controls="collapseThree">
+                                Notas:
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body py-4 px-5">
+                                <strong>Importante:</strong>
+                                -La información de email, nombres y apellidos si seran guardados en nuestra base de datos. 
+                                <br>
+                                -La información de contacto y de envío 
+                                no se guardaran en nustra base de datos, sus datos estaran protegidos
+                                por el procesdor de pagos <code>stripe.com</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <div class="">
+                                <button id="btnsubmit" onclick="btn_submit(event)" type="submit" class="py-2 px-8 bg-teal-800 text-white rounded">Sig up</button>
+                            </div>
+                        </div>
+                    </div>                    
+                </form>
+            </div>
+        </div>
+        {% include 'userprofile/partials/form_messages.html' %} 
+    </div>
+    
+{% endblock content2 %}
+
+{% block scripts %}
+<script>
+    const full_name = document.querySelectorAll('.my_custom_selector')
+    full_name.forEach(full=>{
+        full.addEventListener('change',(event)=>{
+            id_name.value= `${id_first_name.value} ${id_last_name.value}`
+            id_email2.value= `${id_email.value}`
+        })
+        full.addEventListener('focusout',(evnet)=>{
+            id_name.value= `${id_first_name.value} ${id_last_name.value}`
+            id_email2.value= `${id_email.value}`
+        })
+
+    })
+    function btn_submit(event){
+        event.preventDefault();
+        signupForm.submit()
+    }
+
+</script>
+{% endblock scripts %}
+    

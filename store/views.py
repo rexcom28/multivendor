@@ -12,9 +12,9 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .cart import Cart
 from django.contrib import messages
-
-from .decorator import check_user_able_to_see_page
-
+from userprofile.api_stripe import retrive_customer
+from .decorator import check_user_able_to_see_page,verify_customer
+from .utils import check_code_availabe
 
 #-------------Cart functions
 @login_required
@@ -70,17 +70,19 @@ def cart_view(request):
         'cart':cart
     })
 
+
+@login_required
+@verify_customer()
 def add_to_cart(request, product_id):
     cart = Cart(request)
     cart.add(product_id)
     return redirect('cart_view')
 
-
 @login_required
+@verify_customer()
 def success(request):
     form = OrderForm()
     orders = Order.objects.filter(created_by=request.user)
-
     return render(request, 'store/success.html',{
         'form':form,
         'orders':orders
@@ -121,9 +123,8 @@ def verify_internal(request):
     return redirect('success')
 
 @login_required
+@verify_customer()
 def re_order(request):
-    
-    
     items = {}
     strip_items = []
     if request.method == 'POST':
@@ -156,8 +157,7 @@ def re_order(request):
                     line_items=strip_items,
                     mode='payment',
                     success_url=f'{settings.WEB_SITE_URL}cart/success/reorder/verify_internal/?oid={orderId}',
-                    cancel_url =f'{settings.WEB_SITE_URL}cart/success/'
-                    
+                    cancel_url =f'{settings.WEB_SITE_URL}cart/success/'                    
                     )
                     payment_intent = session.payment_intent
                     form.instance.payment_intent = payment_intent
@@ -209,21 +209,21 @@ def re_order(request):
         'pub_key': settings.STRIPE_PUB_KEY
     })
 
+
 @login_required#(login_url='/cart/checkout/')
+@verify_customer()
 def checkout(request):
     cart = Cart(request)
     if cart.get_total_cost() == 0:
-        return redirect('cart_view')
-    
+        return redirect('cart_view')    
     if request.method == 'POST':
         data = json.loads(request.body)
-        first_name , last_name, address,zipcode, city = data.values()        
-        
+        first_name , last_name, address,zipcode, city, discount_code = data.values()     
         if first_name and last_name and address and zipcode and city :
             form = OrderForm(request.POST)
+            
             total_price =0
             items = []
-        
             for item in cart:
                 product= item['product']
                 total_price += product.price * int(item['quantity'])
@@ -237,8 +237,12 @@ def checkout(request):
                     },
                     'quantity':item['quantity']
                 })
-            
+            if discount_code:
+                check_code_availabe(discount_code, items)
             stripe.api_key = settings.STRIPE_SECRET_KEY
+            session=''
+            payment_intent=''
+            '''
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=items,
@@ -271,11 +275,24 @@ def checkout(request):
                 item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
             
             cart.clear()    
-        
+            '''
             return JsonResponse({'session':session, 'order':payment_intent}) #redirect('myaccount')
  
-    else:    
-        form = OrderForm()
+    else:
+        cus = request.user
+        init ={}
+        if cus.customer.stripe_cus_id!='':
+            customer, error= retrive_customer(cus.customer.stripe_cus_id)            
+            init={
+                'first_name':customer['name'],
+                'address':customer['line1'],
+                'zipcode':customer['postal_code'],
+                'city':customer['city']
+            }
+            if error!='':
+                messages.error(request,error)
+
+        form = OrderForm(initial=init)
     return render(request, 'store/checkout.html', {
         'cart':cart,
         'form':form,
@@ -365,15 +382,11 @@ def category_detail(request, slug):
         'products':products
     })
     
-@login_required
-@check_user_able_to_see_page('mirones')
+#@login_required
+#@check_user_able_to_see_page('mirones')
+#@verify_customer
 def product_detail(request, category_slug, slug):
-    
     product = get_object_or_404(Product, slug=slug, status=Product.ACTIVE) 
-    
     return render(request, 'store/product_detail.html', {
         'product':product
     })
-    
-    
-    

@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<form id="signupForm" action="." method="post">
+  {% csrf_token %}
+  {{form.as_p}}
+  {{customer_form.as_p}}
+  <input type="hidden" name="next" value="{{ next }}">
+  <button id="btnsubmit" onclick="btn_submit(event)" type="submit" class="py-2 px-8 bg-teal-800 text-white rounded">Save</button>
+</form>
+
+{% endblock content %}
+
+
+{% block scripts %}
+  <script>
+    const full_name = document.querySelectorAll('.my_custom_selector')
+    full_name.forEach(full=>{
+        full.addEventListener('change',(event)=>{
+            id_name.value= `${id_first_name.value} ${id_last_name.value}`
+            id_email2.value= `${id_email.value}`
+        })
+        full.addEventListener('focusout',(evnet)=>{
+            id_name.value= `${id_first_name.value} ${id_last_name.value}`
+            id_email2.value= `${id_email.value}`
+        })
+
+    })
+  </script>
+{% endblock scripts %}
+  

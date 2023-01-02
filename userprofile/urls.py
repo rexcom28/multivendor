@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     path('signup/', views.sigup, name='signup'),
+    path('customer_signup/', views.customer_sigup, name='customer_signup'),
     path('login/', auth_views.LoginView.as_view(template_name='userprofile/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('myaccount/', views.myaccount, name='myaccount'),
@@ -15,5 +16,7 @@ urlpatterns = [
     path('my-store/delete-product/<int:pk>/', views.delete_product, name='delete_product'),    
     path('vendors/<int:pk>/', views.vendor_detail, name='vendor_detail'),    
     path('discount/', views.discount_view, name='discount_view'),
-    
+    path('check_code_name/', views.check_code_name, name='check_code_name'),
+    path('customer/update/<str:pk>/', views.CustomerUpdateView.as_view(), name='stripe_CustomerUpdateView'),
+    path('customer/create/<str:pk>/',views.create_customer_already_signup.as_view(),name='create_customer_already_signup'),
 ]

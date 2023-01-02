@@ -1,7 +1,7 @@
 import imp
 from django.shortcuts import render
 from store.models import Product
-
+from store.decorator import verify_customer
 
 def frontpage(request):
     products = Product.objects.filter(status=Product.ACTIVE)[0:6]

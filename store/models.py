@@ -16,6 +16,7 @@ class Discount(models.Model):
     code_name    = models.CharField(max_length=35, unique=True)
     desc    = models.TextField()
     stock   = models.IntegerField()
+    times_redeemed= models.IntegerField(editable=False,blank=True,null=False,default=0)
     discount_percent = models.IntegerField()
     active  = models.BooleanField(default=False)
     created_at  = models.DateTimeField(auto_now_add=True)
@@ -115,7 +116,7 @@ class Product(models.Model):
         return thumbnail
     
     
-    
+
 class Order(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -125,7 +126,7 @@ class Order(models.Model):
     paid_amount = models.IntegerField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
     payment_intent = models.CharField(max_length=255)
-    
+    discount_code = models.CharField(max_length=35, null=True, blank=True)
     created_by = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:

@@ -1,23 +1,89 @@
 {% extends 'core/base.html' %}
-
+{% load widget_tweaks %}
 
 {% block title %}Checkout {% endblock title %}
 
 {% block content %}
     <h1 class="mb-6 text-xl"> Checkout </h1>
-
     <h2 class="text-xl text-gray-500">Total cost: ${{ cart.get_total_cost }}</h2>
-
+    <form action="." method="post">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="form-group mb-3">
+                {% render_field form.first_name.label %}
+                {% render_field form.first_name class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+            </div>
     
-    {{form.as_p}}
-    <div id="errors" class="hidden my-3 px-4 py-4 bg-red-200 rounded-xl"></div>
-    <button class="mt-3 inline-block px-8 py-4 bg-teal-500 text-white rounded-xl" onclick="buy(event)">Checkout</button>    
+            <div class="form-group mb-3">
+                {% render_field form.last_name.label %}
+                {% render_field form.last_name class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+            </div>
+    
+            <div class="form-group mb-3">
+                {% render_field form.address.label %}
+                {% render_field form.address class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+            </div>
+    
+            <div class="form-group mb-3">
+                {% render_field form.zipcode.label %}
+                {% render_field form.zipcode class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+            </div>
+    
+            <div class="form-group mb-3">
+                {% render_field form.city.label %}
+                {% render_field form.city class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+            </div>
+            
+            <div class="form-group mb-3">
+                {% render_field form.discount_code.label %}
+                {% render_field form.discount_code class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                <label for="id_discount_code" id="label_alert"></label>
+            </div>
+
+            {% render_field form.id  %}
+            
+            <div id="errors" class="hidden my-3 px-4 py-4 bg-red-200 rounded-xl"></div>
+            <div width="10%">
+                <button class="mt-3 inline-block px-8 py-4 bg-teal-500 text-white rounded-xl" onclick="buy(event)">Checkout</button>
+            </div>
+            
+        </div>        
+    </form>
+
 {% endblock content %}
 
 
 {% block scripts %}
 <script type="application/javascript" src="https://js.stripe.com/v3/"></script>
+
 <script >
+
+    id_discount_code.addEventListener('keyup', (event)=>{
+        check_code(event.target.value)
+    })
+
+    function check_code(code_val){
+        fetch(`{% url 'check_code_name' %}?code=${code_val}`,{
+            method:'GET',
+            headers:{
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',                
+            },
+            credentials:"same-origin"
+        })
+        .then((response)=>{
+            return response.json()
+        })
+        .then((res)=>{            
+            if(res['res']==='valid'){
+                label_alert.innerHTML="Valid cupon!!!"
+                label_alert.setAttribute('style','border-radius: 15px; border:2px solid MediumSeaGreen;color:#ffffff; background-color:MediumSeaGreen;')
+            }else{
+                label_alert.innerHTML="Invalid cupon, try another one"
+                label_alert.setAttribute('style','border-radius: 15px; border:2px solid Tomato;color:#ffffff; background-color:Tomato;')
+            }
+        })
+    }
+
     function validate(first_name, last_name, address, zipcode, city){
         let errors = [];
 
@@ -61,6 +127,7 @@
         const address    = document.getElementById('id_address').value;
         const zipcode    = document.getElementById('id_zipcode').value;
         const city       = document.getElementById('id_city').value
+        const discount_code = document.getElementById('id_discount_code').value
         if(validate(first_name,last_name,address,zipcode,city) ){
             let data = {
                 'first_name': first_name,
@@ -68,14 +135,34 @@
                 'address'   : address,
                 'zipcode'   : zipcode,
                 'city'      : city,
+                'discount_code'   : discount_code,
             }
 
-            let stripe = Stripe('{{ pub_key }}');
+            //let stripe = Stripe('{{ pub_key }}');
             
             fetch(`{% url 'checkout' %}`, {
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json',
+                    
+                    'X-CSRFToken': '{{csrf_token}}'
+                },
+                credentials:'same-origin',
+                body: JSON.stringify(data)
+                
+            })
+            .then(function(response){
+                return response.json()
+            })
+            .then(function(session){
+                console.log(session)                
+            })
+            /*
+            fetch(`{% url 'checkout' %}`, {
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json',
+                    
                     'X-CSRFToken': '{{csrf_token}}'
                 },
                 credentials:'same-origin',
@@ -97,7 +184,7 @@
             })
             .catch(function(error){
                 alert('2)', error)
-            });
+            });*/
         }
         return false;
     }

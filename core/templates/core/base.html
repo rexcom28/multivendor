@@ -81,16 +81,21 @@
             {% endif %}      
         </div>
     </nav>
-    <div class="container mx-auto">
+    <div class="container">
         <div class="">
             {% include "core/partials/messages.html" %}
-          </div>
-
-        {% block content %}
-        
-        {% endblock content %}
+        </div>
+        {% block content %}        
+        {% endblock content %}        
     </div>
-    
+    <div class="card">
+        {% block header %}
+            
+        {% endblock header %}
+        {% block content2 %}
+        
+        {% endblock content2 %}
+    </div>
     <!-- MDB -->
     <script type="text/javascript"src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.0.0/mdb.min.js"></script>
     

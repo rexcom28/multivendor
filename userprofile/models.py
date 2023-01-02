@@ -9,3 +9,10 @@ class Userprofile(models.Model):
     RFC = models.CharField(max_length=13,blank=True)
     def __str__(self):
         return self.user.username
+
+
+class customerProfile(models.Model):
+    stripe_cus_id = models.CharField(max_length=20, unique=True)
+    user = models.OneToOneField(User, related_name='customer', on_delete=models.CASCADE)
+    def __str__(self) -> str:
+        return str(self.id)
