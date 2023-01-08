@@ -9,7 +9,7 @@ from django.template.defaultfilters import slugify
 from io import BytesIO
 from PIL import Image
 from .validators import validate_file_extension, valid_ext_dict
-
+from  userprofile.api_stripe import get_cupon
 
 class Discount(models.Model):
     created_by = models.ForeignKey(User, related_name='discounts', on_delete=models.CASCADE)    
@@ -23,6 +23,16 @@ class Discount(models.Model):
     modified_at = models.DateField(auto_now=True)
     #deleted_at = models.DateField(blank=True)
     
+    @property
+    def check_times_redeemed(self):
+        times_redeemed = 0
+        if self.code_name:
+            times= get_cupon(self.code_name)
+            if 'times_redeemed' in times[0]:
+                times_redeemed = times[0]['times_redeemed']
+                self.times_redeemed=times_redeemed
+                self.save()
+        return times_redeemed
     def __str__(self):
         return f'Created: {self.created_by}   -Code:{self.code_name}'
 
@@ -129,6 +139,8 @@ class Order(models.Model):
     discount_code = models.CharField(max_length=35, null=True, blank=True)
     created_by = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    is_shipped = models.BooleanField(default=False)
     class Meta:
         ordering = ('-created_at',)
         
@@ -138,6 +150,14 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.id}'
 
+class Shipped_Orders(models.Model):
+    order = models.OneToOneField(Order, related_name='shipping', on_delete=models.CASCADE)
+    def save(self,*args, **kwargs):
+        if self.order.is_paid:
+            ord =self.order
+            ord.is_shipped=True
+            ord.save()
+        super(Shipped_Orders,self).save(*args,**kwargs)
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='items', on_delete=models.CASCADE)

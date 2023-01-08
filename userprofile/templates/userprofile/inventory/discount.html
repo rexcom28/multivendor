@@ -7,17 +7,33 @@
 
 {% block content %}
 
-{% include 'userprofile/inventory/partial_discount.html' %}
+    {% include 'userprofile/inventory/partial_discount.html' %}
 
-<br>  
-<hr>
-<br>
-<br>
-<h2><strong>Add discount Code</strong></h2>
-<form action="." method="post" class="space-y-5">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button class="mt-6 py-2 px-4 bg-teal-500 rounded text-white hover:bg-teal-800">Submit</button>
-</form>
+    <br>  
+    <hr>
+    <br>
+    <br>
+    <h2><strong>Add discount Code</strong></h2>
+    <form action="." method="post" class="space-y-5 mb-10">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button class="mt-6 py-2 px-4 bg-teal-500 rounded text-white hover:bg-teal-800">Submit</button>
+    </form>
 
 {% endblock content %}
+
+
+{% block scripts %}
+    <script>
+        function reset_stock(stock,id_code){
+            let ele = document.getElementById(`id_${id_code}`)
+            if(parseInt(stock)>0){
+                
+                if (confirm("there is redeemed code for this coupon, edit this will reset the redeem count to cero, are you sure?")){                    
+                    ele.click()
+                }
+            }else{ele.click()}
+        }
+    </script>
+{% endblock scripts %}
+    

@@ -67,44 +67,20 @@
       "
       aria-labelledby="dropdownMenuButton8"
     >
-      {% comment "Se comento para poder usar mejor el fetch" %}
-        {% if request.user.is_staff %}
-          <li>
-            <a
-              class="
-                dropdown-item
-                text-sm
-                py-2
-                px-4
-                font-normal
-                block
-                w-full
-                whitespace-nowrap
-                bg-transparent
-                text-gray-700
-                hover:bg-gray-100
-              "
-              href="{% block A1_href %}{% endblock A1_href %}"
-              >{% block A1 %}{% endblock A1 %}</a
-            >
-          </li>
-        {% endif %}
-      {% endcomment %}
+{% if not order.is_paid %}      
       <li>
         <a
-          class="
-            dropdown-item
-            text-sm
-            py-2
-            px-4
-            font-normal
-            block
-            w-full
-            whitespace-nowrap
-            bg-transparent
-            text-gray-700
-            hover:bg-gray-100
-          "
+          class="dropdown-item
+          text-sm
+          py-2
+          px-4
+          font-normal
+          block
+          w-full
+          whitespace-nowrap
+          bg-transparent
+          text-red-700
+          hover:bg-red-100""
           href="{% block A2_href %}{% endblock A2_href %}"
           >{% block A2 %}{% endblock A2 %}</a
         >
@@ -129,32 +105,54 @@
           >{% block A3 %}{% endblock A3 %}</a
         >
       </li>
-      
-      <li>
-        <!-- Button trigger modal -->
-        <button class="px-6
-              py-2.5
-              bg-blue-600
-              text-white
-              font-medium
-              text-xs
-              leading-tight
-              uppercase
-              rounded
-              shadow-md
-              hover:bg-blue-700 hover:shadow-lg
-              focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
-              active:bg-blue-800 active:shadow-lg
-              transition
-              duration-150
-              ease-in-out" onclick="loadOrder(event,{{order.id}})" data-bs-toggle="modal" data-bs-target="#exampleModal{{order.id}}">
-          Edit Order
-      </button>
+{% endif %}
+
+{% if not order.is_shipped %}
+  <li>
+    <!-- Button trigger modal -->
+    <button class="px-12
+    py-2.5
+    bg-blue-600
+    text-white
+    font-medium
+    text-xs
+    leading-tight
+    uppercase
+    rounded
+    shadow-md
+    hover:bg-blue-700 hover:shadow-lg
+    focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0
+    active:bg-blue-800 active:shadow-lg
+    transition
+    duration-150
+    ease-in-out" 
+    onclick="loadOrder(event,'{{order.id}}')" data-bs-toggle="modal" data-bs-target="#exampleModal{{order.id}}"
+    >Edit shipment info
+    </button>        
+  </li>
+{% endif %}
+    <li>
+      <a
+        class="
+          dropdown-item
+          text-sm
+          py-2
+          px-4
+          font-normal
+          block
+          w-full
+          whitespace-nowrap
+          bg-transparent
+          text-red-700
+          hover:bg-red-100"
         
-        
-      </li>
-    </ul>
-  </div>
+          onclick=""  
+          href="{% block A4_href %}{% endblock A4_href %}"
+        >{% block A4 %}{% endblock A4 %}</a
+      >
+    </li>
+  </ul>
+</div>
 
 
  

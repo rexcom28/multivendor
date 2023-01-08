@@ -7,16 +7,27 @@ stripe.api_key=settings.STRIPE_SECRET_KEY
 CUSTOMERS
 '''
 def retrive_customer(customer_id:str):
-    customer ={}    
-    api_obj = stripe.Customer.retrieve(customer_id)
-    customer,error = excepapi_obj(api_obj)
+    customer ={}  
+    try:
+        customer = stripe.Customer.retrieve(customer_id)
+        if 'address' in customer.keys():
+            address_flatten=customer.pop('address')
+            customer.update(address_flatten)        
+        if 'email' in customer.keys():
+            customer['email2']=customer.pop('email')
+        return customer , ''
+    except stripe.error.InvalidRequestError as E:
+        return '', E
+    except stripe.error.APIConnectError as E:
+        return '', E
+    except stripe.error.StripeError as e:
+    # Display a very generic error to the user, and maybe send
+    # yourself an email
+        return '', E
+    except Exception as E:
+    # Something else happened, completely unrelated to Stripe
+        return '', E
     
-    if 'address' in customer.keys():
-        address_flatten=customer.pop('address')
-        customer.update(address_flatten)        
-    if 'email' in customer.keys():
-        customer['email2']=customer.pop('email')
-    return customer , error
 
 def update_customer(id,customer): 
     Semail=customer.pop('email2')
@@ -28,17 +39,27 @@ def update_customer(id,customer):
     Sshipping['name']   =Sname
     Sshipping['phone']  =Sphone
     Sshipping['address']=customer
-    
-    api_obj = stripe.Customer.modify(
-        f'{id}',
-        address=Saddress,
-        email=Semail,
-        name=Sname,
-        phone=Sphone,
-        shipping=Sshipping
-    )
-    client,error =excepapi_obj(api_obj)
-    return client.id, error
+    try:
+        client = stripe.Customer.modify(
+            f'{id}',
+            address=Saddress,
+            email=Semail,
+            name=Sname,
+            phone=Sphone,
+            shipping=Sshipping
+        )
+        return client.id, 
+    except stripe.error.InvalidRequestError as E:
+        return '', E
+    except stripe.error.APIConnectError as E:
+        return '', E
+    except stripe.error.StripeError as e:
+    # Display a very generic error to the user, and maybe send
+    # yourself an email
+        return '', E
+    except Exception as E:
+    # Something else happened, completely unrelated to Stripe
+        return '', E
     
 
 #create customer
@@ -52,18 +73,28 @@ def create_customer(form, customer):
     Sshipping['name']   =Sname
     Sshipping['phone']  =Sphone
     Sshipping['address']=customer
-    
-    api_obj = stripe.Customer.create(
+    try:
+        client = stripe.Customer.create(
+            
+            address=Saddress,
+            email=Semail,
+            name=Sname,
+            phone=Sphone,
+            shipping=Sshipping
+        )
         
-        address=Saddress,
-        email=Semail,
-        name=Sname,
-        phone=Sphone,
-        shipping=Sshipping
-    )
-    client,error = excepapi_obj(api_obj)
-    return client.id, error
-
+        return client.id, ''
+    except stripe.error.InvalidRequestError as E:
+        return '', E
+    except stripe.error.APIConnectError as E:
+        return '', E
+    except stripe.error.StripeError as e:
+    # Display a very generic error to the user, and maybe send
+    # yourself an email
+        return '', E
+    except Exception as E:
+    # Something else happened, completely unrelated to Stripe
+        return '', E
 '''
 CUPONS
 '''  
@@ -82,30 +113,50 @@ def create_cupon(data):
         return '', E
     except stripe.error.APIConnectError as E:
         return '', E
-    except stripe.error.StripeError as e:
-    # Display a very generic error to the user, and maybe send
-    # yourself an email
+    except stripe.error.StripeError as e:    
         return '', E
-    except Exception as E:
-    # Something else happened, completely unrelated to Stripe
+    except Exception as E:    
         return '', E
 
-    
-    
-
-def excepapi_obj(api_obj):
+def get_cupon(cupon_name):
     try:
-        obj=api_obj        
+        coupon = stripe.Coupon.retrieve(cupon_name)
+        return coupon, ''
     except stripe.error.InvalidRequestError as E:
         return '', E
     except stripe.error.APIConnectError as E:
         return '', E
-    except stripe.error.StripeError as e:
-    # Display a very generic error to the user, and maybe send
-    # yourself an email
+    except stripe.error.StripeError as e:    
         return '', E
-    except Exception as E:
-    # Something else happened, completely unrelated to Stripe
+    except Exception as E:    
         return '', E
 
-    return obj,''
+def delete_cupon(cupon_name):
+    try:
+        del_cupon=stripe.Coupon.delete(cupon_name)
+
+        return del_cupon,''
+    except stripe.error.InvalidRequestError as E:
+        return '', E
+    except stripe.error.APIConnectError as E:
+        return '', E
+    except stripe.error.StripeError as e:    
+        return '', E
+    except Exception as E:    
+        return '', E
+
+
+def verify_payment_intent(payment_intent):
+    try:
+        res= stripe.PaymentIntent.retrieve(
+            payment_intent,
+        )
+        return res,''
+    except stripe.error.InvalidRequestError as E:
+        return '', E
+    except stripe.error.APIConnectError as E:
+        return '', E
+    except stripe.error.StripeError as e:    
+        return '', E
+    except Exception as E:    
+        return '', E

@@ -4,6 +4,7 @@ from .models import (
     Product, 
     Order, 
     OrderItem, 
+    Shipped_Orders,
     Discount, 
     Product_Inventory, 
     Payment_Detail,
@@ -34,15 +35,21 @@ class OrderAdmin(admin.ModelAdmin):
     def paid_amount_get(self, obj):
         return f'$ {str(obj.paid_amount /100)}'
     
-    list_display = ['first_name', 'last_name','paid_amount', 'is_paid', 'created_by']
-    search_fields = ['first_name','paid_amount', 'payment_intent','created_by_id__username']
+    list_display = ['first_name', 'last_name','paid_amount', 'is_paid', 'created_by', 'is_shipped']
+    search_fields = ['first_name','paid_amount', 'payment_intent','created_by_id__username', 'is_shipped']
     actions = [verified_payment]
+class Discount_Admin(admin.ModelAdmin):
+    list_display=['code_name','created_by','stock','times_redeemed', 'discount_percent']
 
+
+class Shipped_Orders_Admin(admin.ModelAdmin):
+    list_display = ['order']
+admin.site.register(Shipped_Orders,Shipped_Orders_Admin)
 admin.site.register(Category)
 admin.site.register(Product)
 
 admin.site.register(Order,OrderAdmin)
 admin.site.register(OrderItem)
-admin.site.register(Discount)
+admin.site.register(Discount, Discount_Admin)
 admin.site.register(Product_Inventory)
 admin.site.register(Payment_Detail)

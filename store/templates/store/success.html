@@ -11,7 +11,7 @@
     {{form.as_hidden}}
 
     <div class="flex flex-col">        
-        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
             <table class="table">
                 <thead class="bg-teal-600">
                   <tr>
@@ -64,12 +64,12 @@
                                 <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
                                     ${{order.get_display_price}}
                                 </td>
-                                {% if not order.is_paid %}
-                                    <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                        {% include "store/partials/actions_dropdownBtn.html" %}   
-                                        {% include 'store/partials/modal.html' %}                                                                             
-                                    </td>                                
-                                {% endif %}
+                                
+                                <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                                    {% include "store/partials/actions_dropdownBtn.html" %}   
+                                    {% include 'store/partials/modal.html' %}                                                                             
+                                </td>           
+                                
                                 
                             </tr class="bg-white border-b">                                                                                                                               
                                
@@ -93,7 +93,7 @@
         
         let data = {'payment_intent':id}
         //fetch('verified/',{
-        fetch('{% url 'verified' %}',{            
+        fetch("{% url 'verified' %}",{            
             method: 'POST',
             headers:{
                 'Content-Type': 'application/json',
@@ -106,17 +106,10 @@
             return response.json()
         })        
         .then(function(result){
-            
-            
-            if(result.error){
-                alert('1)',result.error.message)
-            
-            }else{
-                location.reload();
-            }
+            location.reload();
         })
         .catch(function(error){
-            alert('2)', error)
+            location.reload();
         });
     }
 
@@ -174,9 +167,6 @@
 
     function edit_order(event, id){
         event.preventDefault();
-        
-        
-    
         let data = {
             'first_name': document.getElementById(`first_name ${id}`).value,
             'last_name' : document.getElementById(`last_name ${id}`).value,
@@ -219,7 +209,7 @@
         closebtn = document.getElementById(`close${id}`)
         closebtn.click()
         setTimeout(function(){},1500)
-        location.reload();
+        //location.reload();
         return false;
     }
 </script>

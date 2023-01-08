@@ -138,7 +138,7 @@
                 'discount_code'   : discount_code,
             }
 
-            //let stripe = Stripe('{{ pub_key }}');
+            let stripe = Stripe('{{ pub_key }}');
             
             fetch(`{% url 'checkout' %}`, {
                 method: 'POST',
@@ -157,7 +157,7 @@
             .then(function(session){
                 console.log(session)                
             })
-            /*
+            
             fetch(`{% url 'checkout' %}`, {
                 method: 'POST',
                 headers:{
@@ -183,8 +183,8 @@
                 }
             })
             .catch(function(error){
-                alert('2)', error)
-            });*/
+                location.reload()
+            });
         }
         return false;
     }

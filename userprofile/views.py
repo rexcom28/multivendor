@@ -77,24 +77,43 @@ def discount_view(request):
             obj = Discount.objects.get(id=pid)
         except:
             obj = None
-            
+
         if obj:
             form = DiscountForm(data=request.POST, instance=obj )
         else:            
             form = DiscountForm(data=request.POST)
         if form.is_valid():
-            cupon,error =create_cupon(form.cleaned_data)
-            print('aaaaaaaaaaaaaaaa', cupon,error)
-            form.save()
-        return redirect('discount_view')
+            retrive_coupon = get_cupon(form.cleaned_data['code_name'])            
+            if 'id' in retrive_coupon[0]:
+                code_name = retrive_coupon[0]['id']                
+                del_obj, err = delete_cupon(code_name)
+                if 'deleted' in del_obj and len(err)==0:
+                    print(f'se elimino {code_name}')
+                    print('clean ',form.cleaned_data)
+            else:
+                print('no estaba')
+            cupon,error =create_cupon(form.cleaned_data) 
+            if len(error)==0:
+                form.save()
+                return redirect('discount_view')
+            else:
+                messages.error(request,f'{err}')        
     else:
         id = request.GET.get('id', None)
+        del_cupon= True if request.GET.get('delete',False) =='True' else False
         if id:
             discount = Discount.objects.get(id=id)
+            if del_cupon:
+                del_obj, err = delete_cupon(discount.code_name)
+                if 'deleted' in del_obj and len(err)==0:
+                    if del_obj.get('deleted',False):
+                        discount.delete()
+                else:
+                    messages.error(request,f'{err}')
+                return redirect('discount_view')
             form = DiscountForm(instance=discount)
-        else:    
+        else:
             form = DiscountForm(initial={'created_by':request.user})
-        
     discounts = Discount.objects.filter(created_by=request.user)
     return render(request, 'userprofile/inventory/discount.html', {
         'form':form,

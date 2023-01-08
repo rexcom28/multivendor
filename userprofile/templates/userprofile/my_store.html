@@ -92,3 +92,18 @@
 <br>
 
 {% endblock content %}
+
+
+{% block scripts %}
+    <script>
+        function reset_stock(stock,id_code){
+            let ele = document.getElementById(`id_${id_code}`)
+            if(parseInt(stock)>0){
+                
+                if (confirm("there is redeemed code for this coupon, edit this will reset the redeem count to cero, are you sure?")){                    
+                    ele.click()
+                }
+            }else{ele.click()}
+        }
+    </script>
+{% endblock scripts %}
