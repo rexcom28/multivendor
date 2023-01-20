@@ -111,7 +111,7 @@ else:
     DATABASES={
         'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'zeus28$cfdi_as',
+        'NAME': 'zeus28$default',
         'USER': 'zeus28',
         'PASSWORD': 'Bardo28@',
         'HOST': 'zeus28.mysql.pythonanywhere-services.com',
