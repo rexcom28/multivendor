@@ -41,12 +41,19 @@ class OrderAdmin(admin.ModelAdmin):
 class Discount_Admin(admin.ModelAdmin):
     list_display=['code_name','created_by','stock','times_redeemed', 'discount_percent']
 
+class Product_Admin(admin.ModelAdmin):
+    @admin.display(description='price')
+    def price_get(self, obj):
+        return f'$ {str(obj.price /100)}'
+    list_display=['title','user', 'id_stripe','category', 'price_get','thumbnail','status','discount']
 
-class Shipped_Orders_Admin(admin.ModelAdmin):
-    list_display = ['order']
-admin.site.register(Shipped_Orders,Shipped_Orders_Admin)
+
+# class Shipped_Orders_Admin(admin.ModelAdmin):
+#     list_display = ['order']
+
+admin.site.register(Shipped_Orders)#,Shipped_Orders_Admin)
 admin.site.register(Category)
-admin.site.register(Product)
+admin.site.register(Product,Product_Admin)
 
 admin.site.register(Order,OrderAdmin)
 admin.site.register(OrderItem)

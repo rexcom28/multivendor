@@ -1,54 +1,57 @@
 {% extends 'core/base.html' %}
 
-{% block title %} Sign up{% endblock title %}
+{% block title %} Vendor Sign up{% endblock title %}
 
 {% block content %}
-    <h1 class="text-2xl">Sign up</h1>
+    <h1 class="text-2xl">Vendor Sign up</h1>
 
     <form action="." method="post">
         {% csrf_token %}
-        
-        <div class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        {% include 'userprofile/partials/user_creation_form.html' %}
+
+{% comment "form creationForm for test"%}        
+        <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
             {{ form.username.errors }}
             {{ form.username.label_tag }}
             {{ form.username }}
             <p>{{form.username.help_text}}</p>            
         </div>
         
-        <div class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
             {{ form.password1.errors }}
             {{ form.password1.label_tag }}
             {{ form.password1 }}
             <p>{{form.password1.help_text}}</p>            
         </div>
        
-        <div class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
             {{ form.password2.errors }}
             {{ form.password2.label_tag }}
             {{ form.password2 }}
             <p>{{form.password2.help_text}}</p>            
         </div>
-       
+{% endcomment %}
+        
         <div class="form-row">
             {{ profile_form.user.errors }}
             {{ profile_form.user }}
         </div>
-        <div class="flex items-start mb-6">
+        <div class="flex items-start mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
             {{ profile_form.is_vendor.errors }}
             <div class="flex items-center h-5">
                 {{ profile_form.is_vendor }}
             </div>
-            <div class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+            <div class="ml-2 text-sm font-medium text-white-900 dark:text-white-300">
                 {{ profile_form.is_vendor.label_tag }} 
             </div>
             
         </div>
-        <div id="rfc_div" class="mb-6 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+        <div id="rfc_div" class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
             {{ profile_form.RFC.errors }}                                        
             {{ profile_form.RFC.label_tag }} {{ profile_form.RFC }}
             <p>{{profile_form.RFC.help_text}}</p>
         </div>
-        <button type="submit" class="py-4 px-8 bg-teal-800 text-white">Sig up</button>
+        <button type="submit" class="py-4 px-8 bg-teal-800 text-white rounded">Sig up</button>
     </form>
 {% endblock content %}
 
@@ -75,21 +78,7 @@
                 id_RFC.required=true
                 rfc_div.style.display="block"
             }
-            console.log(`{% url 'myaccount' %}`)
-            /*
-            let id_RFC = document.getElementById('id_RFC').type="text"
-            if(id_RFC.getAttribute('type')==="text")
-            {
-                console.log('yes')
-                id_RFC.type="hidden"
-                id_RFC.value=null
-            }else{
-                console.log('no')
-                id_RFC.type="text"
-                rfc_div.style.display="in-block"
-            }
-            */
-            
+            console.log(`{% url 'myaccount' %}`)                        
 
         })
         

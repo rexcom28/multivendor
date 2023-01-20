@@ -22,7 +22,7 @@ class Discount(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     #deleted_at = models.DateField(blank=True)
-    
+
     @property
     def check_times_redeemed(self):
         times_redeemed = 0
@@ -34,7 +34,7 @@ class Discount(models.Model):
                 self.save()
         return times_redeemed
     def __str__(self):
-        return f'Created: {self.created_by}   -Code:{self.code_name}'
+        return f'-Code:{self.code_name} -Discount %: {self.discount_percent}'
 
 
 
@@ -64,6 +64,7 @@ class Product(models.Model):
         (ACTIVE, 'Active'),
         (DELETED, 'Deleted'),
     )
+    
     user = models.ForeignKey(User, related_name='products', on_delete=models.CASCADE)
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
@@ -76,6 +77,9 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=ACTIVE)
     discount = models.ForeignKey(Discount, related_name='discount_id',on_delete=models.DO_NOTHING, null=True, blank=True)
+    #discount = models.CharField(max_length=100,null=True, blank=True)
+    id_stripe = models.CharField(max_length=100,blank=True, null=True, unique=True)
+    
     class Meta:
         ordering = ('-created_at', )
     
@@ -152,23 +156,23 @@ class Order(models.Model):
 
 class Shipped_Orders(models.Model):
     order = models.OneToOneField(Order, related_name='shipping', on_delete=models.CASCADE)
-    def save(self,*args, **kwargs):
-        if self.order.is_paid:
-            ord =self.order
-            ord.is_shipped=True
-            ord.save()
-        super(Shipped_Orders,self).save(*args,**kwargs)
+    status = models.CharField(max_length=10,blank=True, null=True)
+    delivery_company = models.CharField(max_length=10,blank=True, null=True)
+
+    # def save(self,*args, **kwargs):
+    #     if self.order.is_paid:
+    #         ord =self.order
+    #         ord.is_shipped=True
+    #         ord.save()
+    #     super(Shipped_Orders,self).save(*args,**kwargs)
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='items', on_delete=models.CASCADE)
     price = models.IntegerField()
     quantity = models.IntegerField(default=1)
-    
-    # def __str__(self) -> str:
-    #     return f'Order: {self.order.id}-----, Product: {self.product} x {self.quantity}'
-    
+        
     def get_display_price(self):
-        return self.price /100
+        return self.price / 100
 
 
 class Product_Inventory(models.Model):

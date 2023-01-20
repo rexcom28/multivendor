@@ -4,50 +4,67 @@
 
 {% block content %}
 
-    <h1 class="text-2xl"> My store</h1>
+    <h1 class="text-2xl text-center"> My store</h1>
     
-    {% if messages %}
-        
-        {% for message in messages %}
-            <div class=" mt-4 px-8 py-4 bg-teal-200 text-teal-800"> {{message}}</div>
-        {% endfor %}
-            
-    {% endif %}
     
-    <h2 class="mt-6 mb-6 text-2xl"> My Orders</h2>
+    <hr>
+    <h2 class="mt-4 mb-2 text-2xl"> My Orders</h2>
 
-    <a href="{% url 'success' %}" class="mt-6 inline-block py-4 px-8 bg-teal-500 text-white"> Success orders</a>
+    <a href="{% url 'success' %}" class="mt-4 inline-block py-4 px-8 bg-teal-500 text-white"> Success orders</a>
     <br>
     <div class="flex flex-wrap">
-        <div class="w-1/4">
+        <div class="w-1/5">
             <strong>Order id</strong>
         </div>
-        <div class="w-1/4">
-            <strong>Title</strong>
+        <div class="w-1/5">
+            <strong>Name</strong>
         </div>
-        <div class="w-1/4">
-            <strong>Quantity</strong>
+        <div class="w-1/5">
+            <strong>is paid</strong>
         </div>
-        <div class="w-1/4">
-            <strong>Price</strong>
+        <div class="w-1/5">
+            <strong>paid_amount</strong>
+        </div>
+        <div class="w-1/5">
+            shipped
         </div>
     </div>
     {% for order_item in order_items  %}
         <div class="flex flex-wrap">
-            <div class="w-1/4">
-                <a href="{% url 'my_store_order_detail' order_item.order.id  %}">{{order_item.order.id}}</a>
+            <div class="w-1/5">
+                <strong>
+                    <u>
+                    <a href="{% url 'my_store_order_detail' order_item.id  %}">{{order_item.id}}</a>  
+                    </u>
+                </strong>
+            </div>
+            <div class="w-1/5">
+                {{order_item.first_name}} {{order_item.last_name}}
+            </div>
+        
+            <div class="w-1/5">
                 
-            </div>
-            <div class="w-1/4">
-                {{order_item.product.title}}
-            </div>
-        
-            <div class="w-1/4">
-                {{order_item.quantity}}
+                {% if order_item.is_paid  %}
+                    Paid bill
+                {% else %}
+                    Not paid bill
+                {% endif %}                                    
             </div>
         
-            <div class="w-1/4">
+            <div class="w-1/5">
                 ${{order_item.get_display_price}}
+            </div>
+            <div class="w-1/5">
+                {% if order_item.is_shipped %}
+                    shipped
+                {% else %}                                  
+                    {% if order_item.shipping.id %}
+                        <a href="{% url 'shipped_orders' order_item.shipping.id %}">
+                            not shipped
+                        </a>
+                    {% else %}
+                    {% endif %}                             
+                {% endif %}
             </div>
         </div>
     {% endfor %}

@@ -26,7 +26,6 @@ form-control
         focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
 '''
 
-
 class customerCreationForm(UserCreationForm):
    email = forms.EmailField(
       required=True,
@@ -112,12 +111,53 @@ class UserEditForm(forms.ModelForm):
                'class': inputs+' my_custom_selector'
             }),
         }
-        
+
+
+class Seller_Creation_Form(UserCreationForm):
+   email = forms.EmailField(
+      required=True,
+      label="Email",
+      max_length=254,
+      widget=forms.EmailInput(attrs={'autocomplete': 'email','class':  inputs+' my_custom_selector'})
+    )
+   password1 = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password','class':inputs}),
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+   password2 = forms.CharField(
+        label="Password confirmation",
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password','class':inputs}),
+        strip=False,
+        help_text="Enter the same password as before, for verification.",
+    )
+   class Meta:
+      model = User
+      fields = ('first_name', 'last_name', 'email', 'username', 'password1', 'password2',)
+      
+      widgets={
+         'username': forms.TextInput(attrs={
+            'class':inputs,            
+         }),
+         
+         'first_name': forms.TextInput(attrs={
+            'class': inputs+' my_custom_selector',
+                       
+         }),
+         'last_name': forms.TextInput(attrs={
+            'class':  inputs+' my_custom_selector'
+         }),
+         'email': forms.TextInput(attrs={
+            'class':  inputs+' my_custom_selector'
+         }),
+      }   
+
         
 class ProfileForm(forms.ModelForm):
    #override the model declaration, where in model aren't required
    #but in form are required.
-   #is_vendor = forms.BooleanField(required=True)
+   is_vendor = forms.BooleanField(required=True, initial=True)
    
    class Meta:
       model = Userprofile
@@ -127,7 +167,14 @@ class ProfileForm(forms.ModelForm):
       fields = ('user', 'is_vendor','RFC',)
       widgets = {
          'user':forms.HiddenInput(),
-         #'RFC':forms.HiddenInput(),
+         'RFC':forms.TextInput(attrs={
+               'class': inputs+' my_custom_selector'
+            }),
+         # 'is_vendor':forms.CheckboxInput(
+         #    attrs={
+         #       'class':'ml-2 text-sm font-medium text-white-900 dark:text-white-300'
+         #    }
+         # ),
       }
 
 

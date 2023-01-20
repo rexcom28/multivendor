@@ -5,8 +5,8 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Category, Product, Order, OrderItem
-from .forms import OrderForm
+from .models import Category, Product, Order, OrderItem, Shipped_Orders
+from .forms import OrderForm, Shipped_Orders_Form
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -16,7 +16,9 @@ from userprofile.api_stripe import retrive_customer
 from .decorator import check_user_able_to_see_page,verify_customer
 from userprofile.api_stripe import get_cupon,verify_payment_intent
 
-import time
+#CVB
+from django.views.generic.edit import UpdateView
+
 #-------------Cart functions
 @login_required
 def order_view(request, pk):
@@ -79,6 +81,17 @@ def add_to_cart(request, product_id):
     cart.add(product_id)
     return redirect('cart_view')
 
+
+class Shipped_Order_UpdateView(UpdateView):
+    model = Shipped_Orders
+    #form_class = Shipped_Orders_Form
+    fields = '__all__'
+    template_name = 'userprofile/logistic/shipped_orders.html'
+    context_object_name ='shipping'
+
+
+    
+
 @login_required
 @verify_customer()
 def success(request):
@@ -96,6 +109,7 @@ def verified(request):
         data = json.loads(request.body)                
         stripe.api_key = settings.STRIPE_SECRET_KEY
         response, err =verify_payment_intent(data['payment_intent'])
+        print('res', response)
         if err:
             messages.error(request, f'{err.error.message}')
             return JsonResponse({'error':f'{err.error.message}'},status=err.http_status)
@@ -118,7 +132,6 @@ def verify_internal(request):
     response = stripe.PaymentIntent.retrieve(
         order.payment_intent,
     )
-   
     
     order.is_paid = True if response.status=='succeeded' else False
     order.save()
@@ -142,7 +155,8 @@ def re_order(request):
                     return JsonResponse({'error':'No hay productos en la orden de compra'},status=401)
 
                 total_price = 0
-                if form.is_valid():
+                valid = form.is_valid()
+                if valid:
                     for item in  Instance.items.all():                        
                         total_price += item.product.price * item.quantity
                         strip_items.append({
@@ -159,7 +173,7 @@ def re_order(request):
                 #begins coupon validation segment stripe
                 if discount_code:
                     cupon,err = get_cupon(discount_code)
-                    print('cupon',cupon ,'error',err)
+                    
                     if err:
                         messages.error(request, f'{err.error.message}')                        
                         return JsonResponse({'error':f'{err.error.message}'},status=401)
@@ -168,7 +182,7 @@ def re_order(request):
                             messages.error(request, 'The coupon its not valid')                        
                             return JsonResponse({'error':'The coupon its not valid'},status=401)
 
-                if form.is_valid():  
+                if valid:  
                     stripe.api_key = settings.STRIPE_SECRET_KEY
                     params ={
                         'payment_method_types':['card'],
@@ -177,18 +191,22 @@ def re_order(request):
                         'success_url':f'{settings.WEB_SITE_URL}cart/success/reorder/verify_internal/?oid={orderId}',
                         'cancel_url':f'{settings.WEB_SITE_URL}cart/success/',
                     }
+                    discount=0
                     if discount_code and 'valid' in cupon:
                         if cupon.get('valid',False):
                             params.update(
                                 {'discounts':[{'coupon':f'{discount_code}'}],}
                             )
+                            discount = cupon.get('percent_off',0) / 100
+                            discount = total_price * discount
 
                     session = stripe.checkout.Session.create(
                         **params                
                     )
                     payment_intent = session.payment_intent
                     form.instance.payment_intent = payment_intent
-                    form.instance.paid_amount = total_price
+                    form.instance.paid_amount = total_price - discount
+
                     form.save()
                     
             return JsonResponse({
@@ -204,8 +222,7 @@ def re_order(request):
             orders = Order.objects.get(id=request.POST['id'])            
             orderId= orders.id
             items  = orders.items.all()
-            form   = OrderForm(request.POST, instance=orders)
-            print('2)')
+            form   = OrderForm(request.POST, instance=orders)            
             if form.is_valid():            
                 form.save()
             return redirect('success')    
@@ -245,6 +262,7 @@ def re_order(request):
 @verify_customer()
 def checkout(request):
     cart = Cart(request)
+    
     if cart.get_total_cost() == 0:
         return redirect('cart_view')    
     if request.method == 'POST':
@@ -256,6 +274,7 @@ def checkout(request):
             total_price =0
             items = []
             for item in cart:
+
                 product= item['product']
                 total_price += product.price * int(item['quantity'])
                 items.append({
@@ -285,33 +304,51 @@ def checkout(request):
             stripe.api_key = settings.STRIPE_SECRET_KEY
             session=''
             payment_intent=''
+            discount=0
             params={
                 'payment_method_types':['card'],
                 'line_items':items,
                 'mode':'payment',                    
                 'success_url':f'{settings.WEB_SITE_URL}cart/success/',
-                'cancel_url':f'{settings.WEB_SITE_URL}cart/'
+                'cancel_url':f'{settings.WEB_SITE_URL}cart/',
             }
+
+            order_params = {
+                "first_name": first_name,
+                "last_name": last_name,
+                "address": address,
+                "zipcode": zipcode,
+                "city": city,
+                "created_by": request.user,                
+            
+                "paid_amount":total_price - discount,
+            }
+
             if discount_code and 'valid' in cupon:
                 if cupon.get('valid',False):
                     params.update(
                         {'discounts':[{'coupon':f'{discount_code}'}],}
                     )
+
+                    discount = cupon.get('percent_off',0) / 100
+                    discount = total_price * discount
+                    del order_params["paid_amount"]
+                    order_params.update({
+                        "discount_code":discount_code,
+                        "paid_amount":total_price-discount,
+                    })
+
+            
             session = stripe.checkout.Session.create(
                 **params
             )
+
             payment_intent = session.payment_intent
-            
+            if len(payment_intent) > 0:                
+                order_params.update({"payment_intent": payment_intent,})
+                
             order = Order.objects.create(
-                first_name = first_name,
-                last_name  = last_name,
-                address    = address,
-                zipcode    = zipcode,
-                city       = city,
-                created_by = request.user,
-                #is_paid = True,
-                payment_intent = payment_intent,
-                paid_amount = total_price
+                **order_params
             )
             
             
@@ -319,13 +356,12 @@ def checkout(request):
             for item in cart:
                 product = item['product']
                 quantity = int(item['quantity'])
-                price = product.price * quantity
-                
+                price = product.price * quantity                
                 item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
             
             cart.clear()    
             
-            return JsonResponse({'session':session, 'order':payment_intent}) #redirect('myaccount')
+            return JsonResponse({'session':session, 'order':payment_intent}, status=200) #redirect('myaccount')
  
     else:
         cus = request.user

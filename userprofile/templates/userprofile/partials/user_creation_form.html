@@ -1,0 +1,69 @@
+<div class="accordion" id="accordionExample">
+    <!--first accordion-->
+    <div class="accordion-item bg-white border border-gray-200">
+        <h2 class="accordion-header mb-0" id="headingOne">
+            <button class="
+            accordion-button
+            relative
+            flex
+            items-center
+            w-full
+            py-4
+            px-5
+            text-base text-gray-800 text-left
+            bg-white
+            border-0
+            rounded-none
+            transition
+            focus:outline-none
+            " type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true"
+            aria-controls="collapseOne">
+            Información de Usuario
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+            data-bs-parent="#accordionExample">
+            <div class="accordion-body py-4 px-5">
+                <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                    {{ form.username.errors }}
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                    <p>{{form.username.help_text}}</p>
+                </div>
+                <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                    {{ form.last_name.errors }}
+                    {{ form.last_name.label_tag }}
+                    {{ form.last_name }}
+                    <p>{{form.last_name.help_text}}</p>
+                </div>
+
+                <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                    {{ form.first_name.errors }}
+                    {{ form.first_name.label_tag }}
+                    {{ form.first_name }}
+                    <p>{{form.first_name.help_text}}</p>
+                </div>
+
+                <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                    {{ form.email.errors }}
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    <p>{{form.email.help_text}}</p>
+                </div>
+                <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
+                    {{ form.password1.errors }}
+                    {{ form.password1.label_tag }}
+                    {{ form.password1 }}
+                    <p>{{form.password1.help_text}}</p>
+                </div>
+                
+                <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-500 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    {{ form.password2.errors }}
+                    {{ form.password2.label_tag }}
+                    {{ form.password2 }}
+                    <p>{{form.password2.help_text}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

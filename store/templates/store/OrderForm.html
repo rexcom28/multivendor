@@ -206,14 +206,21 @@
         .then((response)=>{
             return response.json()
         })
-        .then((res)=>{            
-            if(res['res']==='valid'){
-                label_alert.innerHTML="Valid cupon!!!"
-                label_alert.setAttribute('style','border-radius: 15px; border:2px solid MediumSeaGreen;color:#ffffff; background-color:MediumSeaGreen;')
-            }else{
-                label_alert.innerHTML="Invalid cupon, try another one"
-                label_alert.setAttribute('style','border-radius: 15px; border:2px solid Tomato;color:#ffffff; background-color:Tomato;')
+        .then((res)=>{
+
+            if(id_discount_code.value.length==0){
+                label_alert.removeAttribute('style');
+                label_alert.innerHTML="";
+            }else{        
+                if(res['res']==='valid'){
+                    label_alert.innerHTML="Valid cupon!!!"
+                    label_alert.setAttribute('style','border-radius: 15px; border:2px solid MediumSeaGreen;color:#ffffff; background-color:MediumSeaGreen;')
+                }else{
+                    label_alert.innerHTML="Invalid cupon, try another one"
+                    label_alert.setAttribute('style','border-radius: 15px; border:2px solid Tomato;color:#ffffff; background-color:Tomato;')   
+                }
             }
+            
         })
     }
 </script>

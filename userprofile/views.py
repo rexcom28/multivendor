@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 
 from . models import Userprofile,customerProfile
-from .forms import UserEditForm, ProfileForm,customerProfileForm,customerCreationForm
+from .forms import UserEditForm, ProfileForm,customerProfileForm,customerCreationForm, Seller_Creation_Form
 from .api_stripe import *
 from store.forms import DiscountForm
 from store.models import Discount
@@ -20,6 +20,9 @@ from store.decorator import is_vendor
 from django.http import JsonResponse
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
+
+
+
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
     products =  user.products.filter(status = Product.ACTIVE)
@@ -30,12 +33,12 @@ def vendor_detail(request, pk):
 
 @login_required
 def my_store(request):
-    products = request.user.products.exclude(status=Product.DELETED)
-    order_items = OrderItem.objects.filter(product__user=request.user)
+    orders = Order.objects.filter(items__product__user=request.user)    
+    products = request.user.products.exclude(status=Product.DELETED)        
     discounts = Discount.objects.filter(created_by=request.user)
     return render(request, 'userprofile/my_store.html', {
         'products':products,
-        'order_items':order_items,
+        'order_items':orders,
         'discounts':discounts,
     })
 
@@ -47,19 +50,19 @@ def my_store_order_detail(request, pk):
         'order':order
     })
 
-
 @Only_Ajax_Req
 @login_required
 def check_code_name(request):    
     if request.method == 'GET' and request.is_ajax() and 'sessionid' in request.COOKIES:
-        #print('ajoi!!',(request.META))        
+
         session = Session.objects.get(session_key=request.COOKIES["sessionid"])
-        uid = session.get_decoded().get('_auth_user_id')
-        #print('aaaaaa',session.get_decoded())
+        uid = session.get_decoded().get('_auth_user_id')        
         user = User.objects.get(pk=uid)
-        if user:
-            
-            discount=user.discounts.filter(code_name=request.GET.get('code',''))            
+        code=request.GET.get('code','')
+
+        if user:            
+            discount= Discount.objects.filter(code_name=code)
+            #discount=user.discounts.filter(code_name=request.GET.get('code',''))            
             if len(discount)>0:
                 data ={'res':'valid'}
             else:
@@ -123,19 +126,28 @@ def discount_view(request):
 @login_required
 def add_product(request):
     
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        print(form.is_valid)
+    qs = Discount.objects.filter(created_by=request.user)
+    if request.method == 'POST':        
+        form = ProductForm(request.POST, request.FILES, qs=qs)        
         if form.is_valid():
             title = request.POST.get('title')            
             product = form.save(commit=False)
             product.user = request.user
             product.slug = slugify(title)
             product.save()
-            messages.success(request, 'The product was added!')
+            api_own = StripeAPI()
+            api_prod, err = api_own.create_product(product)
+                
+            if err:
+                product.delete()
+                messages.success(request, f'{err}')
+            else:
+                product.id_stripe= api_prod.id
+                product.save()                    
+                messages.success(request, 'The product was added!')
             return redirect ('my_store')
     else:
-        form = ProductForm()
+        form = ProductForm(qs=qs)
     
     return render(request, 'userprofile/product_form.html',{
         'title':'Add',
@@ -159,11 +171,30 @@ def edit_product(request, pk):
                 print(request.FILES['image'])
                 
         if form.is_valid():
-            form.save()
+
+            
+            product = form.save(commit=False)
+            product.save()                
+            
+            #here we delete or archive product and create another
+            api_own= StripeAPI()
+            del_prod, err = api_own.delete_product(product.id_stripe)
+            if err:
+                #the product id was not archived
+                pass
+            api_edit_prod, err= api_own.create_product(product)
+            
+            if err:                
+                messages.error(request, f'{err}')
+            else:
+                product.id_stripe=api_edit_prod.id
+                product.save()
+                messages.success(request,f'Product {product.title} modified')
             messages.success(request, 'The changes was saved!')
             return redirect ('my_store')
-    else:    
-        form = ProductForm(instance=product)
+    else:
+        qs = Discount.objects.filter(created_by=request.user)
+        form = ProductForm(instance=product, qs=qs)
 
     return render(request, 'userprofile/product_form.html',{
         'title':'Edit',
@@ -176,7 +207,14 @@ def delete_product(request, pk):
     product = Product.objects.filter(user=request.user).get(pk=pk)
     product.status = Product.DELETED
     product.save()
-    messages.success(request, 'The product was deleted!')
+    
+    id = str(product.id)
+    api_own = StripeAPI()
+    api_prod, err = api_own.delete_product(id)
+    if err:
+        print('product deleted', err)
+    else:
+        messages.success(request, 'The product was deleted!')
     return redirect('my_store')
 
 @login_required
@@ -220,12 +258,11 @@ def customer_sigup(request):
 
 def sigup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = Seller_Creation_Form(request.POST)
         profile_form = ProfileForm(request.POST)                
-        # print(form['username'].value())
-        # print(profile_form['is_vendor'].value())
-        if form.is_valid():            
-            
+        #print(form['username'].value())
+        #print(profile_form['is_vendor'].value())        
+        if form.is_valid():                        
             user= form.save()
             profile = Userprofile.objects.create(
                 user=user, 
@@ -236,7 +273,8 @@ def sigup(request):
                 login(request, user)
                 return redirect('frontpage')
     else:
-        form = UserCreationForm()
+        
+        form = Seller_Creation_Form()#UserCreationForm()
         profile_form = ProfileForm()
         
     return render(request, 'userprofile/signup.html', {

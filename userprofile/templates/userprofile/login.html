@@ -33,5 +33,14 @@
         </form>
     </div>
 </div>
+<div class="flex justify-between items-center mb-6">
+    <div class="row col-3">
+        <p>Do you want to buy ?<a href="{% url 'customer_signup' %}"><u> Register Here</u></a></p>
+    </div>
+    
+    <div class="row col-3">
+        <p>Do you want to sell?<a href="{% url 'signup' %}"><u> Register Here</u></a></p>
+    </div>
+</div>
 
 {% endblock content %}
