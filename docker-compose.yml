@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: mysecret
+      ALLOWED_HOSTS: django.localhost
+      DATABASE_URL: postgres://zeus28:Bardo28@localhost:5432/zeus28
+    expose:
+      - 8000
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: zeus28
+      POSTGRES_PASSWORD: Bardo28@
+      POSTGRES_DB: zeus28
+    ports:
+      - "5433:5432"

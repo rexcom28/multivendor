@@ -40,7 +40,7 @@ class Discount(models.Model):
 
 class Category(models.Model):
     
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=50)
     
     class Meta:
@@ -49,7 +49,11 @@ class Category(models.Model):
         
     def __str__(self):
        return self.title
-        
+
+    def save(self,*args, **kwargs):
+        if self.title:
+            self.slug=slugify(self.title)
+        return super().save(*args,**kwargs)
     
     
 class Product(models.Model):
@@ -89,7 +93,6 @@ class Product(models.Model):
     
     #overriden method for slug file
     def save(self, *args, **kwargs):
-        
         self.slug = slugify(self.title)
         # print('self._state.adding---',self._state.adding)
         # print(self.thumbnail,'!= ',args)
@@ -112,7 +115,7 @@ class Product(models.Model):
 
                 return self.thumbnail.url
             else:
-                return 'https://via.placeholder.com/240x240x.jpg'    
+                return 'https://placehold.co/300x300/jpg'    
             
             
     def make_thumbnail(self, image, size=(300, 300)):

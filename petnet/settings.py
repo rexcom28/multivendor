@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import socket
 from pathlib import Path
 
 
@@ -21,10 +22,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^9w$a(ac2r18*wo2lzym&l&6=i7-t2kggc#x0slj6xex)4kus*'
+SECRET_KEY = os.environ.get("SECRET_KEY")
+#'django-insecure-^9w$a(ac2r18*wo2lzym&l&6=i7-t2kggc#x0slj6xex)4kus*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -49,16 +51,24 @@ INSTALLED_APPS = [
     #3rd party packages
     'widget_tweaks',
     'crispy_forms',
+    'rest_framework',
     
-    #apps    
+    #apps
+    'adminStore',
     'core',
     'userprofile',
     'Shipping',
     'store',
     
+    
 ]
-
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.TokenAuthentication',
+#     ],
+# }
 MIDDLEWARE = [
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -70,8 +80,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'petnet.urls'
 
+# Get the IP address of the Docker container
+host_name = socket.gethostbyname(socket.gethostname())
 
-WEB_SITE_URL = 'http://127.0.0.1:8000/' if DEBUG else 'http:zeus28.pythonanywhere.com/'
+WEB_SITE_URL = f'http://{host_name}/' if DEBUG else 'http:zeus28.pythonanywhere.com/'
 STRIPE_PUB_KEY = 'pk_test_51J3Bu4Ls0fNtt2ThkrZFwNQm4IUae2tDoWj6SF6nTnNRq3RKTeqFCi2OGABF4nWSsii9SuNpFUsPZTTecHkGLyyT00juewjaNm'
 STRIPE_SECRET_KEY = 'sk_test_51J3Bu4Ls0fNtt2Thxkx9pVLi5gmvdnRxkfdT39kTj1n1QhkhFJh1OQuioiIxvwhCWm3twdMT6gKUZAUPkDktE2PM00ZgMDk2jF'
 
@@ -100,25 +112,24 @@ WSGI_APPLICATION = 'petnet.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    DATABASES={
-        'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'zeus28$default',
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+# else:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'zeus28',
         'USER': 'zeus28',
         'PASSWORD': 'Bardo28@',
-        'HOST': 'zeus28.mysql.pythonanywhere-services.com',
-        'PORT': '3306',
-        'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
-        }
+        'HOST': 'postgres',
+        'PORT': '5432',
     }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

@@ -1,0 +1,133 @@
+{% extends "core/base.html" %}
+
+{% block styleCSS %}
+    <style>
+    html,
+    body,
+    .intro {
+    height: 100%;
+    }
+
+    .gradient-custom-1 {
+    /* fallback for old browsers */
+    background: #cd9cf2;
+
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to top, rgba(205, 156, 242, 1), rgba(246, 243, 255, 1));
+
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to top, rgba(205, 156, 242, 1), rgba(246, 243, 255, 1))
+    }
+
+    table td,
+    table th {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    }
+    tbody td {
+    font-weight: 500;
+    color: #999999;
+    }
+    .scrollable-table {
+        max-height: 500px;
+        overflow-y: scroll;
+    }
+    </style>
+{% endblock styleCSS %}
+
+{% block content %}
+
+<div class="mt-4">
+
+    <form action="{% url 'permissionList' %}" method="get">
+        <div class="form-group">
+            <label for="search">Search vendor: </label>
+            <input type="text" class="form-control" id="search" name="search">
+            <input type="hidden" class="form-control" id="vendor_search" name="vendor">
+        </div>
+        <button id="busquedabtn"class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="mt-4 form-group">
+        <label for="vendor">Vendor:</label>
+        <select class="form-control" id="vendor" name="vendor">
+        {% for vendor in vendors %}
+            <option value="{{ vendor.id }}">{{ vendor.username }}</option>
+        {% endfor %}
+        </select>
+    </div>
+</div>
+
+    <table class="table">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Acction</th>
+            <th scope="col">Table</th>
+            <th scope="col">Handle</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for permission in permissions %}
+            <tr>
+                <td>{{ permission.id }}</td>
+                <td>{{ permission.name }}</td>
+                <td>{{ permission.content_type__model }}</td>
+                <td>
+                    <input type="checkbox" 
+                    
+                        onclick="addPermission({{ permission.id }})" 
+                        value="{{ permission.id }}"
+                        {% if permission.is_selected %}checked{% endif %}
+                    >
+                    
+                </td>
+            </tr>
+            {% endfor %}            
+        </tbody>
+    </table>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    
+    const selectElement = document.querySelector("#vendor");
+    const inputElement = document.querySelector("#vendor_search");    
+    setInterval(function() {
+        if (selectElement.value) {
+            inputElement.value = selectElement.value;
+        }
+    }, 1000);
+    selectElement.value="{{vendor_qs}}"
+    selectElement.addEventListener('change', ()=>{        
+        inputElement.value = selectElement.value; 
+        document.getElementById('busquedabtn').click() 
+    })
+    function addPermission(permissionId) {
+        vendorId = document.getElementById('vendor')
+        let csrftoken = '{{csrf_token }}'
+        
+        fetch(`{% url 'apiSaveVendorPerms' %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken':csrftoken
+        },
+        body: JSON.stringify({
+            permissionId: permissionId,
+            vendorId:vendorId.value,
+        })
+        })
+        .then(response => response.json())
+        .then(data => {
+        console.log(data);
+        })
+        .catch(error => {
+        console.error(error);
+        });
+    }
+</script>
+{% endblock scripts %}
+
+

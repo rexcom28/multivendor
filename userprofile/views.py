@@ -1,15 +1,18 @@
 from django.views.generic.edit import UpdateView
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login,authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
+from django.http import HttpResponseForbidden
+
 
 from . models import Userprofile,customerProfile
-from .forms import UserEditForm, ProfileForm,customerProfileForm,customerCreationForm, Seller_Creation_Form
+from .forms import UserEditForm, ProfileForm,customerProfileForm,customerCreationForm, Seller_Creation_Form,UserAndProfileForm
 from .api_stripe import *
+
 from store.forms import DiscountForm
 from store.models import Discount
 from store.decorator import Only_Ajax_Req
@@ -156,41 +159,43 @@ def add_product(request):
 
 @login_required
 def edit_product(request, pk):
-    product = Product.objects.filter(user=request.user).get(pk=pk)
-
+    if not request.user.has_perm("store.change_product"):
+        return HttpResponseForbidden("You don't have permission to edit Product.")
+    try:
+        product = Product.objects.filter(user=request.user).get(pk=pk)
+    except Product.DoesNotExist:
+        messages.error(request, 'The product you are trying to edit does not exist.')
+        return redirect('my_store')
+    
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         #remove instance thumbnail to remake the thumbnail in the model 
         if 'image' in request.FILES:
             x = str(form.instance.thumbnail)
             if not x.replace(form.instance.thumbnail.field.upload_to, '') == str(request.FILES['image']):
-                #print('xxxxx ',x.replace(form.instance.thumbnail.field.upload_to, ''), '---------', str(request.FILES['image']))
-                #print('image' in request.FILES)
-                #print(x.replace(form.instance.thumbnail.field.upload_to, ''))
                 form.instance.thumbnail =None        
                 print(request.FILES['image'])
                 
         if form.is_valid():
-
-            
             product = form.save(commit=False)
             product.save()                
             
             #here we delete or archive product and create another
             api_own= StripeAPI()
-            del_prod, err = api_own.delete_product(product.id_stripe)
+            del_prod, err = api_own.delete_product(str(product.id_stripe))
             if err:
                 #the product id was not archived
-                pass
-            api_edit_prod, err= api_own.create_product(product)
+                print('the product id was not archived', product.id_stripe)
+                return redirect('my_store')
             
+            api_edit_prod, err= api_own.create_product(product)            
             if err:                
                 messages.error(request, f'{err}')
-            else:
-                product.id_stripe=api_edit_prod.id
-                product.save()
-                messages.success(request,f'Product {product.title} modified')
-            messages.success(request, 'The changes was saved!')
+                return redirect('my_store')
+            
+            product.id_stripe=api_edit_prod.id
+            product.save()
+            messages.success(request,f'Product {product.title} modified')
             return redirect ('my_store')
     else:
         qs = Discount.objects.filter(created_by=request.user)
@@ -220,66 +225,65 @@ def delete_product(request, pk):
 @login_required
 def myaccount(request):
     u = User.objects.get(pk=request.user.id)
-    
+    print(u.customer.stripe_cus_id)
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=u)
-        if form.is_valid():
+        customer_form = customerProfileForm(request.POST)
+        if form.is_valid() and customer_form.is_valid():
             form.save()
+            #send customer values to stripe API for update customer            
+            customer,error = update_customer(str(u.customer.stripe_cus_id),customer_form.cleaned_data)
             redirect('myaccount')
     else:
         form = UserEditForm(instance=u)
+        customer, error= retrive_customer(str(u.customer.stripe_cus_id))
+        customer_form = customerProfileForm(initial=customer)
             
-    return render(request, 'userprofile/myaccount.html', {'form':form})
+    return render(request, 'userprofile/myaccount.html', {'form':form, 'customer_form':customer_form})
 
-def customer_sigup(request):
-    template_name = 'userprofile/sigup_customer.html'
+def customer_signup(request):
+    template_name = 'userprofile/signup_customer.html'
     if request.method == 'POST':
-        form =customerCreationForm(request.POST)#UserCreationForm()
+        form = customerCreationForm(request.POST)  # UserCreationForm()
         customer_form = customerProfileForm(request.POST)
-        if form.is_valid() and customer_form.is_valid():            
-            client_id, error = create_customer(form.cleaned_data , customer_form.cleaned_data)
+        if form.is_valid() and customer_form.is_valid():
+            client_id, error = create_customer(form.cleaned_data, customer_form.cleaned_data)
             if client_id:
-                customer= form.save()
+                customer = form.save()
                 user = customerProfile.objects.create(stripe_cus_id=client_id, user=customer)
-                if user:
-                    login(request, customer)
-                    return redirect('frontpage')
+                authenticated_user = authenticate(username=customer, password=form.cleaned_data['password1'])
+                if authenticated_user:
+                    login(request, authenticated_user)
+                return redirect('frontpage')
     else:
-        form =customerCreationForm()
+        form = customerCreationForm()
         customer_form = customerProfileForm()
-    return render(request, 
-        template_name,
-        {
-        'form':form,
-        'customer_form':customer_form
-        }
-    )
+    return render(request,
+                  template_name,
+                  {
+                      'form': form,
+                      'customer_form': customer_form
+                  }
+                  )
+
 
 
 def sigup(request):
     if request.method == 'POST':
-        form = Seller_Creation_Form(request.POST)
-        profile_form = ProfileForm(request.POST)                
-        #print(form['username'].value())
-        #print(profile_form['is_vendor'].value())        
-        if form.is_valid():                        
-            user= form.save()
-            profile = Userprofile.objects.create(
-                user=user, 
-                is_vendor=profile_form['is_vendor'].value(),
-                RFC=profile_form['RFC'].value()
-            )
-            if profile:       
-                login(request, user)
-                return redirect('frontpage')
-    else:
         
-        form = Seller_Creation_Form()#UserCreationForm()
-        profile_form = ProfileForm()
+        form =UserAndProfileForm(request.POST)        
+        if form.is_valid():            
+            user=form.save()            
+            authenticated_user = authenticate(username=user.username, password=form.cleaned_data['password1'])
+            if authenticated_user:                
+                login(request, authenticated_user)
+                return redirect('frontpage')
+    else:        
+        form= UserAndProfileForm()
         
     return render(request, 'userprofile/signup.html', {
         'form':form,
-        'profile_form':profile_form
+        #'profile_form':profile_form
     })
 class create_customer_already_signup(UpdateView):
     model = User

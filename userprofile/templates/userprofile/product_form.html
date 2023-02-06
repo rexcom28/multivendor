@@ -9,10 +9,49 @@
     </figure>
     <form action="." method="post" enctype="multipart/form-data" class="space-y-5">
         {% csrf_token %}
-        {{form.as_p}}
+        {% for field in form %}
+        {% if field.errors %}
+            <div class="error">
+                <ul>
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% endfor %}
+        {{form.category}}
+        {{form.title}}
+        {{form.description}}
+        
+        
+        {{form.price}}
+        $<span id="display-price"></span>
+        {{form.image}}
+        {{form.status}}
+        {{form.discount}}
+        {{form.id_stripe}}
+        
         <button class="mt-6 py-4 px-8 bg-teal-500 text-white hover:bg-teal-800">Submit</button>
     </form>
     {% if product %}
       <a href="{% url 'delete_product' product.id %}" class="mt-2 inline-block py-4 px-8 bg-red-500 text-white"> Delete product</a>
     {% endif %}
 {% endblock content %}
+
+
+{% block scripts %}
+<script>
+  const form = document.querySelector('form');
+  const priceInput = document.querySelector('#id_price');
+  const displayPrice = document.querySelector('#display-price');
+  window.addEventListener('load', function() {
+      displayPrice.textContent = (priceInput.value / 100).toFixed(2);
+  });
+
+  priceInput.addEventListener('input', function() {
+    displayPrice.textContent = (priceInput.value / 100).toFixed(2);
+    
+  });
+</script>
+{% endblock scripts %}

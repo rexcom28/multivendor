@@ -7,8 +7,10 @@ from core.views import frontpage, about, frontpage2
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
     path('about/', about, name='about'),
     path('f2/', frontpage2, name='frontpage2'),
+    path('adminStore/',include('adminStore.urls')),
     path('', include('userprofile.urls')),    
     path('', include('store.urls')),
     path('', frontpage, name='frontpage'),

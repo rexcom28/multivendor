@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div id="category-table" class="d-flex justify-content-center">
+    <table>
+      <thead class="border-b bg-gray-60">
+        <tr>
+          <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+            Category
+            <form action="." method="get">
+              <div class="input-group">
+                <div class="form-outline">
+                  <input type="text" id="filter" name="title_filter" class="form-control" />
+                  <label class="form-label" for="form1">Search</label>
+                </div>
+                <button class="inline-block px-6 py-2 border-2 border-blue-400 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </form>
+          </th>
+          <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+            slug
+          </th>
+          <th><a href="{% url 'categories_add' %}" class="btn btn-primary">Add Category</a></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in object_list %}
+          <tr class="border-b">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              {{cat.title}}
+            </td>
+            <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+              {{cat.slug}}
+            </td>
+            <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+              <a href="{% url 'category_detail' cat.slug %}" class="inline-block px-6 py-2 border-2 border-blue-400 text-blue-400 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out">List</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+{% include "core/CBV_paginate.html" %}
+
+{% endblock content %}

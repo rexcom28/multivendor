@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<section class="pb-4">
+<div class="bg-white border rounded-5">
+    <section class="w-100 p-4 text-center pb-4">
+        <form method="POST" class="row row-cols-lg-auto g-3 align-items-center">
+            {% csrf_token %}
+            <div class="form-outline">
+                {% render_field form.title.label %}
+                {% render_field form.title class="form-control"  %}
+
+            </div>
+            <div class="col-12">
+                <button type="submit" class="bg-teal-600 text-white btn btn">Submit</button>
+            </div>
+        </form>
+    </section>
+</div>
+</section>
+{% endblock content %}

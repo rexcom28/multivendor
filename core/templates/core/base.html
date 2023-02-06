@@ -37,6 +37,11 @@
         }
       }
     </script>
+    {% block styleCSS %}
+    
+    {% endblock styleCSS %}
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org/dist/htmx.min.js"></script>
+    
 </head>
 <body>
     <nav class="relative w-full flex flex-wrap items-center justify-between py-4 bg-teal-600">
@@ -56,6 +61,7 @@
             </form>
         </div>
 
+        
         <div class="menu flex items-center space-x-2">
             <div class="flex justify-center">
                 {% menu %}
@@ -68,23 +74,57 @@
                    
                 <span>({{cart|length}})</span>               
             </a>
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'myaccount' %}"class="flex py-2 px-4 bg-teal-800 text-white rounded-xl hover:bg-teal-900">
-                   <span class="inline-block">{{ request.user|capfirst }}'s settings</span> 
-                </a>
-                
-                {% if request.user.userprofile.is_vendor %}
-                    <a href="{% url 'my_store' %}" class="py-2 px-4 bg-teal-800 text-white rounded-xl hover:bg-teal-900">{{ request.user|capfirst }}'s store</a>    
-                {% endif %}                
-            {% else %}
-                <a href="{% url 'login' %}" class="py-2 px-4 bg-teal-800 text-white rounded-xl hover:bg-teal-900">Login</a>   
-            {% endif %}      
+
+            <ul class="flex py-1 px-2 bg-teal-800 text-white rounded-xl hover:bg-teal-900 navbar-nav ">
+                <!-- Dropdown -->
+                <li class="nav-item dropdown">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="navbarDropdownMenuLink"
+                    role="button"
+                    data-mdb-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                  {{ request.user }}
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li>
+                        {% if request.user.userprofile.is_vendor %}
+                            <a class="dropdown-item" href="{% url 'my_store' %}">My store</a>
+                        {% endif %}
+                    </li>
+
+                    <li>
+                      <a class="dropdown-item" href="{% url 'myaccount' %}">Settings</a>
+                    </li>
+
+                    <li>
+                        {% if request.user.is_authenticated %}
+                            <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'login' %}">Login</a>
+                        {% endif %}
+                      
+                    </li>
+                    
+                  </ul>
+                </li>
+              </ul>  
         </div>
     </nav>
     <div class="container">
         <div class="">
             {% include "core/partials/messages.html" %}
         </div>
+        
+        {% back_button request as back_button_html %}
+        {% if back_button_html %}
+            <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-success">Back</a>
+        {% endif %}
+        
+        
+        
         {% block content %}        
         {% endblock content %}        
     </div>

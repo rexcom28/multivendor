@@ -17,7 +17,8 @@ from .decorator import check_user_able_to_see_page,verify_customer
 from userprofile.api_stripe import get_cupon,verify_payment_intent
 
 #CVB
-from django.views.generic.edit import UpdateView
+from django.views.generic.list import ListView
+from django.views.generic.edit import UpdateView, CreateView
 
 #-------------Cart functions
 @login_required
@@ -214,7 +215,6 @@ def re_order(request):
                 'order':payment_intent, 
                 #'redirect':'/cart/success/'
             })
-
         # None Ajax call in POST    
         else:   
             #this section triggers if the function reOrder in orderForm.html 
@@ -466,7 +466,7 @@ def category_detail(request, slug):
         'category':category,
         'products':products
     })
-    
+
 #@login_required
 #@check_user_able_to_see_page('mirones')
 #@verify_customer
@@ -475,3 +475,30 @@ def product_detail(request, category_slug, slug):
     return render(request, 'store/product_detail.html', {
         'product':product
     })
+
+#===================CLASS BASED VIEWS
+
+class Category_ListView(ListView):
+    paginate_by =10
+    model = Category
+    template_name = 'store/category/category_list.html'
+
+    def get(self, request, *args, **kwargs):
+        title_filter = request.GET.get('title_filter', '')
+        self.queryset = self.model.objects.filter(title__icontains=title_filter)
+        return super().get(request, *args, **kwargs)
+
+class Category_CreateView(CreateView):
+    model = Category
+    template_name= 'store/category/create.html'
+    fields = ['title']
+    success_url = '/categories/list/'
+
+class Category_UpdateView(UpdateView):
+    model= Category
+    template_name= 'store/category/create.html'
+    fields = ['title']
+    success_url = '/categories/list/'
+
+
+

@@ -18,8 +18,8 @@ def retrive_customer(customer_id:str):
         return customer , ''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
+    # except stripe.error.APIConnectError as E:
+    #     return '', E
     except stripe.error.StripeError as e:
     # Display a very generic error to the user, and maybe send
     # yourself an email
@@ -48,20 +48,20 @@ def update_customer(id,customer):
             phone=Sphone,
             shipping=Sshipping
         )
-        return client.id, 
+        return client.id, ''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
-    except stripe.error.StripeError as e:
-    # Display a very generic error to the user, and maybe send
-    # yourself an email
+    except stripe.error.StripeError as E:
         return '', E
     except Exception as E:
     # Something else happened, completely unrelated to Stripe
         return '', E
-    
 
+def vendor_customer(user):
+    try:
+        return stripe.Customer.create(email=user.email), ''
+    except stripe.error.StripeError as e:
+        return None, StripeErrorHandler.handle_error(e)
 #create customer
 def create_customer(form, customer):
     Semail=customer.pop('email2')
@@ -86,8 +86,8 @@ def create_customer(form, customer):
         return client.id, ''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
+    # except stripe.error.APIConnectError as E:
+    #     return '', E
     except stripe.error.StripeError as e:
     # Display a very generic error to the user, and maybe send
     # yourself an email
@@ -111,8 +111,8 @@ def create_cupon(data):
         return obj,''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
+    # except stripe.error.APIConnectError as E:
+    #     return '', E
     except stripe.error.StripeError as e:    
         return '', E
     except Exception as E:    
@@ -124,8 +124,8 @@ def get_cupon(cupon_name):
         return coupon, ''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
+    # except stripe.error.APIConnectError as E:
+    #     return '', E
     except stripe.error.StripeError as e:    
         return '', E
     except Exception as E:    
@@ -138,8 +138,8 @@ def delete_cupon(cupon_name):
         return del_cupon,''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
+    # except stripe.error.APIConnectError as E:
+    #     return '', E
     except stripe.error.StripeError as e:    
         return '', E
     except Exception as E:    
@@ -154,8 +154,8 @@ def verify_payment_intent(payment_intent):
         return res,''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    except stripe.error.APIConnectError as E:
-        return '', E
+    # except stripe.error.APIConnectError as E:
+    #     return '', E
     except stripe.error.StripeError as e:    
         return '', E
     except Exception as E:    
