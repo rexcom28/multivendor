@@ -22,11 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
-#'django-insecure-^9w$a(ac2r18*wo2lzym&l&6=i7-t2kggc#x0slj6xex)4kus*'
+SECRET_KEY = 'django-insecure-^9w$a(ac2r18*wo2lzym&l&6=i7-t2kggc#x0slj6xex)4kus*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -40,35 +39,28 @@ LOGIN_REDIRECT_URL ='/'
 # Application definition
 
 INSTALLED_APPS = [
-    
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     #3rd party packages
     'widget_tweaks',
     'crispy_forms',
     'rest_framework',
-    
+
     #apps
     'adminStore',
     'core',
     'userprofile',
     'Shipping',
     'store',
-    
-    
 ]
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.TokenAuthentication',
-#     ],
-# }
-MIDDLEWARE = [
 
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,6 +75,7 @@ ROOT_URLCONF = 'petnet.urls'
 # Get the IP address of the Docker container
 host_name = socket.gethostbyname(socket.gethostname())
 
+# WEB_SITE_URL = 'http://127.0.0.1:8000/'
 WEB_SITE_URL = f'http://{host_name}/' if DEBUG else 'http:zeus28.pythonanywhere.com/'
 STRIPE_PUB_KEY = 'pk_test_51J3Bu4Ls0fNtt2ThkrZFwNQm4IUae2tDoWj6SF6nTnNRq3RKTeqFCi2OGABF4nWSsii9SuNpFUsPZTTecHkGLyyT00juewjaNm'
 STRIPE_SECRET_KEY = 'sk_test_51J3Bu4Ls0fNtt2Thxkx9pVLi5gmvdnRxkfdT39kTj1n1QhkhFJh1OQuioiIxvwhCWm3twdMT6gKUZAUPkDktE2PM00ZgMDk2jF'
@@ -99,7 +92,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                
+
                 #custom context processor
                 'store.context_processors.cart',
             ],
@@ -112,24 +105,14 @@ WSGI_APPLICATION = 'petnet.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-# if DEBUG:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
-# else:
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'zeus28',
-        'USER': 'zeus28',
-        'PASSWORD': 'Bardo28@',
-        'HOST': 'postgres',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -153,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'es'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
@@ -163,36 +146,29 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-STATIC_ROOT = os.environ.get("STATIC_ROOT")
-STATIC_URL = os.environ.get("STATIC_URL")
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = os.environ.get("MEDIA_URL")
+if not DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static',
+    ]
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    STATIC_URL = '/static/'
 
-# if not DEBUG:
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
+# STATIC_URL = "/static/"
 
-#     #STATIC_ROOT ="/usr/src/app/static/"
-    
-#     STATICFILES_DIRS = [
-#             BASE_DIR / 'static'
-#         ]
-    
-#     MEDIA_URL = '/media/'
-#     MEDIA_ROOT = BASE_DIR / 'media'
-#     STATIC_URL = '/static/'
+# MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_URL = "/media/"
 # if DEBUG:
-    
+
 #     STATICFILES_DIRS = [
 #         BASE_DIR / 'static',
-        
 #     ]
 #     MEDIA_URL = '/media/'
 #     MEDIA_ROOT = BASE_DIR / 'media'
 #     STATIC_URL = '/static/'
     #STATIC_ROOT = BASE_DIR / 'static'
-    #print('STATIC_ROOT',STATIC_ROOT)
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
