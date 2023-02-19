@@ -7,23 +7,35 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
 from django.http import HttpResponseForbidden
-
+from django.urls import reverse_lazy
 
 from . models import Userprofile,customerProfile
-from .forms import UserEditForm, ProfileForm,customerProfileForm,customerCreationForm, Seller_Creation_Form,UserAndProfileForm
+from .forms import (
+    UserEditForm, ProfileForm,customerProfileForm,
+    customerCreationForm, Seller_Creation_Form,UserAndProfileForm,
+)
+from store.forms import (
+    CarouselImageForm
+)
+
+from django.forms.models import inlineformset_factory
+from django.forms import formset_factory
+
 from .api_stripe import *
 
 from store.forms import DiscountForm
 from store.models import Discount
 from store.decorator import Only_Ajax_Req
-
+from django.db import transaction
 from store.forms import ProductForm
-from store.models import Product, OrderItem, Order
+from django.forms.models import BaseModelFormSet
+from store.models import Product, OrderItem, Order,CarouselImage
 from store.decorator import is_vendor
 from django.http import JsonResponse
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 
+from django import forms
 
 
 def vendor_detail(request, pk):
@@ -130,14 +142,31 @@ def discount_view(request):
 def add_product(request):
     
     qs = Discount.objects.filter(created_by=request.user)
+    CarouselImageFormSet = formset_factory(CarouselImageForm, extra=4,can_delete=True, min_num=1)
+
     if request.method == 'POST':        
-        form = ProductForm(request.POST, request.FILES, qs=qs)        
+        form = ProductForm(request.POST, request.FILES, qs=qs)
+        carouselFormSet = CarouselImageFormSet(request.POST, request.FILES)
+
         if form.is_valid():
+
             title = request.POST.get('title')            
             product = form.save(commit=False)
             product.user = request.user
             product.slug = slugify(title)
             product.save()
+            with transaction.atomic():            
+                for formset in carouselFormSet.cleaned_data:                
+                    if not all([not formset.get('image')]):
+                        image = formset.get('image')
+                        caption = formset.get('caption')
+                        order = carouselFormSet.cleaned_data.index(formset) + 1
+                        CarouselImage.objects.create(
+                            product=product, 
+                            image=image, 
+                            caption=caption, 
+                            order=order
+                        )
             api_own = StripeAPI()
             api_prod, err = api_own.create_product(product)
                 
@@ -151,11 +180,86 @@ def add_product(request):
             return redirect ('my_store')
     else:
         form = ProductForm(qs=qs)
+        carouselFormSet = CarouselImageFormSet()
     
     return render(request, 'userprofile/product_form.html',{
         'title':'Add',
-        'form':form
+        'form':form,
+        'carouselFormSet':carouselFormSet,
     })
+
+CarouselImageFormSet = inlineformset_factory(Product, CarouselImage, CarouselImageForm,fields=('image', 'caption', 'order'),extra=1, can_delete=False)
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'userprofile/product_update.html'
+    success_url = reverse_lazy('my_store')
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        self.object = obj
+        return obj
+    def get_context_data(self, **kwargs):
+        data = super(ProductUpdateView, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['carousel_formset'] = CarouselImageFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        else:
+            data['carousel_formset'] = CarouselImageFormSet(instance=self.object, queryset=self.object.carousel.all())
+            
+        return data
+    
+    def post(self, request, *args, **kwargs):
+        product = self.get_object()
+        form = self.get_form()
+        carousel_formset = CarouselImageFormSet(request.POST,request.FILES, instance=product)
+
+        if 'image' in request.FILES:
+            x = str(form.instance.thumbnail)
+            if not x.replace(form.instance.thumbnail.field.upload_to, '') == str(request.FILES['image']):
+                form.instance.thumbnail = None
+        
+        if form.is_valid() and carousel_formset.is_valid():
+            return self.form_valid(form, carousel_formset,self.object)
+        else:
+            return self.form_invalid(form, carousel_formset)
+        
+
+    def validate_api(self, obj):
+        #here we delete or archive product and create another        
+        api_own= StripeAPI()
+        del_prod, err = api_own.delete_product(str(obj.id_stripe))
+        if err:                        
+            return f'err'
+        
+        api_edit_prod, err= api_own.create_product(obj)
+        if err:                            
+            return f'err'
+        return None
+
+    def form_valid(self, form, carousel_formset, obj):
+        
+        err = self.validate_api(obj)
+        if err:
+            messages.error(self.request, err)
+            return self.form_invalid(form, carousel_formset)
+        
+        context = self.get_context_data()
+        carousel_formset = context['carousel_formset']
+        with transaction.atomic():
+            obj = form.save()
+
+            if carousel_formset.is_valid():
+                carousel_formset.instance = obj
+                carousel_formset.save()
+
+        return super(ProductUpdateView, self).form_valid(form)
+    
+    def form_invalid(self, form, carousel_formset):
+        return self.render_to_response(
+            self.get_context_data(form=form, carousel_formset=carousel_formset)
+        )
+    
 
 @login_required
 def edit_product(request, pk):
@@ -163,12 +267,14 @@ def edit_product(request, pk):
         return HttpResponseForbidden("You don't have permission to edit Product.")
     try:
         product = Product.objects.filter(user=request.user).get(pk=pk)
+        
     except Product.DoesNotExist:
         messages.error(request, 'The product you are trying to edit does not exist.')
         return redirect('my_store')
     
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
+        
         #remove instance thumbnail to remake the thumbnail in the model 
         if 'image' in request.FILES:
             x = str(form.instance.thumbnail)
@@ -199,12 +305,17 @@ def edit_product(request, pk):
             return redirect ('my_store')
     else:
         qs = Discount.objects.filter(created_by=request.user)
+        CarouselImageFormSet = formset_factory(CarouselImageForm, extra=4)
+        carouselFormSet = CarouselImageFormSet()
         form = ProductForm(instance=product, qs=qs)
+        carousel_images = product.carousel.all()
+        
 
     return render(request, 'userprofile/product_form.html',{
         'title':'Edit',
         'product':product,
-        'form':form
+        'form':form,
+        'carouselFormSet':carouselFormSet
     })
 
 @login_required
@@ -224,21 +335,31 @@ def delete_product(request, pk):
 
 @login_required
 def myaccount(request):
-    u = User.objects.get(pk=request.user.id)
-    print(u.customer.stripe_cus_id)
+    try:
+        u = User.objects.get(pk=request.user.id)
+        customer, error= retrive_customer(str(u.customer.stripe_cus_id))
+    except Exception as e:
+        messages.error(request,f"An error ocurred while retrive the customer {e}")
+        return redirect('myaccount')
+
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=u)
-        customer_form = customerProfileForm(request.POST)
+        customer_form = customerProfileForm(request.POST,instance=u.customer)
         if form.is_valid() and customer_form.is_valid():
             form.save()
-            #send customer values to stripe API for update customer            
+            #send customer values to stripe API for update customer
+            # there is not needs to update the customerProfileForm with the user and cus_id_stripe cus are not needed
             customer,error = update_customer(str(u.customer.stripe_cus_id),customer_form.cleaned_data)
-            redirect('myaccount')
+            if error:
+                messages.error(request, f"An error occurred while updating customer information: {error}")
+            else:
+                messages.success(request, "Your account information has been updated successfully.")
+                return redirect('myaccount')
     else:
         form = UserEditForm(instance=u)
-        customer, error= retrive_customer(str(u.customer.stripe_cus_id))
-        customer_form = customerProfileForm(initial=customer)
-            
+        
+        customer_form = customerProfileForm(instance=u.customer, initial=customer)
+
     return render(request, 'userprofile/myaccount.html', {'form':form, 'customer_form':customer_form})
 
 def customer_signup(request):

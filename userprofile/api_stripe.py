@@ -29,7 +29,11 @@ def retrive_customer(customer_id:str):
         return '', E
     
 
-def update_customer(id,customer): 
+def update_customer(id,customer):
+    if 'stripe_cus_id' in customer:
+        customer.pop('stripe_cus_id')
+    if 'user' in customer:
+        customer.pop('user')
     Semail=customer.pop('email2')
     Sname =customer.pop('name')
     Sphone=customer.pop('phone')

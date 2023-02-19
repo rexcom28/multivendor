@@ -67,7 +67,7 @@ class customerCreationForm(UserCreationForm):
          }),
       }
 
-class customerProfileForm(forms.Form):
+class customerProfileForm(forms.ModelForm):
    city     = forms.CharField(label="Ciudad:",max_length=15,required=False,
       widget=forms.TextInput(attrs={'class':inputs})
    )
@@ -95,6 +95,18 @@ class customerProfileForm(forms.Form):
    phone    = forms.CharField(label="Teléfono:",max_length=15,required=False,
       widget=forms.TextInput(attrs={'class':inputs})
    )
+   
+   class Meta:
+      model =customerProfile
+      fields = ('stripe_cus_id', 'user', 'city', 'country','line1','line2','postal_code','state','email2','name','phone',)
+      widgets = {
+         'user': forms.HiddenInput(attrs={
+               'class': inputs+' my_custom_selector'
+         }),
+         'stripe_cus_id': forms.HiddenInput(attrs={
+               'class': inputs+' my_custom_selector'
+         }),
+      }
    
 class UserEditForm(forms.ModelForm):
     

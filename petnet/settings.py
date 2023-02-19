@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 #'django-insecure-^9w$a(ac2r18*wo2lzym&l&6=i7-t2kggc#x0slj6xex)4kus*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ['*']
 
@@ -165,24 +165,34 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-if not DEBUG:
-    #STATIC_ROOT = os.path.join(BASE_DIR, "static")
-    STATICFILES_DIRS = [
-            BASE_DIR / 'static'
-        ]
+STATIC_ROOT = os.environ.get("STATIC_ROOT")
+STATIC_URL = os.environ.get("STATIC_URL")
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = os.environ.get("MEDIA_URL")
+
+# if not DEBUG:
+
+#     #STATIC_ROOT ="/usr/src/app/static/"
     
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-    STATIC_URL = '/static/'
-if DEBUG:
+#     STATICFILES_DIRS = [
+#             BASE_DIR / 'static'
+#         ]
     
-    STATICFILES_DIRS = [
-        BASE_DIR / 'static',
-    ]
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-    STATIC_URL = '/static/'
+#     MEDIA_URL = '/media/'
+#     MEDIA_ROOT = BASE_DIR / 'media'
+#     STATIC_URL = '/static/'
+# if DEBUG:
+    
+#     STATICFILES_DIRS = [
+#         BASE_DIR / 'static',
+        
+#     ]
+#     MEDIA_URL = '/media/'
+#     MEDIA_ROOT = BASE_DIR / 'media'
+#     STATIC_URL = '/static/'
     #STATIC_ROOT = BASE_DIR / 'static'
+    #print('STATIC_ROOT',STATIC_ROOT)
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

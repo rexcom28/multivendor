@@ -27,7 +27,17 @@
         
         {{form.price}}
         $<span id="display-price"></span>
+        <hr>
+        <br>
+        <br>
+        
+        {{form.image.label}}
         {{form.image}}
+        
+        {{ carouselFormSet.non_form_errors }}  
+        
+        {{carouselFormSet.management_form}}
+        {{carouselFormSet.as_p}}
         {{form.status}}
         {{form.discount}}
         {{form.id_stripe}}

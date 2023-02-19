@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-6 text-2xl font-medium">Update Product</h2>
+<img src="{{ form.instance.image.url }}" style="max-width:100%; max-height:200px; margin-top:10px;">
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <h2>Carousel Images</h2>
+  <hr><br>
+  {{ carousel_formset.management_form }}
+  {% for form in carousel_formset %}
+  <div class="formset-row border rounded-5">
+      {{ form.id }}
+      
+      <div class="form-group">
+          <label for="{{ form.image.id_for_label }}">Image</label>
+          <div class="custom-file">
+              {{ form.image }}
+              
+          </div>
+          {% if form.instance.pk %}
+              <img src="{{ form.instance.image.url }}" style="max-width:100%; max-height:200px; margin-top:10px;">
+          {% endif %}
+          <div class="form-group">
+            order{{ form.order }}
+            caption{{ form.caption }}
+          </div>          
+      </div>  
+      
+  </div>
+  <br><br>
+{% endfor %}
+
+  <input type="submit" class="mt-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" value="Save">
+</form>
+
+
+{% endblock %}

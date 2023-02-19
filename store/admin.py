@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import (
     Category, 
     Product, 
+    CarouselImage,
     Order, 
     OrderItem, 
     Shipped_Orders,
@@ -38,6 +39,11 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name','paid_amount', 'is_paid', 'created_by', 'is_shipped']
     search_fields = ['first_name','paid_amount', 'payment_intent','created_by_id__username', 'is_shipped']
     actions = [verified_payment]
+
+class CarouselImageAdmin(admin.ModelAdmin):
+    list_display = ['product', 'image','caption']
+
+
 class Discount_Admin(admin.ModelAdmin):
     list_display=['code_name','created_by','stock','times_redeemed', 'discount_percent']
 
@@ -54,7 +60,7 @@ class Product_Admin(admin.ModelAdmin):
 admin.site.register(Shipped_Orders)#,Shipped_Orders_Admin)
 admin.site.register(Category)
 admin.site.register(Product,Product_Admin)
-
+admin.site.register(CarouselImage,CarouselImageAdmin)
 admin.site.register(Order,OrderAdmin)
 admin.site.register(OrderItem)
 admin.site.register(Discount, Discount_Admin)

@@ -4,8 +4,8 @@ services:
   django:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
+      dockerfile: ./Dockerfile
+    command: bash ./django-launcher.sh
     volumes:
       - .:/usr/src/app
     environment:
@@ -13,6 +13,9 @@ services:
       SECRET_KEY: mysecret
       ALLOWED_HOSTS: django.localhost
       DATABASE_URL: postgres://zeus28:Bardo28@localhost:5432/zeus28
+      STATIC_URL: /static/
+      STATIC_ROOT: static
+      MEDIA_URL: /media/
     expose:
       - 8000
     depends_on:

@@ -132,7 +132,14 @@ class Product(models.Model):
 
         return thumbnail
     
-    
+
+class CarouselImage(models.Model):
+    product = models.ForeignKey('Product', related_name='carousel', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='carousel/')
+    caption = models.CharField(max_length=100,blank=True)
+    order = models.PositiveIntegerField()
+    class Meta:
+        ordering = ['order']
 
 class Order(models.Model):
     first_name = models.CharField(max_length=255)
