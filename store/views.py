@@ -257,7 +257,6 @@ def re_order(request):
         'pub_key': settings.STRIPE_PUB_KEY
     })
 
-
 @login_required#(login_url='/cart/checkout/')
 @verify_customer()
 def checkout(request):
@@ -266,6 +265,8 @@ def checkout(request):
     if cart.get_total_cost() == 0:
         return redirect('cart_view')    
     if request.method == 'POST':
+        if  request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Invalid request'})
         data = json.loads(request.body)
         first_name , last_name, address,zipcode, city, discount_code = data.values()     
         if first_name and last_name and address and zipcode and city :

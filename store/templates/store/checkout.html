@@ -145,7 +145,7 @@
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json',
-                    
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRFToken': '{{csrf_token}}'
                 },
                 credentials:'same-origin',
@@ -162,7 +162,7 @@
             .then(function(result){
                 console.log(result)
                 if(result.error){
-                    
+
                     //location.reload()
                 }
             })
