@@ -162,11 +162,13 @@
             .then(function(result){
                 console.log(result)
                 if(result.error){
-                    location.reload()
+                    
+                    //location.reload()
                 }
             })
             .catch(function(error){
-                location.reload()
+                console.log(error)
+                //location.reload()
             });
         }
         return false;
