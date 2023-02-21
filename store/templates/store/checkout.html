@@ -130,6 +130,7 @@
         const zipcode    = document.getElementById('id_zipcode').value;
         const city       = document.getElementById('id_city').value
         const discount_code = document.getElementById('id_discount_code').value
+        
         if(validate(first_name,last_name,address,zipcode,city) ){
             let data = {
                 'first_name': first_name,
@@ -140,13 +141,14 @@
                 'discount_code'   : discount_code,
             }
 
-            let stripe = Stripe('{{ pub_key }}');                            
-            fetch(`{% url 'checkout' %}`, {
+            let stripe = Stripe('{{ pub_key }}'); 
+                                      
+            fetch(`{{ fullurl }}{% url 'checkout' %}`, {
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': '{{csrf_token}}'
+                    'X-CSRFToken': '{{csrf_token}}',
                 },
                 credentials:'same-origin',
                 body: JSON.stringify(data)

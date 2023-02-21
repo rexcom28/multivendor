@@ -265,7 +265,8 @@ def checkout(request):
     if cart.get_total_cost() == 0:
         return redirect('cart_view')    
     if request.method == 'POST':
-        if  request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        
+        if  request.headers.get('X-Requested-With') != 'XMLHttpRequest':
             return JsonResponse({'error': 'Invalid request'})
         data = json.loads(request.body)
         first_name , last_name, address,zipcode, city, discount_code = data.values()     
@@ -383,7 +384,8 @@ def checkout(request):
     return render(request, 'store/checkout.html', {
         'cart':cart,
         'form':form,
-        'pub_key': settings.STRIPE_PUB_KEY
+        'pub_key': settings.STRIPE_PUB_KEY,
+        'fullurl':settings.URL_API,
     })
 
 def change_quantity(request, product_id):
