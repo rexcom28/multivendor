@@ -384,8 +384,7 @@ def checkout(request):
     return render(request, 'store/checkout.html', {
         'cart':cart,
         'form':form,
-        'pub_key': settings.STRIPE_PUB_KEY,
-        'fullurl':settings.URL_API,
+        'pub_key': settings.STRIPE_PUB_KEY,        
     })
 
 def change_quantity(request, product_id):
