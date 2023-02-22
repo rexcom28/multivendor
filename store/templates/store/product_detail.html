@@ -100,6 +100,7 @@
     <p class="mt-4 mb-4"> <a href="{% url 'category_detail' product.category.slug %}"> <strong>{{product.category}}</strong></a></p>
     
     {% if request.user == product.user %}
+        {% comment %}
         <button onclick="check_add_to_cart(event)"  type="button" 
         class="px-6
         py-2.5
@@ -118,11 +119,31 @@
         duration-150
         ease-in-out
         ml-1" data-bs-toggle="modal" data-bs-target="#exampleModal"
-        >Add to cart</button>
-    
+        >Add to cart 1</button>
+        {% endcomment %}
+
+        <button type="button" class="px-6
+        py-2.5
+        bg-teal-500
+        text-white
+        font-medium
+        text-xs
+        4   leading-tight
+        uppercase
+        rounded
+        shadow-md
+        hover:bg-teal-600 hover:shadow-lg
+        focus:bg-teal-600 focus:shadow-lg focus:outline-none focus:ring-0
+        active:bg-teal-700 active:shadow-lg
+        transition
+        duration-150
+        ease-in-out
+        ml-1" data-mdb-toggle="modal" data-mdb-target="#exampleModal">
+          Add to cart
+        </button>
         <!--Includes th modal to the htlm if condition-->
         {% include 'store/partials/modal_alert.html' %}
-    
+
     {% else %}
         <a id="add_to_cart" href="{% url 'add_to_cart' product.id %}" class="px-6
         py-2.5
@@ -140,19 +161,29 @@
         transition
         duration-150
         ease-in-out
-        ml-1">Add to cart</a>    
+        ml-1">Add to cart 2</a>    
     {% endif %}
+    
   </section>
 </div>  
-
-
-
-
-
-
 {% endblock content %}
 {% block scripts %}
 <script>
+
+let closebtn = document.getElementById("close")
+closebtn.addEventListener('click', ()=>{
+exampleModal.style.display = "none";
+var backdrops = document.querySelectorAll(".modal-backdrop.fade.show");
+
+backdrops.forEach(function(backdrop) {
+  console.log(backdrop)
+  backdrop.parentNode.removeChild(backdrop);
+});
+})
+
+function check_add_to_cart (event){
+
+}
 // Get the carousel elements
 var carouselInner = document.querySelector('.carousel-inner');
 var carouselIndicators = document.querySelectorAll('.carouselIndicators');
@@ -219,73 +250,3 @@ carouselIndicators.forEach(function(indicator) {
 
 </script>
 {% endblock scripts %}
-
-
-{% comment %}
-{% block content %}
-    {% if product.image %}
-        <div class="image mb-4">
-            <img class="object-scale-down object-cover h-96 w-192" src="{{product.image.url}}" alt="Image of {{product.title}}">
-        </div>
-    {% endif %}    
-    <h1 class="text-xl">{{product.title}}</h1>
-    <p class="text-xs text-gray-500">
-        $ {{product.get_display_price}}
-        -
-        <a href="{% url 'vendor_detail' product.user.id %}"> {% firstof product.user.get_full_name product.user.username %} </a>
-    </p>
-    {% if product.description %}
-        <p class="mt-4 mb-4">{{product.description}}</p>
-    {% endif %}
-        
-    <p class="mt-4 mb-4"> <a href="{% url 'category_detail' product.category.slug %}"> <strong>{{product.category}}</strong></a></p>
-
-    {% if request.user == product.user %}
-        <button onclick="check_add_to_cart(event)"  type="button" 
-        class="px-6
-        py-2.5
-        bg-teal-500
-        text-white
-        font-medium
-        text-xs
-        leading-tight
-        uppercase
-        rounded
-        shadow-md
-        hover:bg-teal-600 hover:shadow-lg
-        focus:bg-teal-600 focus:shadow-lg focus:outline-none focus:ring-0
-        active:bg-teal-700 active:shadow-lg
-        transition
-        duration-150
-        ease-in-out
-        ml-1" data-bs-toggle="modal" data-bs-target="#exampleModal"
-        >Add to cart</button>
-    
-        <!--Includes th modal to the htlm if condition-->
-        {% include 'store/partials/modal_alert.html' %}
-
-    {% else %}
-        <a id="add_to_cart" href="{% url 'add_to_cart' product.id %}" class="px-6
-        py-2.5
-        bg-teal-500
-        text-white
-        font-medium
-        text-xs
-        leading-tight
-        uppercase
-        rounded
-        shadow-md
-        hover:bg-teal-600 hover:shadow-lg
-        focus:bg-teal-600 focus:shadow-lg focus:outline-none focus:ring-0
-        active:bg-teal-700 active:shadow-lg
-        transition
-        duration-150
-        ease-in-out
-        ml-1">Add to cart</a>    
-    {% endif %}
-        
-    
-
-{% endblock content %}
-
-{% endcomment %}
