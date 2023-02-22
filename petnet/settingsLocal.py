@@ -83,8 +83,7 @@ ROOT_URLCONF = 'petnet.urls'
 # Get the IP address of the Docker container
 host_name = socket.gethostbyname(socket.gethostname())
 
-WEB_SITE_URL = f'http://{host_name}:8000/' if DEBUG else 'http:zeus28.pythonanywhere.com/'
-URL_API = f'http://{host_name}:8000' if DEBUG else 'http:zeus28.pythonanywhere.com' 
+WEB_SITE_URL = f'http://{host_name}:8000/' if DEBUG else 'https://zeus28.pythonanywhere.com/'
 STRIPE_PUB_KEY = 'pk_test_51J3Bu4Ls0fNtt2ThkrZFwNQm4IUae2tDoWj6SF6nTnNRq3RKTeqFCi2OGABF4nWSsii9SuNpFUsPZTTecHkGLyyT00juewjaNm'
 STRIPE_SECRET_KEY = 'sk_test_51J3Bu4Ls0fNtt2Thxkx9pVLi5gmvdnRxkfdT39kTj1n1QhkhFJh1OQuioiIxvwhCWm3twdMT6gKUZAUPkDktE2PM00ZgMDk2jF'
 
