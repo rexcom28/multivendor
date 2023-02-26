@@ -13,7 +13,7 @@ def menu(*args, **kwargs):
 
 @register.simple_tag
 def back_button(request):
-    print('REQUES',request.META.get('HTTP_REFERER', '/'))
+    
     if request.method == 'GET':
         return True #request.META.get('HTTP_REFERER', '/')
     return False

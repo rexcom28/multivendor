@@ -370,13 +370,14 @@ def checkout(request):
         init ={}
         if cus.customer.stripe_cus_id!='':
             customer, error= retrive_customer(cus.customer.stripe_cus_id)            
-            if all([customer.get('name'), customer.get('line1'), customer.get('postal_code'), customer.get('city')]):
-                init={
-                    'first_name': customer.get('name') ,
-                    'address':customer.get('line1'),
-                    'zipcode':customer.get('postal_code'),
-                    'city':customer.get('city')
-                }
+            if customer:
+                if all([customer.get('name'), customer.get('line1'), customer.get('postal_code'), customer.get('city')]):
+                    init={
+                        'first_name': customer.get('name') ,
+                        'address':customer.get('line1'),
+                        'zipcode':customer.get('postal_code'),
+                        'city':customer.get('city')
+                    }
             if error!='':
                 messages.error(request,error)
 
