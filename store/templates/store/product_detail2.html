@@ -1,0 +1,96 @@
+{% extends 'core/mainBase.html' %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row">
+    <div class="col-md-7">
+      <div class="carousel slide" id="carouselExampleIndicators" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          {% if product.image %}
+          <button class="active" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"></button>
+          {% endif %}
+          {% for i in product.carousel.all %}
+          <button data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ forloop.counter }}"></button>
+          {% endfor %}
+        </div>
+        <div class="carousel-inner">
+          {% if product.image %}
+          <div class="carousel-item active">
+            <img src="{{ product.image.url }}" class="d-block w-100" alt="Main product image">
+          </div>
+          {% endif %}
+          {% for i in product.carousel.all %}
+          <div class="carousel-item">
+            <img src="{{ i.image.url }}" class="d-block w-100" alt="{{ i.caption }}">
+            <div class="carousel-caption d-none d-md-block">
+              <h5>{{ i.caption }}</h5>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <h1 class="mb-4">{{ product.title }}</h1>
+      <p class="lead">${{ product.get_display_price }} - <a href="{% url 'vendor_detail' product.user.id %}">{{ product.user.get_full_name }}</a></p>
+      {% if product.description %}
+      <p class="mt-4 mb-4">{{ product.description }}</p>
+      {% endif %}
+      <p class="mt-4 mb-4"><a href="{% url 'category_detail' product.category.slug %}"><strong>{{ product.category }}</strong></a></p>
+      {% if request.user == product.user %}
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add to Cart</button>
+      {% else %}
+      <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Add to Cart</a>
+      {% endif %}
+      {% include 'store/partials/modal_alert.html' %}
+    </div>
+  </div>
+</div>
+
+
+
+{% comment %}
+<div class="carousel slide" id="carouselExampleIndicators" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      {% if product.image %}
+      <button class="active" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"></button>
+      {% endif %}
+      {% for i in product.carousel.all %}
+      <button data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ forloop.counter }}"></button>
+      {% endfor %}
+    </div>
+    <div class="carousel-inner">
+      {% if product.image %}
+      <div class="carousel-item active">
+        <img src="{{ product.image.url }}" class="d-block w-100" alt="Main product image">
+      </div>
+      {% endif %}
+      {% for i in product.carousel.all %}
+      <div class="carousel-item">
+        <img src="{{ i.image.url }}" class="d-block w-100" alt="{{ i.caption }}">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>{{ i.caption }}</h5>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+
+{% endcomment %}
+{% endblock content %}

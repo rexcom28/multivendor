@@ -1,8 +1,94 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 
 {% block title %}Success {% endblock title %}
 
+{% block content %}
+<h1 class="mb-6 text-xl">Success</h1>
+<p>Thank you for shopping with us!</p>
+
+<!-- Used to make csrftoken appears in HTML template -->
+{{ form.as_hidden }}
+
+<div class="table-responsive">
+  <table class="table table-bordered table-hover bg-success">
+    <thead class="bg-teal-600 text-white">
+      <tr>
+        <th scope="col" class="px-6 py-4">
+          # Orders
+        </th>
+        <th scope="col" class="px-6 py-4">
+          Verified?
+        </th>
+        <th scope="col" class="px-6 py-4">
+          Name
+        </th>
+        <th scope="col" class="px-6 py-4">
+          Address
+        </th>
+        <th scope="col" class="px-6 py-4">
+          Paid Amount
+        </th>
+        <th scope="col" class="px-6 py-4">
+          -
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr class="bg-white border-b">
+        <td class="px-6 py-4 whitespace-nowrap">
+          {% if not order.is_paid %}
+          <button onclick="verified(event, '{{ order.payment_intent }}')" class="btn btn-primary">
+            {{ order.payment_intent }}
+          </button>
+          {% else %}
+          {{ order.payment_intent }}
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          {% if order.is_paid %}
+          <span class="badge text-bg-success">Verified</span>
+          {% else %}
+          <span class="badge text-bg-danger">Not Verified</span>
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ order.first_name }} {{ order.last_name }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ order.address }}, {{ order.zipcode }}, {{ order.city }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">${{ order.get_display_price }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            {% comment%}
+            {% include "store/partials/actions_dropdownBtn.html" %}
+            {% endcomment %}
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Actions
+                </button>
+                <ul class="dropdown-menu">
+                <li>
+                    <!--a class="dropdown-item" href="#">Action</a-->
+                    <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal{{order.id}}">
+                    Edit order Modal
+                    </button>
+                </li>
+                <li><a class="dropdown-item" href="{% url 'order_view' order.id %}">View Order Page</a></li>
+                <li><a class="dropdown-item" href="{% url 're_order' %}?oid={{order.id}}">Re Order order</a></li>
+                <li><a class="dropdown-item" href="{% url 're_order_remove' %}?oid={{order.id}}">Delete order</a></li>
+                </ul>
+            </div>
+            
+            {% include 'store/partials/modal.html' %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock content %}
+
+
+{% comment %}
 {% block content %}
     <h1 class="mb-6 text-xl"> Success </h1>
     <p>Thank you for shopping with us!</p>
@@ -78,12 +164,8 @@
             </table>          
         </div>
     </div>
-
-
-    
-
 {% endblock content %}
-
+{% endcomment %}
 
 {% block scripts %}
 <script type="application/javascript" src="https://js.stripe.com/v3/"></script>

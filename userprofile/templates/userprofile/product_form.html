@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 {% block title %} {{title}} product{% endblock title %}
 
@@ -24,25 +24,35 @@
         {{form.title}}
         {{form.description}}
         
+        <div class="row">
+          <div class="col-2">{{form.price}}$ <span id="display-price"></span></div>
+          
+        </div>
         
-        {{form.price}}
-        $<span id="display-price"></span>
         <hr>
         <br>
         <br>
         
         {{form.image.label}}
         {{form.image}}
-        
-        {{ carouselFormSet.non_form_errors }}  
-        
-        {{carouselFormSet.management_form}}
-        {{carouselFormSet.as_p}}
         {{form.status}}
         {{form.discount}}
         {{form.id_stripe}}
+        <hr>
+        <h2>Extra Images</h2>  
+        {% for form in carouselFormSet %}
+          <div style="padding: 10px;">
+            {{ form.image }}
+            <div style="border-bottom: 1px solid black;">
+              {{ form.caption }}
+            </div>
+          </div>
+        {% endfor %}
+        {{ carouselFormSet.non_form_errors }}
+        {{ carouselFormSet.management_form }}
+
         
-        <button class="mt-6 py-4 px-8 bg-teal-500 text-white hover:bg-teal-800">Submit</button>
+        <button class="btn btn-success">Submit</button>
     </form>
     {% if product %}
       <a href="{% url 'delete_product' product.id %}" class="mt-2 inline-block py-4 px-8 bg-red-500 text-white"> Delete product</a>

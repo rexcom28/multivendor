@@ -429,26 +429,31 @@ def change_quantity_order(request):
 
 def remove_from_re_order(request):
     oid = request.GET.get('oid', '')
-    item = request.GET.get('item', '')
-
-    order = Order.objects.get(id=int(oid))
-    items = order.items.all().count()
-    oi = OrderItem.objects.get(id=int(item))  
-    
-    if order and oi:
-        if items == 1:
-            order.delete()
-            messages.add_message(request, messages.INFO, 'Order deleted !')
-            return redirect ('success')
-        else:
-            messages.add_message(request, messages.INFO, 'Item deleted !')
-            oi.delete()            
+    #item = request.GET.get('item', '')
+    try:
+        order = Order.objects.get(id=int(oid))
+        messages.success(request,f'The Order {order} hass has been deleted!')
+        order.delete()
         
-    url = reverse('re_order')    
-    url += f'?oid={oid}'
+    except Exception as e:
+        messages.error(request,f'{e}')
+    #items = order.items.all().count()
+    #oi = OrderItem.objects.get(id=int(item))  
     
-    return redirect(url)
-
+    # if order and oi:
+    #     if items == 1:
+    #         order.delete()
+    #         messages.add_message(request, messages.INFO, 'Order deleted !')
+    #         return redirect ('success')
+    #     else:
+    #         messages.add_message(request, messages.INFO, 'Item deleted !')
+    #         oi.delete()            
+        
+    # url = reverse('re_order')    
+    # url += f'?oid={oid}'
+    
+    # return redirect(url)
+    return redirect('success')
 #---------------------------------------------------
 def search(request):
     query    = request.GET.get('query', '')
@@ -476,14 +481,14 @@ def category_detail(request, slug):
 #@verify_customer
 def product_detail(request, category_slug, slug):
     product = get_object_or_404(Product, slug=slug, status=Product.ACTIVE) 
-    return render(request, 'store/product_detail.html', {
+    return render(request, 'store/product_detail2.html', {
         'product':product
     })
 
 #===================CLASS BASED VIEWS
 
 class Category_ListView(ListView):
-    paginate_by =10
+    paginate_by =50
     model = Category
     template_name = 'store/category/category_list.html'
 

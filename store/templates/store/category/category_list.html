@@ -1,7 +1,61 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 {% block content %}
+<div id="category-table" class="d-flex justify-content-center">
+  <div class="table-responsive">
+      <table class="table">
+          <thead class="bg-gray-60">
+              <tr>
+                  <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                      Category
+                      <form action="." method="get" class="mt-2">
+                          <div class="input-group">
+                              <input type="text" id="filter" name="title_filter" class="form-control" />
+                              <div class="input-group-append">
+                                  <button class="mx-2 px-2 btn btn-outline-secondary" type="submit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                                    </svg>
+                                  </button>
+                              </div>
+                          </div>
+                      </form>
+                  </th>
+                  <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                      Slug
+                  </th>
+                  <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                    <a href="{% url 'categories_add' %}" class="btn btn-primary">Add Category</a>
+                  </th>
+                  
+              </tr>
+          </thead>
+          <tbody>
+              {% for cat in object_list %}
+              <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {{cat.title}}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {{cat.slug}}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <a href="{% url 'category_detail' cat.slug %}" class="btn btn-primary btn-sm">List</a>
+                  </td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="3" class="text-center">
+                      No categories found.
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+</div>
 
+{% comment %}
 <div id="category-table" class="d-flex justify-content-center">
     <table>
       <thead class="border-b bg-gray-60">
@@ -43,7 +97,7 @@
       </tbody>
     </table>
 </div>
-
+{% endcomment %}
 {% include "core/CBV_paginate.html" %}
 
 {% endblock content %}

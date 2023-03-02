@@ -1,8 +1,8 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 {% block content %}
 
-<h2 class="mb-6 text-2xl font-medium">Update Product</h2>
+<h2 class="">Update Product</h2>
 <img src="{{ form.instance.image.url }}" style="max-width:100%; max-height:200px; margin-top:10px;">
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
@@ -11,30 +11,34 @@
   <h2>Carousel Images</h2>
   <hr><br>
   {{ carousel_formset.management_form }}
-  {% for form in carousel_formset %}
-  <div class="formset-row border rounded-5">
-      {{ form.id }}
-      
+  {% for form in carousel_formset %}      
       <div class="form-group">
-          <label for="{{ form.image.id_for_label }}">Image</label>
-          <div class="custom-file">
-              {{ form.image }}
-              
-          </div>
-          {% if form.instance.pk %}
-              <img src="{{ form.instance.image.url }}" style="max-width:100%; max-height:200px; margin-top:10px;">
-          {% endif %}
-          <div class="form-group">
-            order{{ form.order }}
-            caption{{ form.caption }}
-          </div>          
-      </div>  
-      
-  </div>
-  <br><br>
-{% endfor %}
+          {{ form.id }}
+          
+          <div class="border rounded py-3 px-4">
+              {% if not form.instance.pk %}
+                <h5>Add Image</h5>
+                <hr>
+              {% endif %}
+              <label for="{{ form.image.id_for_label }}">Image</label>
+              <div class="custom-file">
+                  {{ form.image }}
+                  
+              </div>
+              {% if form.instance.pk %}
+                  <img src="{{ form.instance.image.url }}" style="max-width:100%; max-height:200px; margin-top:10px;">
+              {% endif %}
+              <div class="form-group rounded">
+                order{{ form.order }}
+                caption{{ form.caption }}
+              </div>          
+          </div>  
+          
+      </div>
+      <br><br>
+  {% endfor %}
 
-  <input type="submit" class="mt-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" value="Save">
+  <input type="submit" class="btn btn-outline-success mb-5" value="Save">
 </form>
 
 

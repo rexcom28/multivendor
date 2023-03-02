@@ -194,7 +194,10 @@
         <main style="margin-top: 58px">
 
             <div id="content" class="container pt-4">
-
+                <div class="">
+                    {% include "core/partials/messages.html" %}
+                </div>
+                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-success">Back</a>
                 {% block content %}
 
                 {% endblock content %}

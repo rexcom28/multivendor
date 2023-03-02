@@ -12,9 +12,9 @@
         {% elif message.tags == "warning" %}
         alert-warning
         {% endif %}
-        " role="alert" data-mdb-color="{{message.tags}}" id="customxD">
+        " role="alert" id="customxD">
             <strong>{{ message }}!</strong>
-            <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close">X</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}        
 {% endif %}
@@ -27,13 +27,8 @@
         
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>-{{field.name}}</strong><br>
-                 <strong>{{ error|escape }}</strong> <br>
-
-                
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span><small> click me to go section</small></span>    
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                 <strong>{{ error|escape }}</strong> <br>                
+                <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
             </div> 
         {% endfor %}
     {% endfor %}

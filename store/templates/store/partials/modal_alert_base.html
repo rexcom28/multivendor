@@ -1,4 +1,26 @@
 
+
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">{% block title_modal %}{% endblock title_modal %}</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            {% block body_modal %}{% endblock body_modal %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          {% block normal_btn %}{% endblock normal_btn %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% comment %}
 <!-- Modal -->
 <div class="modal fade fixed top-0 left-0 hidden w-full h-full outline-none overflow-x-hidden overflow-y-auto"
   id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -14,7 +36,7 @@
         </div>
         <!--Body-->
         <div id="form-body" class="modal-body relative p-4">
-            {% block body_modal %}{% endblock body_modal %}            
+            {% block body_modal %}{% endblock body_modal %}
         </div>
 
         <!--Footer-->
@@ -39,7 +61,7 @@
 
             {% block normal_btn %}{% endblock normal_btn %}
             
-            {% comment "comment regular btn modal" %}
+            
             
                 <button type="submit" class="px-6
                     py-2.5
@@ -63,9 +85,10 @@
                     Save
                 </button>
             
-            {% endcomment %}
+            
             
         </div>
     </div>
   </div>
 </div>
+{% endcomment %}

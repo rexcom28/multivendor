@@ -1,0 +1,109 @@
+{% extends 'core/mainBase.html' %}
+
+{% block title %} My account{% endblock title %}
+
+{% block content %}
+    <h1 class="text-2xl text-center">My Store</h1>
+    <hr>
+    <h2 class="mt-4 mb-2 text-2xl">My Orders</h2>
+
+    <a href="{% url 'success' %}" class="mt-4 btn btn-primary">Success Orders</a>
+    <br>
+
+    <div class="row mt-4">
+        <div class="col-md-2"><strong>Order id</strong></div>
+        <div class="col-md-2"><strong>Name</strong></div>
+        <div class="col-md-2"><strong>Is Paid</strong></div>
+        <div class="col-md-2"><strong>Paid Amount</strong></div>
+        <div class="col-md-2"><strong>Shipped</strong></div>
+    </div>
+
+    {% for order_item in order_items  %}
+        <div class="row mt-2">
+            <div class="col-md-2">
+                <strong>
+                    <u>
+                    <a href="{% url 'my_store_order_detail' order_item.id  %}">{{order_item.id}}</a>  
+                    </u>
+                </strong>
+            </div>
+            <div class="col-md-2">{{order_item.first_name}} {{order_item.last_name}}</div>
+        
+            <div class="col-md-2">
+                {% if order_item.is_paid  %}
+                    Paid bill
+                {% else %}
+                    Not paid bill
+                {% endif %}                                    
+            </div>
+        
+            <div class="col-md-2">
+                ${{order_item.get_display_price}}
+            </div>
+            <div class="col-md-2">
+                {% if order_item.is_shipped %}
+                    Shipped
+                {% else %}                                  
+                    {% if order_item.shipping.id %}
+                        <a href="{% url 'shipped_orders' order_item.shipping.id %}">
+                            Not Shipped
+                        </a>
+                    {% else %}
+                    {% endif %}                             
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+    {% endfor %}        
+    <hr>
+
+
+
+
+    <!--PRODUCT-->
+    <h2 class="mt-6 text-xl">My Products</h2>
+    <a href="{% url 'add_product' %}" class="mt-6 btn btn-primary">Add Product</a>
+    {% if products %}
+        <div class="row mt-4">
+            {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        {% if product.image %}
+                            <img class="card-img-top" src="{{product.get_thumbnail}}" alt="Image of {{product.title}}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{product.title}}</h5>
+                            <p class="card-text">$ {{product.get_display_price}}</p>
+                            <hr>
+                            <p class="card-text"><strong>Status:</strong> {{product.get_status_display}}</p>
+                            <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit Product</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="mt-6 py-4 px-8 bg-gray-200">You don't have any products yet</p>
+    {% endif %}
+    
+    <hr>
+
+
+<!--DISCOUNTS-->
+
+{% include 'userprofile/inventory/partial_discount.html' %}
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+        function reset_stock(stock,id_code){
+            let ele = document.getElementById(`id_${id_code}`)
+            if(parseInt(stock)>0){
+                
+                if (confirm("there is redeemed code for this coupon, edit this will reset the redeem count to cero, are you sure?")){                    
+                    ele.click()
+                }
+            }else{ele.click()}
+        }
+    </script>
+{% endblock scripts %}

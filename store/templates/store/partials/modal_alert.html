@@ -8,6 +8,12 @@
 
 
 {% block normal_btn %}
+    <a id="add_to_cart" href="{% url 'add_to_cart' product.id %}" class="btn btn-info">Add to cart</a>
+{% endblock normal_btn %}
+
+
+{% comment %}
+{% block normal_btn %}
     <a id="add_to_cart" href="{% url 'add_to_cart' product.id %}" class="px-6
     py-2.5
     bg-teal-600
@@ -26,3 +32,4 @@
     ease-in-out
     ml-1">Add to cart</a>
 {% endblock normal_btn %}
+{% endcomment %}

@@ -51,7 +51,7 @@ def my_store(request):
     orders = Order.objects.filter(items__product__user=request.user)    
     products = request.user.products.exclude(status=Product.DELETED)        
     discounts = Discount.objects.filter(created_by=request.user)
-    return render(request, 'userprofile/my_store.html', {
+    return render(request, 'userprofile/my_store2.html', {
         'products':products,
         'order_items':orders,
         'discounts':discounts,
@@ -113,7 +113,7 @@ def discount_view(request):
             cupon,error =create_cupon(form.cleaned_data) 
             if len(error)==0:
                 form.save()
-                return redirect('discount_view')
+                return redirect('my_store')
             else:
                 messages.error(request,f'{err}')        
     else:
@@ -142,7 +142,7 @@ def discount_view(request):
 def add_product(request):
     
     qs = Discount.objects.filter(created_by=request.user)
-    CarouselImageFormSet = formset_factory(CarouselImageForm, extra=4,can_delete=True, min_num=1)
+    CarouselImageFormSet = formset_factory(CarouselImageForm, extra=1, min_num=1)
 
     if request.method == 'POST':        
         form = ProductForm(request.POST, request.FILES, qs=qs)
@@ -155,6 +155,8 @@ def add_product(request):
             product.user = request.user
             product.slug = slugify(title)
             product.save()
+
+            
             with transaction.atomic():            
                 for formset in carouselFormSet.cleaned_data:                
                     if not all([not formset.get('image')]):

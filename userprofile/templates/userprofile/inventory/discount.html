@@ -1,14 +1,11 @@
 
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 
 
 {% block title %} Discount manage{% endblock title %}
 
 {% block content %}
-
-    {% include 'userprofile/inventory/partial_discount.html' %}
-
     <br>  
     <hr>
     <br>
@@ -17,7 +14,7 @@
     <form action="." method="post" class="space-y-5 mb-10">
         {% csrf_token %}
         {{form.as_p}}
-        <button class="mt-6 py-2 px-4 bg-teal-500 rounded text-white hover:bg-teal-800">Submit</button>
+        <button class="btn btn-success mb-4">Submit</button>
     </form>
 
 {% endblock content %}

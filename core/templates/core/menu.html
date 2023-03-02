@@ -1,27 +1,11 @@
 
+<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+  Categories
+</a>
 
-
-<div class="container-fluid">
-    <ul class="navbar-nav">
-      <!-- Dropdown -->
-      <li class="nav-item dropdown">
-        <a
-          class="nav-link dropdown-toggle text-white bg-teal-600 rounded-xl px-6 py-2.5"
-          href="#"
-          id="navbarDropdownMenuLink"
-          role="button"
-          data-mdb-toggle="dropdown"
-          aria-expanded="false"
-        >
-          Categories
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            {% for category in categories %}
-                <li>
-                    <a class="dropdown-item" href="{% url 'category_detail' category.slug %}">{{category.title}}</a>
-                </li>
-            {% endfor %}
-        </ul>
-      </li>
-    </ul>
-</div>
+<ul class="dropdown-menu">
+  
+  {% for category in categories %}
+      <li><a class="dropdown-item" href="{% url 'category_detail' category.slug %}">{{category.title}}</a></li>            
+  {% endfor %}              
+</ul>

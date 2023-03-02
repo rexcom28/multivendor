@@ -1,55 +1,72 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 {% block title %} My account{% endblock title %}
 
 {% block content %}
-    <h1 class="text-2xl"> My account</h1>
 
-    <p class="md:space-x-1 space-y-1 md:space-y-0 mb-4 mt-6">
-        <!--a class="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Link with href
-        </a-->
-        <button id="btn_coll" class="inline-block px-6 py-2.5 bg-teal-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-teal-700 hover:shadow-lg focus:bg-teal-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-teal-800 active:shadow-lg transition duration-150 ease-in-out" 
-        type="button" 
-        
-        >
-            Show Account settings
-        </button>
-    </p>
+
+    <h1 class="text-2xl"> <strong>{{request.user}}'s</strong> account </h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#collapseExample">
+        Show account Info
+    </button>
+
     <div class="collapse" id="collapseExample">
-        <div class="block p-6 rounded-lg shadow-lg bg-white">
+        <div class="card card-body">
             <form action="." method="post"  class="space-y-5">
                 {% csrf_token %}
                 {{form.as_p}}
+                {{customer_form.country.label}}
+                <select name="country" id="country-select" class="form-control">
+                    <option value="">-- Select a country --</option>
+                  </select>
                 {{customer_form.as_p}}
-                <button class="mt-6 py-4 px-8 bg-teal-500 text-white hover:bg-teal-800">Submit</button>
+                <button class="mt-6 py-4 px-8 btn btn-success">Submit</button>
             </form>
         </div>
     </div>
-
-    <div><a target="_blank" href="https://tailwind-elements.com/docs/standard/components/dropdown/">tailwind elements link </a></div>
 
 
 {% endblock content%}
 
 
 {% block scripts %}
+
     <script>
-        document.getElementById('btn_coll').addEventListener('click',()=>{             
-            /*setTimeout(()=>{*/
-                
-                if(document.getElementById('collapseExample').classList.contains("collapse"))
-                {   
-                    
-                    document.getElementById('collapseExample').classList.remove("collapse")
-                    
-                }else{
-                    
-                    document.getElementById('collapseExample').classList.add("collapse")
-                }                  
-                
-            /*},300)*/
-        })
+        document.addEventListener('DOMContentLoaded', () => {
+            const countrySelect = document.getElementById('country-select');
+            const countryInput = document.getElementById('id_country');
+            const countryLabel = document.querySelector('label[for="id_country"]');
+            countryLabel.setAttribute('hidden', '');
+            countryInput.setAttribute('hidden', '');
+        
+            // fetch list of countries
+            fetch('https://restcountries.com/v2/all')
+              .then(response => response.json())
+              .then(data => {
+                // generate options for country select element
+                const options = data.map(country => {
+                  return `<option value="${country.alpha2Code}">${country.name}</option>`
+                })
+                // add options to country select element
+                countrySelect.innerHTML += options.join('');
+        
+                // check if country input has valid value and select it in country select
+                if (/^[A-Za-z]{2}$/.test(countryInput.value)) {
+                  const countryCode = countryInput.value.toUpperCase();
+                  countrySelect.value = countryCode;
+                }
+              })
+              .catch(error => {
+                console.error(error)
+              })
+        
+            // add event listener to country select element
+            countrySelect.addEventListener('change', () => {
+              countryInput.value = countrySelect.value; // update country input value
+            })
+          })
+        
     </script>
+
 {% endblock scripts %}
 
