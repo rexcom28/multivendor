@@ -19,8 +19,8 @@ from userprofile.api_stripe import get_cupon,verify_payment_intent
 #CVB
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic import DetailView
 
-#-------------Cart functions
 @login_required
 def order_view(request, pk):
     
@@ -63,6 +63,12 @@ def order_view(request, pk):
         'form':form,        
     })
 
+class Order_DetailView(DetailView):
+    model = Order
+    template_name = 'store/OrderDetail.html'
+    context_object_name = 'order'
+
+#-------------Cart functions
 def remove_from_cart(request, product_id):
     cart = Cart(request)
     cart.remove(product_id)
@@ -126,6 +132,8 @@ def verified(request):
         'orders':orders
     })
 
+
+from .models import Discount
 def verify_internal(request):
     oid = request.GET.get('oid', '')    
     order = Order.objects.get(id=oid)
@@ -133,10 +141,36 @@ def verify_internal(request):
     response = stripe.PaymentIntent.retrieve(
         order.payment_intent,
     )
-    
-    order.is_paid = True if response.status=='succeeded' else False
+    print(response)
+    if response.status=='succeeded':
+        order.is_paid = True 
+        
+        discount = Discount.objects.get(code_name=order.discount_code)
+        if discount:
+            order.paid_amount = order.paid_amount - (order.paid_amount * (discount.discount_percent / 100))
     order.save()
     return redirect('success')
+
+
+def add_item_to_order(request,order, product_id):
+    try:
+        prod = Product.objects.get(id=product_id)
+        o = Order.objects.get(id=order)
+        item, created= OrderItem.objects.get_or_create(order=o,product=prod, price=prod.price)
+        
+        if not created:
+            item.quantity +=1            
+        else:  
+            item.quantity=1
+        item.price = int(prod.price)        
+        item.save()
+        
+        url = reverse('re_order')
+        url +=f'?oid={str(order)}'
+        return redirect(url)
+    except Exception as e:
+        messages.error(request, f'{e}')
+        return redirect('success')
 
 @login_required
 @verify_customer()
@@ -206,7 +240,10 @@ def re_order(request):
                     )
                     payment_intent = session.payment_intent
                     form.instance.payment_intent = payment_intent
-                    form.instance.paid_amount = total_price - discount
+                    #note, here that when you reorder if the client cancels
+                    #the amount comes with discount. so when the cancel process are commited
+                    # we needs to restore the paid_amount without discount
+                    #form.instance.paid_amount = total_price - discount
 
                     form.save()
                     
@@ -253,6 +290,7 @@ def re_order(request):
     return render(request, 'store/OrderForm.html',{
         'form':form,        
         'items':items,
+        'order':orders,
         'orderId':orderId,
         'pub_key': settings.STRIPE_PUB_KEY
     })
@@ -429,31 +467,35 @@ def change_quantity_order(request):
 
 def remove_from_re_order(request):
     oid = request.GET.get('oid', '')
-    #item = request.GET.get('item', '')
-    try:
+    item = request.GET.get('item')
+    if not item:
+        try:
+            order = Order.objects.get(id=int(oid))
+            messages.success(request,f'The Order {order} hass has been deleted!')
+            order.delete()
+            
+        except Exception as e:
+            messages.error(request,f'{e}')
+        return redirect('success')
+    
+    else:
         order = Order.objects.get(id=int(oid))
-        messages.success(request,f'The Order {order} hass has been deleted!')
-        order.delete()
+        items = order.items.all().count()
+        oi = OrderItem.objects.get(id=int(item))  
+        if order and oi:
+            if items == 1:
+                order.delete()
+                messages.add_message(request, messages.INFO, 'Order deleted !')
+                return redirect ('success')
+            else:
+                messages.add_message(request, messages.INFO, 'Item deleted !')
+                oi.delete()            
+            
+        url = reverse('re_order')    
+        url += f'?oid={oid}'
         
-    except Exception as e:
-        messages.error(request,f'{e}')
-    #items = order.items.all().count()
-    #oi = OrderItem.objects.get(id=int(item))  
+        return redirect(url)
     
-    # if order and oi:
-    #     if items == 1:
-    #         order.delete()
-    #         messages.add_message(request, messages.INFO, 'Order deleted !')
-    #         return redirect ('success')
-    #     else:
-    #         messages.add_message(request, messages.INFO, 'Item deleted !')
-    #         oi.delete()            
-        
-    # url = reverse('re_order')    
-    # url += f'?oid={oid}'
-    
-    # return redirect(url)
-    return redirect('success')
 #---------------------------------------------------
 def search(request):
     query    = request.GET.get('query', '')

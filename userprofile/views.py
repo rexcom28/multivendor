@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from . models import Userprofile,customerProfile
 from .forms import (
     UserEditForm, ProfileForm,customerProfileForm,
-    customerCreationForm, Seller_Creation_Form,UserAndProfileForm,
+    customerCreationForm, customerSignUp,UserAndProfileForm,
 )
 from store.forms import (
     CarouselImageForm
@@ -36,7 +36,7 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 
 from django import forms
-
+from .api_stripe import get_cupon
 
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
@@ -65,24 +65,30 @@ def my_store_order_detail(request, pk):
         'order':order
     })
 
+
+
 @Only_Ajax_Req
 @login_required
 def check_code_name(request):    
     if request.method == 'GET' and request.is_ajax() and 'sessionid' in request.COOKIES:
 
         session = Session.objects.get(session_key=request.COOKIES["sessionid"])
-        uid = session.get_decoded().get('_auth_user_id')        
+        uid = session.get_decoded().get('_auth_user_id')
         user = User.objects.get(pk=uid)
         code=request.GET.get('code','')
 
-        if user:            
-            discount= Discount.objects.filter(code_name=code)
-            #discount=user.discounts.filter(code_name=request.GET.get('code',''))            
-            if len(discount)>0:
-                data ={'res':'valid'}
+        if user:
+            #discount= Discount.objects.filter(code_name=code)
+            #discount=user.discounts.filter(code_name=request.GET.get('code',''))
+            discount, error = get_cupon(code)
+            
+            if 'valid' in discount and 'percent_off' in discount:
+                print(discount.get('valid'))
+                print(discount.get('percent_off'))
+                data ={'res':'valid', 'percent':discount.get('percent_off')}
             else:
-                data = {'res':'invalid'} 
-            return JsonResponse(data)
+                 data = {'res':'invalid'} 
+            return JsonResponse(data, content_type='application/json')
     return JsonResponse({},status=400)
 
 @login_required
@@ -367,8 +373,8 @@ def myaccount(request):
 def customer_signup(request):
     template_name = 'userprofile/signup_customer.html'
     if request.method == 'POST':
-        form = customerCreationForm(request.POST)  # UserCreationForm()
-        customer_form = customerProfileForm(request.POST)
+        form = customerCreationForm(request.POST)  
+        customer_form = customerSignUp(request.POST)
         if form.is_valid() and customer_form.is_valid():
             client_id, error = create_customer(form.cleaned_data, customer_form.cleaned_data)
             if client_id:
@@ -380,14 +386,15 @@ def customer_signup(request):
                 return redirect('frontpage')
     else:
         form = customerCreationForm()
-        customer_form = customerProfileForm()
-    return render(request,
-                  template_name,
-                  {
-                      'form': form,
-                      'customer_form': customer_form
-                  }
-                  )
+        customer_form = customerSignUp()
+    return render(
+            request,
+            template_name,
+            {
+                'form': form,
+                'customer_form': customer_form
+            }
+        )
 
 
 

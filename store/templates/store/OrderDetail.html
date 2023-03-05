@@ -1,0 +1,76 @@
+{% extends 'core/mainBase.html' %}
+{% block title %}Order View {% endblock title %}
+
+
+{% block content %}
+  
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Order Details</h2>
+        <hr>
+        <dl class="row">
+          <dt class="col-sm-4">Order ID:</dt>
+          <dd class="col-sm-8">{{ object.id }}</dd>
+
+          <dt class="col-sm-4">Name:</dt>
+          <dd class="col-sm-8">{{ object.first_name }} {{ object.last_name }}</dd>
+
+          <dt class="col-sm-4">Address:</dt>
+          <dd class="col-sm-8">{{ object.address }}</dd>
+
+          <dt class="col-sm-4">Zipcode:</dt>
+          <dd class="col-sm-8">{{ object.zipcode }}</dd>
+
+          <dt class="col-sm-4">City:</dt>
+          <dd class="col-sm-8">{{ object.city }}</dd>
+
+          <dt class="col-sm-4">Amount Paid:</dt>
+          <dd class="col-sm-8">${{ object.get_display_price }}</dd>
+
+          <dt class="col-sm-4">Payment Status:</dt>
+          <dd class="col-sm-8">
+            {% if object.is_paid %}
+              <span class="badge text-bg-success">Paid</span>
+            {% else %}
+              <span class="badge text-bg-warning">Unpaid</span>
+            {% endif %}
+          </dd>
+
+          <dt class="col-sm-4">Shipment Status:</dt>
+          <dd class="col-sm-8">
+            {% if object.is_shipped %}
+              <span class="badge text-bg-success">Shipped</span>
+            {% else %}
+              <span class="badge text-bg-warning">Not Shipped</span>
+            {% endif %}
+          </dd>
+        </dl>
+      </div>
+
+      <div class="col-md-6">
+        <h2>Order Items</h2>
+        <hr>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Img</th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in object.items.all %}
+              <tr>
+                <td><img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="100"></td>
+                <td>{{ item.product.title }}</td>
+                <td>${{ item.get_display_price }}</td>
+                <td>{{ item.quantity }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+{% endblock %}

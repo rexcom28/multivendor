@@ -107,6 +107,34 @@ class customerProfileForm(forms.ModelForm):
                'class': inputs+' my_custom_selector'
          }),
       }
+class customerSignUp(forms.Form):
+   city     = forms.CharField(label="Ciudad:",max_length=15,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   country  = forms.CharField(label="País:",max_length=2,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   line1    = forms.CharField(label="Calle/Numero:",max_length=35,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   line2    = forms.CharField(label="Descripciones/Referencias:",max_length=35,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   postal_code= forms.CharField(label="Código Postal:",max_length=5,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   state    = forms.CharField(label="Estado:",max_length=15,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   email2    = forms.EmailField(max_length=65,required=True,
+      widget=forms.EmailInput(attrs={'class':inputs})
+   )
+   name     = forms.CharField(label="Nombre Comprador:",max_length=65, required=True,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
+   phone    = forms.CharField(label="Teléfono:",max_length=15,required=False,
+      widget=forms.TextInput(attrs={'class':inputs})
+   )
    
 class UserEditForm(forms.ModelForm):
     

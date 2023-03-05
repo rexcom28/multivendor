@@ -41,16 +41,28 @@
     <div class="col-md-5">
       <h1 class="mb-4">{{ product.title }}</h1>
       <p class="lead">${{ product.get_display_price }} - <a href="{% url 'vendor_detail' product.user.id %}">{{ product.user.get_full_name }}</a></p>
+      
       {% if product.description %}
-      <p class="mt-4 mb-4">{{ product.description }}</p>
+        <p class="mt-4 mb-4">{{ product.description }}</p>
       {% endif %}
+      
       <p class="mt-4 mb-4"><a href="{% url 'category_detail' product.category.slug %}"><strong>{{ product.category }}</strong></a></p>
+      
       {% if request.user == product.user %}
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add to Cart</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add to Cart</button>
+        {% include 'store/partials/modal_alert.html' %}
       {% else %}
-      <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Add to Cart</a>
+        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Add to Cart</a>
       {% endif %}
-      {% include 'store/partials/modal_alert.html' %}
+
+      
+      {% for order in request.user.orders.all %}
+      
+          {% if not order.is_paid and not order.is_shipped %}
+            <a href="{% url 'add_item_to_order' order.id product.id %}" class="btn btn-primary"> Add to order: {{order}} </a>
+          {% endif %}
+      
+      {% endfor %}
     </div>
   </div>
 </div>

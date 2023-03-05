@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.template.defaultfilters import slugify
 
+from django.db.models import Sum
 
 from io import BytesIO
 from PIL import Image
@@ -183,7 +184,10 @@ class OrderItem(models.Model):
         
     def get_display_price(self):
         return self.price / 100
-
+    
+    def get_item_total(self):
+        return (self.price / 100) * self.quantity
+    
 
 class Product_Inventory(models.Model):
     product_id  = models.ForeignKey(Product, related_name='product_inv', on_delete=models.CASCADE)

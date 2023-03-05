@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 {% load widget_tweaks %}
 
@@ -7,77 +7,90 @@
 {% block content %}
     <h1 class="mb-6 text-xl"> Order Edit {{orderId}} </h1>    
     {% if items  %}       
-        {% for item in items  %}
-            <hr>
-            <div class='px-2 py-2 mb-2 bg-teal-100 flex items-center'>
+        {% for item in items  %}            
+            <div class="border rounded px-4 py-4 mb-2" style="background-color: #007a74; color: #fff; display: flex; align-items: center;">
                 <div>
                     <img src="{{item.product.get_thumbnail}}" class="w-20">
                 </div>
                 
-                <div class="pl-4">
+                <div class="px-4 py-4 mb-2">
                     <h2 class="text-2xl">{{item.product.title}}</h2>
                     <p class="text-sm text-gray-500">Price: $ {{item.product.get_display_price}}</p>
                     <div class="mt-4 mb-4">
-                        <a href="{% url 're_order_item' %}?oid={{orderId}}&item={{item.id}}&action=increase"class="p-2 rounded-xl bg-teal-500 text-white">+</a>
-                        {{item.quantity}}
-                        <button onclick="is_cero(event,'{{item.quantity}}', '{{item.id}}')" class="p-2 rounded-xl bg-teal-500 text-white">
+                        <a href="{% url 're_order_item' %}?oid={{orderId}}&item={{item.id}}&action=increase"class="px-4 py-2 border rounded text-white btn">
+                            +
+                        </a>
+                        <span class="px-2 py-2">{{item.quantity}} </span>
+                        
+                        <button onclick="is_cero(event,'{{item.quantity}}', '{{item.id}}')" class="px-4 py-2 border rounded text-white btn">
                             - 
                         </button>
-                        <a id="clickorderitem{{item.id}}" href="{% url 're_order_item' %}?oid={{orderId}}&item={{item.id}}&action=decrease">                            
+                        <a id="clickorderitem{{item.id}}" href="{% url 're_order_item' %}?oid={{orderId}}&item={{item.id}}&action=decrease">
                         </a>
                     </div>  
                     
                     <!--Delete btn-->
-                    <button onclick="remove_reorder(event,'{{item.id}}', '{{item.quantity}}')" >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                        </svg> 
+                    <button class="btn btn-danger mt-2" onclick="remove_reorder(event,'{{item.id}}', '{{item.quantity}}')" >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                          </svg>
                         
                     </button>
                     <a id="clickorderitemRemove{{item.id}}" href="{% url 're_order_remove' %}?oid={{orderId}}&item={{item.id}}" class="inline-block">                        
                     </a>
+                    <br>
+                    <hr>
+                    <span class="py-6 px-6 "> <strong> Item(s) total:</strong> ${{item.get_item_total}}  </span>
                 </div>                
             </div>
+            <hr>
+            
+            
         {% endfor %}        
+        <span class="py-6 px-6 "> <strong> Order total:</strong> ${{order.get_display_price}} </span>
+        <br>
+        <span id="discount_span"></span>
+        <br>
+        <span id="discount_span_total"></span>
     {% endif %}
         
-    <div id="errors" class="hidden my-3 px-4 py-4 bg-red-200 rounded-xl"></div>
-<div class="block p-6 rounded-lg shadow-lg bg-white max-w-md">
+<div id="errors" class="hidden my-3 px-4 py-4 bg-red-200 rounded-xl"></div>
+<div class="border rounded py-2 px-2">
     <form action="" method="post">    
-        <div class="grid grid-cols-2 gap-4">
-            <div class="form-group mb-3">
+        <div class="">
+            <div class="mb-3">
                 {% render_field form.first_name.label %}
-                {% render_field form.first_name class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                {% render_field form.first_name class+="form-control" %}
             </div>
     
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 {% render_field form.last_name.label %}
-                {% render_field form.last_name class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                {% render_field form.last_name class+="form-control" %}
             </div>
     
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 {% render_field form.address.label %}
-                {% render_field form.address class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                {% render_field form.address class+="form-control" %}
             </div>
     
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 {% render_field form.zipcode.label %}
-                {% render_field form.zipcode class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                {% render_field form.zipcode class+="form-control" %}
             </div>
     
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 {% render_field form.city.label %}
-                {% render_field form.city class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                {% render_field form.city class+="form-control" %}
             </div>
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 {% render_field form.discount_code.label %}
-                {% render_field form.discount_code class+="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" %}
+                {% render_field form.discount_code class+="form-control" %}
                 <label for="id_discount_code" id="label_alert"></label>
             </div>
             {% render_field form.id  %}
                 
         </div> 
-        <button type="submit" onclick="reOrder(event)" class="py-2 px-4 bg-teal-800 text-white rounded">Save</button> 
+        <button type="submit" onclick="reOrder(event)" class="py-2 px-4 btn btn-success mb-4">Save</button> 
     </form>
 </div>
 {% endblock content%}
@@ -193,7 +206,17 @@
     id_discount_code.addEventListener('keyup', (event)=>{
         check_code(event.target.value)
     })
+    id_discount_code.addEventListener('keydown', (event)=>{
+        check_code(event.target.value)
+    })
 
+    document.addEventListener('DOMContentLoaded', (event)=>{
+        
+        if (id_discount_code.value != ''){
+            check_code(id_discount_code.value)
+            
+        }
+    })
     function check_code(code_val){
         fetch(`{% url 'check_code_name' %}?code=${code_val}`,{
             method:'GET',
@@ -203,21 +226,31 @@
             },
             credentials:"same-origin"
         })
-        .then((response)=>{
+        .then(response=>{
             return response.json()
         })
-        .then((res)=>{
+        .then(data=>{
 
             if(id_discount_code.value.length==0){
                 label_alert.removeAttribute('style');
                 label_alert.innerHTML="";
-            }else{        
-                if(res['res']==='valid'){
+            }else{                
+                
+                if(data['res']==='valid'){
                     label_alert.innerHTML="Valid cupon!!!"
                     label_alert.setAttribute('style','border-radius: 15px; border:2px solid MediumSeaGreen;color:#ffffff; background-color:MediumSeaGreen;')
-                }else{
+                    discount_span.innerHTML= `<strong>Discount:</strong> ${data['percent']} % OFF`
+                    let total = parseFloat('{{order.paid_amount}}')
+                    total =total/100
+                    let dis = total * data['percent']/100
+                    
+
+                    discount_span_total.innerHTML = `<strong>Total with discount:</strong> ${total - dis}`
+                }else{ 
                     label_alert.innerHTML="Invalid cupon, try another one"
-                    label_alert.setAttribute('style','border-radius: 15px; border:2px solid Tomato;color:#ffffff; background-color:Tomato;')   
+                    label_alert.setAttribute('style','border-radius: 15px; border:2px solid Tomato;color:#ffffff; background-color:Tomato;')
+                    discount_span.innerHTML=""
+                    discount_span_total.innerHTML=""
                 }
             }
             

@@ -123,17 +123,16 @@ def create_cupon(data):
         return '', E
 
 def get_cupon(cupon_name):
+    dic = {"valid":False}
     try:
         coupon = stripe.Coupon.retrieve(cupon_name)
         return coupon, ''
     except stripe.error.InvalidRequestError as E:
-        return '', E
-    # except stripe.error.APIConnectError as E:
-    #     return '', E
+        return dic, E
     except stripe.error.StripeError as e:    
-        return '', E
+        return dic, E
     except Exception as E:    
-        return '', E
+        return dic, E
 
 def delete_cupon(cupon_name):
     try:
@@ -154,12 +153,11 @@ def verify_payment_intent(payment_intent):
     try:
         res= stripe.PaymentIntent.retrieve(
             payment_intent,
+            expand=['invoice'],
         )
         return res,''
     except stripe.error.InvalidRequestError as E:
         return '', E
-    # except stripe.error.APIConnectError as E:
-    #     return '', E
     except stripe.error.StripeError as e:    
         return '', E
     except Exception as E:    

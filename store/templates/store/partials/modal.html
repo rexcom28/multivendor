@@ -4,19 +4,43 @@
 <!-- Modal -->
 <div class="modal fade" id="exampleModal{{order.id}}" tabindex="-1" aria-labelledby="exampleModalLabel{{order.id}}" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <form action="#" method="post">
+        {% csrf_token %}
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Order {{order.first_name}} {{order.last_name}}</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div id="form{{order.id}}" class="modal-body">
+              <div>
+                <label for="{{form.first_name.name}}"><strong> First Name </strong></label>
+                {% render_field form.first_name id+=order.id id+=form.first_name.name     placeholder=form.first_name.label class+=" mb-2 px-2 py-4 form-control"  type="text" autocomplete="off" %}
+                
+              </div>
+              <div>
+                  <label for="{{form.last_name.name}}"><strong> Last Name </strong></label>
+                  {% render_field form.last_name id+=order.id id+=form.last_name.name     placeholder=form.last_name.label class+=" mb-2 px-2 py-4 form-control"  type="text" autocomplete="off" %}
+              </div>
+              <div>
+                  <label for="{{form.address.name}}"><strong> Address </strong></label>
+                  {% render_field form.address id+=order.id id+=form.address.name     placeholder=form.address.label class+=" mb-2 px-2 py-4 form-control"  type="text" autocomplete="off" %}
+              </div>
+              <div>
+                  <label for="{{form.zipcode.name}}"><strong> zipcode </strong></label>
+                  {% render_field form.zipcode id+=order.id id+=form.zipcode.name     placeholder=form.zipcode.label class+=" mb-2 px-2 py-4 form-control"  type="text" autocomplete="off" %}
+              </div>
+              <div>
+                  <label for="{{form.city.name}}"><strong> City </strong></label>
+                  {% render_field form.city id+=order.id id+=form.city.name     placeholder=form.city.label class+=" mb-2 px-2 py-4 form-control"  type="text" autocomplete="off" %}
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button id="close{{order.id}}" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button onclick="edit_order(event,{{order.id}})" type="submit" class="btn btn-primary">Save changes</button>
+          </div>
         </div>
-        <div class="modal-body">
-            {{order.id}}
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
+      </form>
     </div>
 </div>
 

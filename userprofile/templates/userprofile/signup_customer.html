@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 {% block title %} Customer signup{% endblock title %}
 
 {% block header %}
@@ -18,64 +18,59 @@
 {% endblock header %}
 
 {% block content %}
-<div class="accordion" id="accordionPanelsStayOpenExample">
+<div class="accordion mt-2" id="accordionExample">
+<form id="signupForm" action="." method="post">
+{% csrf_token %}
+    
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingOne">
-        <button class="accordion-button" type="button" data-mdb-toggle="collapse"
-          data-mdb-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-          Accordion Item #1
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Account Info
         </button>
       </h2>
-      <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne">
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
         <div class="accordion-body">
-          <strong>This is the first item's accordion body.</strong> It is shown by default,
-          until the collapse plugin adds the appropriate classes that we use to style each
-          element. These classes control the overall appearance, as well as the showing and
-          hiding via CSS transitions. You can modify any of this with custom CSS or overriding
-          our default variables. It's also worth noting that just about any HTML can go within
-          the <code>.accordion-body</code>, though the transition does limit overflow.
+          {{form.as_p}}
         </div>
       </div>
     </div>
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingTwo">
-        <button class="accordion-button collapsed" type="button" data-mdb-toggle="collapse"
-          data-mdb-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
-          aria-controls="panelsStayOpen-collapseTwo">
-          Accordion Item #2
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Shipping Info
         </button>
       </h2>
-      <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo">
+      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
         <div class="accordion-body">
-          <strong>This is the second item's accordion body.</strong> It is hidden by default,
-          until the collapse plugin adds the appropriate classes that we use to style each
-          element. These classes control the overall appearance, as well as the showing and
-          hiding via CSS transitions. You can modify any of this with custom CSS or overriding
-          our default variables. It's also worth noting that just about any HTML can go within
-          the <code>.accordion-body</code>, though the transition does limit overflow.
+            {{customer_form.country.label}}
+            <select name="country" id="country-select" class="form-control">
+                <option value="">-- Select a country --</option>
+            </select>
+            {{customer_form.as_p}}
         </div>
       </div>
     </div>
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingThree">
-        <button class="accordion-button collapsed" type="button" data-mdb-toggle="collapse"
-          data-mdb-target="#panelsStayOpen-collapseThree" aria-expanded="false"
-          aria-controls="panelsStayOpen-collapseThree">
-          Accordion Item #3
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          FYI
         </button>
       </h2>
-      <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree">
+      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
         <div class="accordion-body">
-          <strong>This is the third item's accordion body.</strong> It is hidden by default,
-          until the collapse plugin adds the appropriate classes that we use to style each
-          element. These classes control the overall appearance, as well as the showing and
-          hiding via CSS transitions. You can modify any of this with custom CSS or overriding
-          our default variables. It's also worth noting that just about any HTML can go within
-          the <code>.accordion-body</code>, though the transition does limit overflow.
+            <strong>Importante:</strong>
+            -La información de email, nombres y apellidos si seran guardados en nuestra base de datos. 
+            <br>
+            -La información de contacto y de envío 
+            no se guardaran en nustra base de datos, sus datos estaran protegidos
+            por el procesdor de pagos <code>stripe.com</code>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+    <button id="btnsubmit" onclick="btn_submit(event)" type="submit" class="py-2 px-8 btn btn-success">Sig up</button>
+</form>
+</div>
+
 {%comment%}
     <div style="min-height: 500px" class="row d-flex justify-content-center align-items-center h-100 mb-10">
                
@@ -192,6 +187,8 @@
                                             <div class="mb-6 bg-teal-500 border border-Teal-800 text-teal-1200 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-850 block w-full p-2.5 dark:bg-teal-1400 dark:border-teal-1200 dark:placeholder-teal-800 dark:text-white dark:focus:ring-blue-1000 dark:focus:border-blue-1000">
                                                 {{ customer_form.country.errors }}
                                                 {{ customer_form.country.label_tag }}
+                                                aaa
+                                                
                                                 {{ customer_form.country }}
                                                 <p>{{customer_form.country.help_text}}</p>
                                             </div>
@@ -332,6 +329,41 @@
         event.preventDefault();
         signupForm.submit()
     }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const countrySelect = document.getElementById('country-select');
+        const countryInput = document.getElementById('id_country');
+        const countryLabel = document.querySelector('label[for="id_country"]');
+        countryLabel.setAttribute('hidden', '');
+        countryInput.setAttribute('hidden', '');
+    
+        // fetch list of countries
+        fetch('https://restcountries.com/v2/all')
+          .then(response => response.json())
+          .then(data => {
+            // generate options for country select element
+            const options = data.map(country => {
+              return `<option value="${country.alpha2Code}">${country.name}</option>`
+            })
+            // add options to country select element
+            countrySelect.innerHTML += options.join('');
+    
+            // check if country input has valid value and select it in country select
+            if (/^[A-Za-z]{2}$/.test(countryInput.value)) {
+              const countryCode = countryInput.value.toUpperCase();
+              countrySelect.value = countryCode;
+            }
+          })
+          .catch(error => {
+            console.error(error)
+          })
+    
+        // add event listener to country select element
+        countrySelect.addEventListener('change', () => {
+          countryInput.value = countrySelect.value; // update country input value
+        })
+      })
 
 </script>
 {% endblock scripts %}
