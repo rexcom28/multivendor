@@ -17,9 +17,6 @@ class OrderForm(forms.ModelForm):
             'discount_code',
         )
 
-class Shipped_Orders_Form(forms.ModelForm):
-    #intended to be informative only for vendors
-    pass       
 
 
 

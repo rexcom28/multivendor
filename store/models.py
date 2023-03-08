@@ -157,7 +157,7 @@ class Order(models.Model):
 
     is_shipped = models.BooleanField(default=False)
     class Meta:
-        ordering = ('-created_at',)
+        ordering = ('-id','-created_at',)
         
     def get_display_price(self):
         return self.paid_amount /100
@@ -165,10 +165,7 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.id}'
 
-class Shipped_Orders(models.Model):
-    order = models.OneToOneField(Order, related_name='shipping', on_delete=models.CASCADE)
-    status = models.CharField(max_length=10,blank=True, null=True)
-    delivery_company = models.CharField(max_length=10,blank=True, null=True)
+
 
     # def save(self,*args, **kwargs):
     #     if self.order.is_paid:
@@ -176,6 +173,8 @@ class Shipped_Orders(models.Model):
     #         ord.is_shipped=True
     #         ord.save()
     #     super(Shipped_Orders,self).save(*args,**kwargs)
+
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='items', on_delete=models.CASCADE)

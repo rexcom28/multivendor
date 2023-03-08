@@ -10,10 +10,11 @@ def retrive_customer(customer_id:str):
     customer ={}  
     try:
         customer = stripe.Customer.retrieve(customer_id)
-        if 'address' in customer.keys():
+        
+        if 'address' in customer and customer['address'] is not None:
             address_flatten=customer.pop('address')
             customer.update(address_flatten)        
-        if 'email' in customer.keys():
+        if 'email' in customer and customer['email'] is not None:
             customer['email2']=customer.pop('email')
         return customer , ''
     except stripe.error.InvalidRequestError as E:

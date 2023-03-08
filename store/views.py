@@ -5,8 +5,8 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Category, Product, Order, OrderItem, Shipped_Orders
-from .forms import OrderForm, Shipped_Orders_Form
+from .models import Category, Product, Order, OrderItem
+from .forms import OrderForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -89,12 +89,12 @@ def add_to_cart(request, product_id):
     return redirect('cart_view')
 
 
-class Shipped_Order_UpdateView(UpdateView):
-    model = Shipped_Orders
-    #form_class = Shipped_Orders_Form
-    fields = '__all__'
-    template_name = 'userprofile/logistic/shipped_orders.html'
-    context_object_name ='shipping'
+# class Shipped_Order_UpdateView(UpdateView):
+#     model = Shipped_Orders
+#     #form_class = Shipped_Orders_Form
+#     fields = '__all__'
+#     template_name = 'userprofile/logistic/shipped_orders.html'
+#     context_object_name ='shipping'
 
 
     
@@ -145,9 +145,11 @@ def verify_internal(request):
     if response.status=='succeeded':
         order.is_paid = True 
         
-        discount = Discount.objects.get(code_name=order.discount_code)
-        if discount:
-            order.paid_amount = order.paid_amount - (order.paid_amount * (discount.discount_percent / 100))
+        if order.discount_code:            
+            discount, error = get_cupon(order.discount_code)            
+            if 'valid' in discount and 'percent_off' in discount:
+                if discount.get('valid'):
+                    order.paid_amount = order.paid_amount - (order.paid_amount * (discount.get('percent_off') / 100))            
     order.save()
     return redirect('success')
 
@@ -407,7 +409,8 @@ def checkout(request):
         cus = request.user
         init ={}
         if cus.customer.stripe_cus_id!='':
-            customer, error= retrive_customer(cus.customer.stripe_cus_id)            
+            customer, error= retrive_customer(cus.customer.stripe_cus_id)
+            
             if customer:
                 if all([customer.get('name'), customer.get('line1'), customer.get('postal_code'), customer.get('city')]):
                     init={

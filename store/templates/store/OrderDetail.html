@@ -35,7 +35,12 @@
               <span class="badge text-bg-warning">Unpaid</span>
             {% endif %}
           </dd>
-
+          {% if object.discount_code %}
+            <dt class="col-sm-4">Discount :</dt>
+            <dd class="col-sm-8">              
+                <span class="badge text-bg-success">{{object.discount_code}}</span>                                          
+            </dd>
+          {% endif %}
           <dt class="col-sm-4">Shipment Status:</dt>
           <dd class="col-sm-8">
             {% if object.is_shipped %}

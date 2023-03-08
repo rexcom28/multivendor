@@ -12,6 +12,7 @@ urlpatterns = [
     path('f2/', frontpage2, name='frontpage2'),
     path('adminStore/',include('adminStore.urls')),
     path('', include('userprofile.urls')),    
+    path('', include('Shipping.urls')),    
     path('', include('store.urls')),
     path('', frontpage, name='frontpage'),
     

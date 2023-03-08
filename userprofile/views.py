@@ -411,10 +411,13 @@ def sigup(request):
     else:        
         form= UserAndProfileForm()
         
-    return render(request, 'userprofile/signup.html', {
+    return render(request, 'userprofile/signupVendor.html', {
         'form':form,
         #'profile_form':profile_form
     })
+
+
+
 class create_customer_already_signup(UpdateView):
     model = User
     fields = '__all__'

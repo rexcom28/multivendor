@@ -28,7 +28,7 @@ urlpatterns =[
     path('remove-from-cart/<str:product_id>/',views.remove_from_cart, name='remove_from_cart'),
     path('<slug:slug>/', views.category_detail, name='category_detail'),
     path('<slug:category_slug>/<slug:slug>/', views.product_detail, name='product_detail'),
-    path('shipping/order/<int:pk>/', views.Shipped_Order_UpdateView.as_view(), name='shipped_orders'),
+    
     
     
     

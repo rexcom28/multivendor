@@ -11,23 +11,10 @@ from .api_stripe import *
 
 inputs = '''
 form-control
-        block
-        w-full
-        px-3
-        py-1.5
-        text-base
-        font-normal
-        text-gray-700
-        bg-white bg-clip-padding
-        border border-solid border-gray-300
-        rounded
-        transition
-        ease-in-out
-        m-0
-        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
 '''
 
 class customerCreationForm(UserCreationForm):
+   
    email = forms.EmailField(
       required=True,
       label="Email",
@@ -214,16 +201,12 @@ class ProfileForm(forms.ModelForm):
          'user':forms.HiddenInput(),
          'RFC':forms.TextInput(attrs={
                'class': inputs+' my_custom_selector'
-            }),
-         'is_vendor':forms.CheckboxInput(
-            attrs={
-               'class':'ml-2 text-sm font-medium text-white-900 dark:text-white-300'
-            }
-         ),
+            }),        
       }
 
 class UserAndProfileForm(Seller_Creation_Form, ProfileForm):
-   RFC = forms.CharField()
+   RFC = forms.CharField( widget=forms.TextInput(attrs={'class':inputs+ ' my_custom_selector'}))
+   is_vendor = forms.BooleanField(initial=True,label='', widget=forms.CheckboxInput(attrs={'class':'form control', 'hidden':''}))
    class Meta(Seller_Creation_Form.Meta, ProfileForm.Meta):
       model = User
       fields = ('first_name', 'last_name', 'email', 'username', 'password1', 'password2', 'is_vendor', 'RFC')
@@ -232,11 +215,10 @@ class UserAndProfileForm(Seller_Creation_Form, ProfileForm):
          'RFC':forms.TextInput(attrs={
                'class': inputs+' my_custom_selector'
          }),
-         'is_vendor':forms.CheckboxInput(
-               attrs={
-                  'class':'ml-2 text-sm font-medium text-white-900 dark:text-white-300'
-               }
-         ),
+         'first_name':forms.TextInput(attrs={'class':inputs+' my_custom_selector' }),
+         'last_name':forms.TextInput(attrs={'class':inputs+' my_custom_selector' }),
+         'username':forms.TextInput(attrs={'class':inputs,}),
+
       }
       
    def save(self, commit=True):

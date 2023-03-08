@@ -5,7 +5,7 @@ from .models import (
     CarouselImage,
     Order, 
     OrderItem, 
-    Shipped_Orders,
+    
     Discount, 
     Product_Inventory, 
     Payment_Detail,
@@ -25,7 +25,7 @@ def verified_payment(modeladmin,request,queryset):
             p.payment_intent,
         )
         paid = True if response.status=='succeeded' else False
-        print('paid', paid, response.status)
+        
         p.is_paid= paid
         p.save()
         
@@ -54,10 +54,6 @@ class Product_Admin(admin.ModelAdmin):
     list_display=['title','user', 'id_stripe','category', 'price_get','thumbnail','status','discount']
 
 
-# class Shipped_Orders_Admin(admin.ModelAdmin):
-#     list_display = ['order']
-
-admin.site.register(Shipped_Orders)#,Shipped_Orders_Admin)
 admin.site.register(Category)
 admin.site.register(Product,Product_Admin)
 admin.site.register(CarouselImage,CarouselImageAdmin)

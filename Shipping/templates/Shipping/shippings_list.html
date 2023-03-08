@@ -1,0 +1,71 @@
+{% extends 'core/mainBase.html' %}
+{% block title %}Shipping list {% endblock title %}
+
+
+{% block content %}
+<h1>Shipped Orders</h1>
+<div class="row">
+  <div class="col-md-6">
+    <h2>Shipped Orders</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Carrier Name</th>
+          <th>Tracking Number</th>
+          <th>Status</th>
+          <th>Delivery Date</th>
+          <th>Delivery Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for shipped_order in shipped_orders %}
+          <tr>
+            <td>{{ shipped_order.order.id }}</td>
+            <td>{{ shipped_order.carrier_name }}</td>
+            <td>{{ shipped_order.tracking_number }}</td>
+            <td>{{ shipped_order.status }}</td>
+            <td>{{ shipped_order.delivery_date }}</td>
+            <td>{{ shipped_order.delivery_company }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">No shipped orders found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-6">
+    <h2>Paid Orders</h2>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Name</th>
+          <th>Address</th>
+          <th>City</th>
+          <th>Zipcode</th>
+          <th>Paid Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.first_name }} {{ order.last_name }}</td>
+            <td>{{ order.address }}</td>
+            <td>{{ order.city }}</td>
+            <td>{{ order.zipcode }}</td>
+            <td>{{ order.get_display_price }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">No paid orders found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock content %}

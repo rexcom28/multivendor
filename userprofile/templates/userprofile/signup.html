@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
 {% block title %} Vendor Sign up{% endblock title %}
 
@@ -51,7 +51,7 @@
             {{ form.RFC.label_tag }} {{ form.RFC }}
             <p>{{form.RFC.help_text}}</p>
         </div>
-        <button type="submit" class="py-4 px-8 bg-teal-800 text-white rounded">Sig up</button>
+        <button type="submit" class="py-4 px-8 bg-teal-800 text-white rounded">Sign up</button>
     </form>
 {% endblock content %}
 
