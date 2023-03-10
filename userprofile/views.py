@@ -163,18 +163,19 @@ def add_product(request):
             product.save()
 
             
-            with transaction.atomic():            
-                for formset in carouselFormSet.cleaned_data:                
-                    if not all([not formset.get('image')]):
-                        image = formset.get('image')
-                        caption = formset.get('caption')
-                        order = carouselFormSet.cleaned_data.index(formset) + 1
-                        CarouselImage.objects.create(
-                            product=product, 
-                            image=image, 
-                            caption=caption, 
-                            order=order
-                        )
+            if carouselFormSet.is_valid():
+                with transaction.atomic():            
+                    for formset in carouselFormSet.cleaned_data:                
+                        if not all([not formset.get('image')]):
+                            image = formset.get('image')
+                            caption = formset.get('caption')
+                            order = carouselFormSet.cleaned_data.index(formset) + 1
+                            CarouselImage.objects.create(
+                                product=product, 
+                                image=image, 
+                                caption=caption, 
+                                order=order
+                            )
             api_own = StripeAPI()
             api_prod, err = api_own.create_product(product)
                 
