@@ -6,7 +6,7 @@
 <img src="{{ form.instance.image.url }}" style="max-width:100%; max-height:200px; margin-top:10px;">
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  {{ form.as_p }}
+  {{ form}}
 
   <h2>Carousel Images</h2>
   <hr><br>

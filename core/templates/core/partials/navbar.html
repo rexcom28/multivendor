@@ -40,18 +40,19 @@
                 </a>                
                 <ul class="dropdown-menu">  
                     {% if request.user.userprofile.is_vendor %}
-                    <li><a class="dropdown-item" href="{% url 'my_store' %}">My store</a></li>
-                    <li><a class="dropdown-item" href="{% url 'categories_list' %}">Categories</a></li>
-                    <li><a class="dropdown-item" href="{% url 'discount_view' %}">Discounts</a></li>
-                    <li><a class="dropdown-item" href="{% url 'add_product' %}">Add product</a></li>
-                    
+                      <li><a class="dropdown-item" href="{% url 'my_store' %}">My store</a></li>
+                      <li><a class="dropdown-item" href="{% url 'categories_list' %}">Categories</a></li>
+                      <li><a class="dropdown-item" href="{% url 'discount_view' %}">Discounts</a></li>
+                      <li><a class="dropdown-item" href="{% url 'add_product' %}">Add product</a></li>
+                      
                     {% else %}
 
                     {% endif %}
-                    <li><a class="dropdown-item" href="{% url 'success' %}">Orders</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    
+                    
                     {% if request.user.is_authenticated %}
-                        
+                        <li><a class="dropdown-item" href="{% url 'success' %}">Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item" href="{% url 'myaccount' %}">Settings</a>
                         </li>

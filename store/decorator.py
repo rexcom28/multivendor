@@ -50,14 +50,31 @@ def check_user_able_to_see_page(*groups):
 
     return decorator
 
+# def is_vendor():
+#     def decorator(function):  
+#         print('aaaaaaaaBBaaaaaaaaaaaaaa')      
+#         def wrapper(request, *args, **kwargs):
+            
+#             if request.user.userprofile.is_vendor:
+#                 print('aaaaaaaaaaaaaaa',request.user.userprofile.is_vendor)
+#                 return function(request, *args, **kwargs)
+#             #raise Http404
+#             #raise PermissionDenied
+#             print(request.user.userprofile.is_vendor)
+#             messages.add_message(request, messages.WARNING, 'You are not a vendor !')
+#             return redirect('frontpage')
+#         return wrapper
+#     return decorator
 def is_vendor():
-    def decorator(function):        
-        def wrapper(request, *args, **kwargs):            
-            if request.user.userprofile.is_vendor:
-                return function(request, *args, **kwargs)
-            #raise Http404
-            #raise PermissionDenied
-            messages.add_message(request, messages.WARNING, 'You are not a vendor !')
-            return redirect('frontpage')
-        return wrapper
+    def decorator(view_func):
+        def wrapped_view(request, *args, **kwargs):
+            
+            if hasattr(request.user, 'userprofile') and request.user.userprofile.is_vendor:
+                    # User is a vendor, call the view function
+                    return view_func(request, *args, **kwargs)
+            else:
+                # User is not a vendor, show a warning message
+                messages.warning(request, 'You must be a vendor to access this page.')
+                return redirect('frontpage')
+        return wrapped_view
     return decorator

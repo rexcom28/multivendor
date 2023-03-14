@@ -1,45 +1,59 @@
-{% extends 'core/base.html' %}
+{% extends 'core/mainBase.html' %}
 
-{% block title %} Order detail - {{order.id}}{% endblock title %}
+{% block title %} Order detail - {{ order.id }} {% endblock title %}
 
 {% block content %}
 
-    <h1 class="mb-6 text-2xl">Order: {{order.id}}  </h1>
+<div class="container my-5">
+    <h1 class="mb-5 display-4">Order: {{ order.id }}</h1>
 
+    <h2 class="mb-3 h3">My products in this order</h2>
 
-    <h2 class="mb-3 text-xl">My products in this order</h2>
-
-    <div class="flex flex-wrap">
-        <div class="w-1/3">
-            <strong>Title</strong>
-        </div>
-        <div class="w-1/3">
-            <strong>Quantity</strong>
-        </div>
-        <div class="w-1/3">
-            <strong>Price</strong>
-        </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Order</th>
+                    <th>Title</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                    {% if item.product.user == request.user %}
+                    <tr>
+                        <td>{{ item.order }}</td>
+                        <td>{{ item.product.title }} </td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.get_display_price }}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2" class="text-right">Total order brute income:</th>
+                    <td>items: {{ get_total_quantity_per_user }}</td>                    
+                    <td>${{ get_display_price_per_user  }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <h1>Order Details</h1>
+        <p><strong>Buyer User:</strong> {{ order.created_by }}</p>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>First Name:</strong> {{ order.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ order.last_name }}</p>
+        <p><strong>Address:</strong> {{ order.address }}</p>
+        <p><strong>Zipcode:</strong> {{ order.zipcode }}</p>
+        <p><strong>City:</strong> {{ order.city }}</p>
+        <hr>
+        {% if order.discount_code %}
+            <p><strong>Discount code applied to order:</strong> {{ order.discount_code }}</p>
+        {% endif %}
+        <p><strong>Total order:</strong> ${{ get_display_price_with_discount|floatformat:2 }}</p>
     </div>
 
-    {% for item in order.items.all %}
-      
-      {% if item.product.user == request.user %}
-        <div class="flex flex-wrap">
-            
-            <div class="w-1/3">
-                {{item.product.title}}
-            </div>
-        
-            <div class="w-1/3">
-                {{item.quantity}}
-            </div>
-        
-            <div class="w-1/3">
-                ${{item.get_display_price}}
-            </div>
-        </div>
-      {% endif %}
-        
-    {% endfor %}
+</div>
 
 {% endblock content %}

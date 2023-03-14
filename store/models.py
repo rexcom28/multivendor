@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.template.defaultfilters import slugify
 
-from django.db.models import Sum
+from django.db.models import Sum,F
 
 from io import BytesIO
 from PIL import Image
@@ -87,6 +87,9 @@ class Product(models.Model):
     
     class Meta:
         ordering = ('-created_at', )
+        indexes = [
+            models.Index(fields=['user']),
+        ]
     
     def __str__(self):
         return self.title
@@ -162,17 +165,27 @@ class Order(models.Model):
     def get_display_price(self):
         return self.paid_amount /100
     
+    def get_display_price_with_discount(self,user):
+        if self.discount_code:
+            discount,err = get_cupon(self.discount_code)
+            tot_item = self.get_display_price_per_user(user)
+            discount = (tot_item*100) * (discount.get('percent_off',0) /100)
+            return tot_item-discount / 100
+        else:
+            return self.get_display_price_per_user(user)
+
     def __str__(self):
         return f'{self.id}'
 
+    def get_display_price_per_user(self, user):
+        total_price = self.items.filter(product__user=user).annotate(
+            total_price=F('quantity') * F('price')
+        ).aggregate(Sum('total_price'))['total_price__sum'] or 0
+        return total_price / 100
 
+    def get_total_quantity_per_user(self, user):
+        return self.items.filter(product__user=user).aggregate(Sum('quantity'))['quantity__sum'] or 0
 
-    # def save(self,*args, **kwargs):
-    #     if self.order.is_paid:
-    #         ord =self.order
-    #         ord.is_shipped=True
-    #         ord.save()
-    #     super(Shipped_Orders,self).save(*args,**kwargs)
 
 
 class OrderItem(models.Model):
@@ -186,6 +199,8 @@ class OrderItem(models.Model):
     
     def get_item_total(self):
         return (self.price / 100) * self.quantity
+    
+    
     
 
 class Product_Inventory(models.Model):

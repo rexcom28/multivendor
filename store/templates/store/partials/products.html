@@ -1,14 +1,15 @@
+
 <div class="row">
     {% for product in products %}
-        <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="col-sm-6 col-md-4 col-lg-3 my-2 mx-2">
             <div class="card mb-4">
-            <a href="{% url 'product_detail' product.category.slug product.slug %}">
-                <img class="card-img-top" src="{{ product.get_thumbnail }}" alt="Image of {{ product.title }}">
-            </a>
-            <div class="card-body">
-                <h5 class="card-title">{{ product.title }}</h5>
-                <p class="card-text">$ {{ product.get_display_price }}</p>
-            </div>
+                <a href="{% url 'product_detail' product.category.slug product.slug %}">
+                    <img class="card-img-top img-thumbnail" src="{{ product.get_thumbnail }}" alt="Image of {{ product.title }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <p class="card-text">$ {{ product.get_display_price }}</p>
+                </div>
             </div>
         </div>
     {% endfor %}

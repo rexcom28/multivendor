@@ -46,23 +46,39 @@ def vendor_detail(request, pk):
         'products':products,
     })
 
+
+from django.http import HttpResponse
+
+
+@is_vendor()
 @login_required
 def my_store(request):
-    orders = Order.objects.filter(items__product__user=request.user)    
+    
+    orders = Order.objects.filter(items__product__user=request.user).distinct()    
     products = request.user.products.exclude(status=Product.DELETED)        
     discounts = Discount.objects.filter(created_by=request.user)
-    return render(request, 'userprofile/my_store2.html', {
+    content = render(request, 'userprofile/my_store2.html', {
         'products':products,
-        'order_items':orders,
+        'orders':orders,
         'discounts':discounts,
     })
+    return HttpResponse(content)
+
 
 @login_required
+@is_vendor()
 def my_store_order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk )
+    orders = Order.objects.filter(items__product__user=request.user).distinct()
     
+    order = get_object_or_404(orders, pk=pk)
+    get_total_quantity_per_user= order.get_total_quantity_per_user(request.user)
+    get_display_price_per_user=order.get_display_price_per_user(request.user)
+    get_display_price_with_discount = order.get_display_price_with_discount(request.user)
     return render(request, 'userprofile/my_store_order_detail.html',{
-        'order':order
+        'order':order,
+        'get_total_quantity_per_user':get_total_quantity_per_user,
+        'get_display_price_per_user':get_display_price_per_user,
+        'get_display_price_with_discount':get_display_price_with_discount
     })
 
 
@@ -143,14 +159,15 @@ def discount_view(request):
         'form':form,
         'discounts':discounts
     })
-    
+
+
 @login_required
 def add_product(request):
     
-    qs = Discount.objects.filter(created_by=request.user)
+    qs = Discount.objects.filter(created_by=request.user)    
     CarouselImageFormSet = formset_factory(CarouselImageForm, extra=1, min_num=1)
 
-    if request.method == 'POST':        
+    if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, qs=qs)
         carouselFormSet = CarouselImageFormSet(request.POST, request.FILES)
 
@@ -187,21 +204,20 @@ def add_product(request):
                 product.save()                    
                 messages.success(request, 'The product was added!')
             return redirect ('my_store')
-    else:
+    else:        
         form = ProductForm(qs=qs)
         carouselFormSet = CarouselImageFormSet()
-    
     return render(request, 'userprofile/product_form.html',{
         'title':'Add',
         'form':form,
         'carouselFormSet':carouselFormSet,
     })
-
 CarouselImageFormSet = inlineformset_factory(Product, CarouselImage, CarouselImageForm,fields=('image', 'caption', 'order'),extra=1, can_delete=False)
 
 
 class ProductUpdateView(UpdateView):
     model = Product
+    
     form_class = ProductForm
     template_name = 'userprofile/product_update.html'
     success_url = reverse_lazy('my_store')
@@ -209,6 +225,12 @@ class ProductUpdateView(UpdateView):
         obj = super().get_object(queryset=queryset)
         self.object = obj
         return obj
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['qs'] = Discount.objects.filter(created_by=self.request.user) 
+        return kwargs
+
     def get_context_data(self, **kwargs):
         data = super(ProductUpdateView, self).get_context_data(**kwargs)
         if self.request.POST:

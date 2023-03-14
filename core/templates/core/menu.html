@@ -6,6 +6,8 @@
 <ul class="dropdown-menu">
   
   {% for category in categories %}
-      <li><a class="dropdown-item" href="{% url 'category_detail' category.slug %}">{{category.title}}</a></li>            
-  {% endfor %}              
+      <li><a class="dropdown-item" href="{% url 'category_detail' category.slug %}">{{category.title}}</a></li>
+  {% endfor %}    
+  <li><hr class="dropdown-divider"></li>
+  <li><a class="dropdown-item" href="{% url 'categories_list' %}">All categories</a></li>
 </ul>

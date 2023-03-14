@@ -10,10 +10,12 @@ from .forms import OrderForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from .cart import Cart
 from django.contrib import messages
 from userprofile.api_stripe import retrive_customer
-from .decorator import check_user_able_to_see_page,verify_customer
+from .decorator import check_user_able_to_see_page,verify_customer, is_vendor
+
 from userprofile.api_stripe import get_cupon,verify_payment_intent
 
 #CVB
@@ -133,7 +135,7 @@ def verified(request):
     })
 
 
-from .models import Discount
+
 def verify_internal(request):
     oid = request.GET.get('oid', '')    
     order = Order.objects.get(id=oid)
@@ -141,7 +143,7 @@ def verify_internal(request):
     response = stripe.PaymentIntent.retrieve(
         order.payment_intent,
     )
-    print(response)
+    
     if response.status=='succeeded':
         order.is_paid = True 
         
@@ -389,6 +391,7 @@ def checkout(request):
             if len(payment_intent) > 0:                
                 order_params.update({"payment_intent": payment_intent,})
                 
+            #if the order has the discount code the store.signals
             order = Order.objects.create(
                 **order_params
             )
@@ -513,6 +516,7 @@ def search(request):
         'products':products                 
     })
 
+
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = category.products.filter(status=Product.ACTIVE)
@@ -537,6 +541,7 @@ class Category_ListView(ListView):
     model = Category
     template_name = 'store/category/category_list.html'
 
+    
     def get(self, request, *args, **kwargs):
         title_filter = request.GET.get('title_filter', '')
         self.queryset = self.model.objects.filter(title__icontains=title_filter)
@@ -547,12 +552,18 @@ class Category_CreateView(CreateView):
     template_name= 'store/category/create.html'
     fields = ['title']
     success_url = '/categories/list/'
-
+    
+    @method_decorator(is_vendor())
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
 class Category_UpdateView(UpdateView):
     model= Category
     template_name= 'store/category/create.html'
     fields = ['title']
     success_url = '/categories/list/'
-
+    @method_decorator(is_vendor())
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 

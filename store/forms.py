@@ -35,15 +35,15 @@ class CarouselImageForm(forms.ModelForm):
         }
         widgets={
             'image': forms.ClearableFileInput(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeholder':'Image'
             }),
             'caption': forms.TextInput(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeholder':'Caption (optional)',
             }),
             'order': forms.NumberInput(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'min': 1
             }),
         }
@@ -64,13 +64,16 @@ class CarouselImageForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     id_stripe =forms.CharField(widget=forms.HiddenInput, required=False)
     def __init__(self,*args, **kwargs):
+        
         qs=kwargs.pop('qs',None)
+        
         super(ProductForm,self).__init__(*args, **kwargs)
-        if qs:
+        
+        if qs:            
             self.fields['discount']= forms.ModelChoiceField(required=False, queryset=qs,
             widget=forms.Select(attrs={
                 
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200'
+                'class': forma
             }))
 
     class Meta:
@@ -82,35 +85,35 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'id_stripe':forms.TextInput(),
             'category': forms.Select(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeholder':'Category'
             }),
             'title': forms.TextInput(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeholder':'Title',
             }),
             'description': forms.Textarea(attrs={
                 'rows':3,
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeholder':'Description',
             }),
             'price': forms.NumberInput(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'pattern':'\d+',
                 'placeholder':'Price'
             }),
            
             'image': forms.ClearableFileInput(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeolder':'Image'
             }),
             'status': forms.Select(attrs={
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200',
+                'class': forma,
                 'placeholder':'Status'
             }),
             'discount': forms.Select(attrs={
                 
-                'class': forma,#'w-full mb-2 px-2 py-4 border border-gray-200'
+                'class': forma,
             }),
             
         }
