@@ -24,7 +24,11 @@
                     {% if item.product.user == request.user %}
                     <tr>
                         <td>{{ item.order }}</td>
-                        <td>{{ item.product.title }} </td>
+                        <td>
+                            <a href="{% url 'edit_product' item.product.id %}">
+                                {{ item.product.title }}
+                            </a>
+                        </td>
                         <td>{{ item.quantity }}</td>
                         <td>${{ item.get_display_price }}</td>
                     </tr>

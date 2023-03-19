@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'crispy_forms',
     'rest_framework',
+    'rest_framework.authtoken',
     
     #apps
     'adminStore',
@@ -62,11 +63,11 @@ INSTALLED_APPS = [
     
     
 ]
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.TokenAuthentication',
-#     ],
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 MIDDLEWARE = [
 
     'django.middleware.security.SecurityMiddleware',

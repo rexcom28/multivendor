@@ -198,8 +198,10 @@ class OrderItem(models.Model):
         return self.price / 100
     
     def get_item_total(self):
-        return (self.price / 100) * self.quantity
+        return (self.price/100)  * self.quantity
     
+    def __str__(self) -> str:
+        return f"Order: {self.order}, item:{self.product.title}"
     
     
 

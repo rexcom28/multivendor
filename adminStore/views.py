@@ -1,13 +1,19 @@
+from .models import Message
 from django.shortcuts import render, redirect
 from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView
 from django.db.models import Q
 from django.contrib.auth.models import Permission,User
 from django.contrib.auth.mixins import UserPassesTestMixin
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 
+class AddMessage_CreateView(CreateView):
+    model = Message
+    
 
 class SavePermisionVendorAPIView(APIView):
     def post(self, request, *args, **kwargs):

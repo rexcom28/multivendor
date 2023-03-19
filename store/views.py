@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Category, Product, Order, OrderItem
 from .forms import OrderForm
+from adminStore.forms import MessageForm
+
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -15,6 +17,8 @@ from .cart import Cart
 from django.contrib import messages
 from userprofile.api_stripe import retrive_customer
 from .decorator import check_user_able_to_see_page,verify_customer, is_vendor
+
+from adminStore.models import Conversation,Message
 
 from userprofile.api_stripe import get_cupon,verify_payment_intent
 
@@ -65,11 +69,7 @@ def order_view(request, pk):
         'form':form,        
     })
 
-class Order_DetailView(DetailView):
-    model = Order
-    template_name = 'store/OrderDetail.html'
-    context_object_name = 'order'
-
+    
 #-------------Cart functions
 def remove_from_cart(request, product_id):
     cart = Cart(request)
@@ -401,7 +401,7 @@ def checkout(request):
             for item in cart:
                 product = item['product']
                 quantity = int(item['quantity'])
-                price = product.price * quantity                
+                price = product.price
                 item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
             
             cart.clear()    
@@ -567,3 +567,43 @@ class Category_UpdateView(UpdateView):
         return super().dispatch(*args, **kwargs)
 
 
+class Order_DetailView(DetailView):
+    model = Order
+    template_name = 'store/OrderDetail.html'
+    context_object_name = 'order'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = self.get_object()
+        conversation = Conversation.objects.filter(order=order).first()
+        context['conversation'] = conversation
+    
+        form = MessageForm()
+        if self.request.method == 'GET':
+            form = MessageForm(initial={
+                'conversation':conversation, 
+                'sender':self.request.user
+                #'receiver':conversation.order.members
+                })
+        
+        context['form']= form
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        order = self.get_object()
+        conversation = Conversation.objects.filter(order=order).first()
+        form = MessageForm(request.POST)
+
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.conversation = conversation
+            message.sender = self.request.user
+            message.save()
+
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'errors': form.errors})
+
+    
+
+
+    

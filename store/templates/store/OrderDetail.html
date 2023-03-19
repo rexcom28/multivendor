@@ -3,7 +3,52 @@
 
 
 {% block content %}
-  
+  <style>
+    
+    
+    .chat-message .chat-message-content {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      
+    }
+    
+    .chat-message .chat-message-date {
+      font-size: 12px;
+      color: #ffffff;
+    }
+    .chat-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 10px 0;
+    }
+    
+    .chat-row.sender .chat-message {
+      background-color: #05d5ff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-left: auto;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+    
+    .chat-row.receiver .chat-message {
+      background-color: #007bff;
+      border-radius: 10px;
+      color: white;
+      padding: 10px;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+    
+    .accordion-body {
+      height: 500px; /* set a fixed height */
+      overflow-y: auto; /* enable vertical scrollbar */
+    }
+    
+  </style>  
     <div class="row">
       <div class="col-md-6">
         <h2>Order Details</h2>
@@ -67,7 +112,11 @@
           <tbody>
             {% for item in object.items.all %}
               <tr>
-                <td><img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="100"></td>
+                <td>
+                  <a href="{% url 'product_detail' item.product.category.slug item.product.slug %}">
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="100">
+                  </a>
+                </td>
                 <td>{{ item.product.title }}</td>
                 <td>${{ item.get_display_price }}</td>
                 <td>{{ item.quantity }}</td>
@@ -76,6 +125,146 @@
           </tbody>
         </table>
       </div>
+      <div class="col-md-12">
+        <h2>Order Chat</h2>
+        <div class="accordion" id="accordionExample">
+
+          {% for acco in conversation.members.all %}
+            {% if acco != request.user %}
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading-{{acco}}">
+                  <button  onclick="vendorChat(`{{acco.id}}`);" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{acco}}" aria-expanded="true" aria-controls="collapse-{{acco}}">
+                    {{acco}}
+                  </button>
+                </h2>
+
+                <div id="collapse-{{acco}}" vendor_name="{{acco}}" vendor_id="{{acco.id}}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-{{acco}}" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">              
+                    {% for message in conversation.messages.all %}
+                      
+                      {% if message.receiver == acco %}
+                        <div class="chat-row sender">
+                          <div class="chat-message">
+                            <p>{{ message.content }}</p>
+                            <div class="chat-message-date">{{ message.created_at }}</div>
+                          </div>
+                          
+                        </div>
+                      {%endif%}
+
+                      {% if message.sender == acco %}
+                        <div class="chat-row receiver">
+                          <div class="chat-message">
+                            <p>{{ message.content }}</p>
+                            <div class="chat-message-date">{{ message.created_at }}</div>
+                          </div>                        
+                        </div>
+                      {% endif %}
+
+                    {% endfor %}
+                  </div>
+                </div>
+                
+              </div>
+            {% endif %}
+          {% endfor %}
+<hr>
+{% comment %}
+  {% for message in conversation.messages.all %}            
+    <div class="accordion-item">
+
+      <h2 class="accordion-header" id="heading-{{message.receiver}}">
+        <button onclick="vendorChat(`{{message.receiver.id}}`);" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{message.receiver}}" aria-expanded="true" aria-controls="collapse-{{message.receiver}}">
+          {{ message.receiver }}
+        </button>
+      </h2>
+
+      <div id="collapse-{{message.receiver}}" vendor_name="{{message.receiver}}" vendor_id="{{message.receiver.id}}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-{{message.receiver}}" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+          {% for m in conversation.order.items.all %}
+            {% if message.receiver == m.product.user %}
+              {{message.content}}
+            {% endif %}
+          {% endfor %}             
+        </div>
+      </div>
+    
+    </div>  
+  
+  {% endfor %}    
+{% endcomment %}
+        </div>
+
+
+        <form method="post" action="." id="message-form">
+          {% csrf_token %}
+          {{form.as_p}}
+          
+          <button type="submit" class=" my-3 btn btn-primary">Send</button>
+        </form>
+      </div>
+      
     </div>
 
 {% endblock %}
+
+
+{% block scripts %}
+<script>
+
+  window.onload = function() {
+    const element = document.querySelector('.accordion-collapse.collapse.show');
+    const vendor_name = element.getAttribute('vendor_name');
+
+    if (element) {
+      const id = element.getAttribute('vendor_id');
+      if(id !== null || id !==""){
+        vendorChat(id)        
+        id_content.placeholder= `Message to ${vendor_name}`;
+      }
+    }
+  }
+
+  function vendorChat(id){
+    id_receiver.value=id;
+    
+    id_content.placeholder=`Message to ${id_receiver.options[id_receiver.selectedIndex].text}`;
+  }
+
+
+
+  const messageForm = document.querySelector('#message-form');
+
+  messageForm.addEventListener('submit', function(event){
+    event.preventDefault();
+    const messageInput = document.querySelector('#id_content');
+    const  message = messageInput.value.trim();
+    let form = event.target;
+    let data = new FormData(form);
+
+    if(message !== ''){
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `{% url 'order_viewCBV' object.id %}`);
+      //xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.onreadystatechange= () =>{
+        if(xhr.readyState===XMLHttpRequest.DONE){
+          if(xhr.status===200){
+            let response = JSON.parse(xhr.responseText);
+            if( !response.errors){
+              console.log(response)
+            }else{
+              alert(response.errors)
+            }
+
+          }else{
+            console.error('Request error', xhr.statusText);
+          }
+        }
+      };
+      xhr.send(data);
+    }
+  });
+
+</script>
+{% endblock scripts %}

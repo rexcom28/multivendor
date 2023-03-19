@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'crispy_forms',
     'rest_framework',
+    'rest_framework.authtoken',
 
     #apps
     'adminStore',
@@ -59,7 +60,11 @@ INSTALLED_APPS = [
     'Shipping',
     'store',
 ]
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
