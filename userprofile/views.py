@@ -1,4 +1,8 @@
 from django.views.generic.edit import UpdateView
+from django.views.generic import DetailView
+from django.http import Http404
+
+
 from django.contrib import messages
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.decorators import login_required
@@ -17,6 +21,8 @@ from .forms import (
 from store.forms import (
     CarouselImageForm
 )
+from adminStore.forms import MessageForm
+from adminStore.models import Conversation
 
 from django.forms.models import inlineformset_factory
 from django.forms import formset_factory
@@ -34,7 +40,9 @@ from store.decorator import is_vendor
 from django.http import JsonResponse
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
+from django.utils.decorators import method_decorator
 from django import forms
 from .api_stripe import get_cupon
 
@@ -71,15 +79,32 @@ def my_store_order_detail(request, pk):
     orders = Order.objects.filter(items__product__user=request.user).distinct()
     
     order = get_object_or_404(orders, pk=pk)
+    conversation = order.conversation.first()
+    
+
     get_total_quantity_per_user= order.get_total_quantity_per_user(request.user)
     get_display_price_per_user=order.get_display_price_per_user(request.user)
     get_display_price_with_discount = order.get_display_price_with_discount(request.user)
+
+    form = MessageForm()
+    if request.method=='GET':        
+        form = MessageForm(initial={
+            'conversation':conversation, 
+            'sender':request.user,
+            'receiver':order.created_by,
+            })
+        
+
     return render(request, 'userprofile/my_store_order_detail.html',{
         'order':order,
         'get_total_quantity_per_user':get_total_quantity_per_user,
         'get_display_price_per_user':get_display_price_per_user,
-        'get_display_price_with_discount':get_display_price_with_discount
+        'get_display_price_with_discount':get_display_price_with_discount,
+        'conversation':conversation,
+        'form':form,
     })
+
+
 
 
 
@@ -160,7 +185,6 @@ def discount_view(request):
         'discounts':discounts
     })
 
-
 @login_required
 def add_product(request):
     
@@ -212,10 +236,65 @@ def add_product(request):
         'form':form,
         'carouselFormSet':carouselFormSet,
     })
+
+
+
+@method_decorator(is_vendor(), name='dispatch')
+class MyStore_Order_DetailView(LoginRequiredMixin,DetailView):
+    model = Order
+    form_class= MessageForm
+    template_name = 'userprofile/my_store_order_detail.html'
+    context_object_name = 'order'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['get_total_quantity_per_user']     = self.object.get_total_quantity_per_user(self.request.user)
+        context['get_display_price_per_user']      = self.object.get_display_price_per_user(self.request.user)
+        context['get_display_price_with_discount'] = self.object.get_display_price_with_discount(self.request.user)
+        context['conversation'] = self.object.conversation.first()
+        
+        
+        if self.request.method=='GET':        
+            context['form'] = MessageForm(initial={
+            'conversation':self.object.conversation.first(), 
+            'sender':self.request.user,
+            'receiver':self.object.created_by,
+            })
+        
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(items__product__user=self.request.user).distinct()
+        return queryset
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if obj.items.filter(product__user=self.request.user).exists():
+            return obj
+        else:
+            raise Http404("Order does not exist for this user")
+        
+    def post(self,request,*args,**kwargs):
+        order = self.get_object()
+        conversation = Conversation.objects.filter(order=order).first()
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.conversation = conversation
+            message.sender = self.request.user
+            message.save()
+
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'errors': form.errors})
+
+
+
+
 CarouselImageFormSet = inlineformset_factory(Product, CarouselImage, CarouselImageForm,fields=('image', 'caption', 'order'),extra=1, can_delete=False)
-
-
-class ProductUpdateView(UpdateView):
+@method_decorator(is_vendor(), name='dispatch')
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     
     form_class = ProductForm

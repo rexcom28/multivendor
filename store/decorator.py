@@ -68,7 +68,7 @@ def check_user_able_to_see_page(*groups):
 def is_vendor():
     def decorator(view_func):
         def wrapped_view(request, *args, **kwargs):
-            
+                        
             if hasattr(request.user, 'userprofile') and request.user.userprofile.is_vendor:
                     # User is a vendor, call the view function
                     return view_func(request, *args, **kwargs)

@@ -139,7 +139,7 @@
                 </h2>
 
                 <div id="collapse-{{acco}}" vendor_name="{{acco}}" vendor_id="{{acco.id}}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-{{acco}}" data-bs-parent="#accordionExample">
-                  <div class="accordion-body">              
+                  <div id="body-{{acco}}" class="accordion-body">              
                     {% for message in conversation.messages.all %}
                       
                       {% if message.receiver == acco %}
@@ -168,31 +168,7 @@
               </div>
             {% endif %}
           {% endfor %}
-<hr>
-{% comment %}
-  {% for message in conversation.messages.all %}            
-    <div class="accordion-item">
-
-      <h2 class="accordion-header" id="heading-{{message.receiver}}">
-        <button onclick="vendorChat(`{{message.receiver.id}}`);" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{message.receiver}}" aria-expanded="true" aria-controls="collapse-{{message.receiver}}">
-          {{ message.receiver }}
-        </button>
-      </h2>
-
-      <div id="collapse-{{message.receiver}}" vendor_name="{{message.receiver}}" vendor_id="{{message.receiver.id}}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-{{message.receiver}}" data-bs-parent="#accordionExample">
-        <div class="accordion-body">
-          {% for m in conversation.order.items.all %}
-            {% if message.receiver == m.product.user %}
-              {{message.content}}
-            {% endif %}
-          {% endfor %}             
-        </div>
-      </div>
-    
-    </div>  
-  
-  {% endfor %}    
-{% endcomment %}
+          <hr>
         </div>
 
 
@@ -214,13 +190,16 @@
 
   window.onload = function() {
     const element = document.querySelector('.accordion-collapse.collapse.show');
-    const vendor_name = element.getAttribute('vendor_name');
-
+    let vendor_name = element.getAttribute('vendor_name');
+    const chatBody = document.getElementById(`body-${vendor_name}`);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    
     if (element) {
+      
       const id = element.getAttribute('vendor_id');
       if(id !== null || id !==""){
         vendorChat(id)        
-        id_content.placeholder= `Message to ${vendor_name}`;
+        id_content.placeholder= `Message to "${vendor_name}"`;
       }
     }
   }
@@ -228,16 +207,29 @@
   function vendorChat(id){
     id_receiver.value=id;
     
-    id_content.placeholder=`Message to ${id_receiver.options[id_receiver.selectedIndex].text}`;
+    id_content.placeholder=`Message to "${id_receiver.options[id_receiver.selectedIndex].text}"`;
+    vendor_name=id_receiver.options[id_receiver.selectedIndex].text;
+    const chatBody = document.getElementById(`body-${vendor_name}`);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    
   }
 
 
 
   const messageForm = document.querySelector('#message-form');
+  const messageInput = document.querySelector('#id_content');
+
 
   messageForm.addEventListener('submit', function(event){
     event.preventDefault();
-    const messageInput = document.querySelector('#id_content');
+
+    
+
+    if(!messageInput.value.trim()){
+      messageInput.classList.add('is-invalid');
+      return;
+    }
+
     const  message = messageInput.value.trim();
     let form = event.target;
     let data = new FormData(form);
@@ -252,7 +244,28 @@
           if(xhr.status===200){
             let response = JSON.parse(xhr.responseText);
             if( !response.errors){
-              console.log(response)
+              
+              if(response.success){
+                //const chatBody = document.querySelector('.accordion-body');
+                const chatBody = document.getElementById(`body-${vendor_name}`);
+                //"chat-row sender">
+                const chatRow = document.createElement('div');                
+                chatRow.classList.add('chat-row', 'sender');
+                
+                //"chat-message"
+                const chatRowMes = document.createElement('div');
+                chatRowMes.classList.add('chat-message');
+
+                //add <p>
+                const par = document.createElement('p');
+
+                chatRowMes.textContent=messageInput.value;
+                chatRow.appendChild(chatRowMes);
+                chatBody.appendChild(chatRow);
+                messageInput.value='';
+                chatBody.scrollTop = chatBody.scrollHeight;
+              }
+
             }else{
               alert(response.errors)
             }
@@ -265,6 +278,17 @@
       xhr.send(data);
     }
   });
+
+
+  messageInput.addEventListener('keydown', (event)=>{
+
+    messageInput.classList.remove('is-invalid');
+    if(event.keyCode === 13 && !event.shiftKey){
+      event.preventDefault();
+      messageForm.dispatchEvent(new Event('submit'));
+    }
+  });
+
 
 </script>
 {% endblock scripts %}

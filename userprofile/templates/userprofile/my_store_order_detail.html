@@ -3,7 +3,52 @@
 {% block title %} Order detail - {{ order.id }} {% endblock title %}
 
 {% block content %}
-
+<style>
+    
+    
+    .chat-message .chat-message-content {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      
+    }
+    
+    .chat-message .chat-message-date {
+      font-size: 12px;
+      color: #ffffff;
+    }
+    .chat-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 10px 0;
+    }
+    
+    .chat-row.sender .chat-message {
+      background-color: #05d5ff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-left: auto;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+    
+    .chat-row.receiver .chat-message {
+      background-color: #007bff;
+      border-radius: 10px;
+      color: white;
+      padding: 10px;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+    
+    .accordion-body {
+      height: 500px; /* set a fixed height */
+      overflow-y: auto; /* enable vertical scrollbar */
+    }
+    
+  </style> 
 <div class="container my-5">
     <h1 class="mb-5 display-4">Order: {{ order.id }}</h1>
 
@@ -58,6 +103,145 @@
         <p><strong>Total order:</strong> ${{ get_display_price_with_discount|floatformat:2 }}</p>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Order Chat</h2>
+            <div class="accordion" id="accordionExample">
+    
+              {% for acco in conversation.members.all %}
+                {% if acco == request.user %}
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-{{acco}}">
+                      <button  onclick="vendorChat(`{{acco.id}}`);" class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{acco}}" aria-expanded="true" aria-controls="collapse-{{acco}}">
+                        {{acco}}
+                      </button>
+                    </h2>
+    
+                    <div id="collapse-{{acco}}" vendor_name="{{acco}}" vendor_id="{{acco.id}}" class="accordion-collapse collapse show" aria-labelledby="heading-{{acco}}" data-bs-parent="#accordionExample">
+                      <div id="body-{{acco}}" class="accordion-body">              
+                        {% for message in conversation.messages.all %}
+                          
+                          {% if message.receiver == acco %}
+                            <div class="chat-row receiver">
+                              <div class="chat-message">
+                                <p>{{ message.content }}</p>
+                                <div class="chat-message-date">{{ message.created_at }}</div>
+                              </div>
+                              
+                            </div>
+                          {%endif%}
+    
+                          {% if message.sender == acco %}
+                            <div class="chat-row sender">
+                              <div class="chat-message">
+                                <p>{{ message.content }}</p>
+                                <div class="chat-message-date">{{ message.created_at }}</div>
+                              </div>                        
+                            </div>
+                          {% endif %}
+    
+                        {% endfor %}
+                      </div>
+                    </div>
+                    
+                  </div>
+                {% endif %}
+              {% endfor %}
+              <hr>
+            </div>
+    
+    
+            <form method="post" action="." id="message-form">
+              {% csrf_token %}
+              {{form.as_p}}
+              
+              <button type="submit" class=" my-3 btn btn-primary">Send</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 {% endblock content %}
+
+
+{% block scripts %}
+<script>
+    const element = document.querySelector('.accordion-collapse.collapse.show');
+        
+    let vendor_name = element.getAttribute('vendor_name');  
+    window.onload = function() {
+                      
+        const chatBody = document.getElementById(`body-${vendor_name}`);        
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    const messageForm = document.querySelector('#message-form');
+    const messageInput = document.querySelector('#id_content');
+    
+    messageForm.addEventListener('submit', (event)=>{
+        event.preventDefault();
+
+        if(!messageInput.value.trim()){
+            messageInput.classList.add('is-invalid');
+            return;
+        }
+
+        const  message = messageInput.value.trim();
+        let form = event.target;
+        let data = new FormData(form);
+
+        if(message !==''){
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `{% url 'order_viewCBV' object.id %}`);
+            //xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange= () =>{
+                if(xhr.readyState===XMLHttpRequest.DONE){
+                if(xhr.status===200){
+                    let response = JSON.parse(xhr.responseText);
+                    if( !response.errors){
+                    
+                    if(response.success){
+                        //const chatBody = document.querySelector('.accordion-body');
+                        const chatBody = document.getElementById(`body-${vendor_name}`);
+                        //"chat-row sender">
+                        const chatRow = document.createElement('div');                
+                        chatRow.classList.add('chat-row', 'sender');
+                        
+                        //"chat-message"
+                        const chatRowMes = document.createElement('div');
+                        chatRowMes.classList.add('chat-message');
+
+                        //add <p>
+                        const par = document.createElement('p');
+
+                        chatRowMes.textContent=messageInput.value;
+                        chatRow.appendChild(chatRowMes);
+                        chatBody.appendChild(chatRow);
+                        messageInput.value='';
+                        chatBody.scrollTop = chatBody.scrollHeight;
+                    }
+
+                    }else{
+                    alert(response.errors)
+                    }
+
+                }else{
+                    console.error('Request error', xhr.statusText);
+                }
+                }
+            };
+            xhr.send(data);
+        }
+    });
+
+    messageInput.addEventListener('keydown', (event)=>{
+
+        messageInput.classList.remove('is-invalid');
+        if(event.keyCode === 13 && !event.shiftKey){
+          event.preventDefault();
+          messageForm.dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
+{% endblock scripts %}
