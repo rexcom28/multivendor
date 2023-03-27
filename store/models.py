@@ -36,6 +36,9 @@ class Discount(models.Model):
         return times_redeemed
     def __str__(self):
         return f'-Code:{self.code_name} -Discount %: {self.discount_percent}'
+    
+    def is_valid_coupon(self,code):
+        return f'VALID {code}'
 
 
 

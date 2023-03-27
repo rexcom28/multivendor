@@ -11,6 +11,10 @@
             <div class="px-4 py-4 mb-2">
                 <h2 class="text-2xl">{{item.product.title}}</h2>
                 <p class="text-sm text-gray-500">Price: $ {{item.product.get_display_price}}</p>
+                {% if item.product.discount != None %}
+                    <p class="text-sm text-gray-500">Discount: "{{item.product.discount.code_name}}"</p>
+                    
+                {% endif %}
                 <div class="mt-4 mb-6">
                     <a href="{% url 'change_quantity' item.product.id %}?action=increase" class="px-4 py-2 border rounded text-white">+</a>
                     <span class="px-4 py-2">{{item.quantity}}</span>

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'adminStore',
     'core',
     'userprofile',
+    'vendorsPanel',
     'Shipping',
     'store',
     

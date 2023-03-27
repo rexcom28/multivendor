@@ -1,0 +1,9 @@
+[MASTER]
+extension-pkg-whitelist=typing_extensions
+
+[MESSAGES CONTROL]
+disable = missing-function-docstring, missing-module-docstring, unused-import
+
+[TYPECHECK]
+# Ignore missing type hints for certain modules or packages
+ignored-modules = django, rest_framework

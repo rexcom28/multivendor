@@ -1,0 +1,53 @@
+<div id="product-table">
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="bg-gray-60">
+
+                <tr>
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">                        
+                        Name
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                        Slug
+                    </th>
+
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">Price</th>
+                    
+                    {% if request.user.userprofile.is_vendor %}
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                      <a href="{% url 'add_product' %}" class="btn btn-primary">Add Product</a>
+                    </th>
+                    {% endif %}
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in object_list %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{product.title}}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{product.slug}}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        $ <strong> {{product.get_display_price}} </strong>  
+                        <a href="#">Add Price</a>                        
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <a href="{% url 'edit_product' product.id %}" class="btn btn-primary btn-sm">edit/view</a>
+                    </td>
+                    
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">
+                        No product found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  </div>

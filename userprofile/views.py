@@ -1,7 +1,6 @@
 from django.views.generic.edit import UpdateView
 from django.views.generic import DetailView
-from django.http import Http404
-
+from django.http import HttpResponse, Http404
 
 from django.contrib import messages
 from django.contrib.auth import login,authenticate
@@ -46,6 +45,7 @@ from django.utils.decorators import method_decorator
 from django import forms
 from .api_stripe import get_cupon
 
+
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
     products =  user.products.filter(status = Product.ACTIVE)
@@ -53,10 +53,6 @@ def vendor_detail(request, pk):
         'user':user, 
         'products':products,
     })
-
-
-from django.http import HttpResponse
-
 
 @is_vendor()
 @login_required
@@ -186,6 +182,7 @@ def discount_view(request):
     })
 
 @login_required
+@is_vendor()
 def add_product(request):
     
     qs = Discount.objects.filter(created_by=request.user)    
@@ -252,7 +249,6 @@ class MyStore_Order_DetailView(LoginRequiredMixin,DetailView):
         context['get_display_price_per_user']      = self.object.get_display_price_per_user(self.request.user)
         context['get_display_price_with_discount'] = self.object.get_display_price_with_discount(self.request.user)
         context['conversation'] = self.object.conversation.first()
-        
         
         if self.request.method=='GET':        
             context['form'] = MessageForm(initial={
@@ -372,6 +368,7 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     
 
 @login_required
+@is_vendor()
 def edit_product(request, pk):
     if not request.user.has_perm("store.change_product"):
         return HttpResponseForbidden("You don't have permission to edit Product.")
@@ -429,6 +426,7 @@ def edit_product(request, pk):
     })
 
 @login_required
+@is_vendor()
 def delete_product(request, pk):
     product = Product.objects.filter(user=request.user).get(pk=pk)
     product.status = Product.DELETED

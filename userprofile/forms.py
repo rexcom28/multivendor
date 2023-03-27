@@ -1,4 +1,3 @@
-from tkinter import Widget
 from . models import Userprofile
 from django.contrib.auth.models import User
 from .models import Userprofile,customerProfile

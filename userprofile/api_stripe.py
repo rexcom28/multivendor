@@ -101,7 +101,7 @@ def create_customer(form, customer):
     # Something else happened, completely unrelated to Stripe
         return '', E
 '''
-CUPONS
+COUPONS
 '''  
 def create_cupon(data):
     try:
@@ -167,13 +167,26 @@ def verify_payment_intent(payment_intent):
 
 
 
+
+
+
 '''----------------------Products----------'''
 
 class StripeAPI:
 
     def create_product(self,product):
         try:
-            
+            if product.discount != None:
+                
+                #retrive the Discount Object
+                couponObj, errorCupon = get_cupon(product.discount)
+                                
+                # create Price
+                productAPI = StripePrice()
+                priceCreated, error = productAPI.createPrice(product)
+
+                
+
             product_api = {
                 #'id':product.id,
                 'active': True if product.status=='active' else False,                
@@ -232,6 +245,23 @@ class StripeAPI:
         except stripe.error.StripeError as e:
             return None, StripeErrorHandler.handle_error(e)
 
+
+class StripePrice:
+
+    def createPrice(self,productObj):
+        try:
+            
+            return stripe.Price.create(
+                product=''
+                
+            ), None
+        except stripe.error.StripeError as e: #type: ignore
+            return None , StripeErrorHandler.handle_error(e)
+        
+    def retrivePrice(self,product):
+        pass
+
+    
 
 
 

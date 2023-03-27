@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Category, Product, Order, OrderItem
+from .models import Category, Product, Order, OrderItem, Discount
 from .forms import OrderForm
 from adminStore.forms import MessageForm
 
@@ -87,9 +87,12 @@ def cart_view(request):
 @verify_customer()
 def add_to_cart(request, product_id):
     cart = Cart(request)
-    cart.add(product_id)
+    product = Product.objects.get(id=product_id)
+    try:
+        cart.add(product_id, discount_code=product.discount.code_name )
+    except:
+        cart.add(product_id)
     return redirect('cart_view')
-
 
 # class Shipped_Order_UpdateView(UpdateView):
 #     model = Shipped_Orders
@@ -321,6 +324,7 @@ def checkout(request):
 
                 product= item['product']
                 total_price += product.price * int(item['quantity'])
+            
                 items.append({
                     'price_data':{
                         'currency': 'usd',
@@ -331,7 +335,7 @@ def checkout(request):
                     },
                     'quantity':item['quantity']
                 })
-
+        
             #begins cuopon validation segment
             cupon=''
             err=''
@@ -355,6 +359,7 @@ def checkout(request):
                 'mode':'payment',                    
                 'success_url':f'{settings.WEB_SITE_URL}cart/success/',
                 'cancel_url':f'{settings.WEB_SITE_URL}cart/',
+                
             }
 
             order_params = {
@@ -384,9 +389,9 @@ def checkout(request):
 
             
             session = stripe.checkout.Session.create(
-                **params
+                **params,                
             )
-
+            
             payment_intent = session.payment_intent
             if len(payment_intent) > 0:                
                 order_params.update({"payment_intent": payment_intent,})
@@ -534,6 +539,10 @@ def product_detail(request, category_slug, slug):
         'product':product
     })
 
+
+
+
+
 #===================CLASS BASED VIEWS
 
 class Category_ListView(ListView):
@@ -546,6 +555,7 @@ class Category_ListView(ListView):
         title_filter = request.GET.get('title_filter', '')
         self.queryset = self.model.objects.filter(title__icontains=title_filter)
         return super().get(request, *args, **kwargs)
+
 
 class Category_CreateView(CreateView):
     model = Category
@@ -562,6 +572,7 @@ class Category_UpdateView(UpdateView):
     template_name= 'store/category/create.html'
     fields = ['title']
     success_url = '/categories/list/'
+
     @method_decorator(is_vendor())
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)

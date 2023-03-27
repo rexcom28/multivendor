@@ -155,7 +155,7 @@
               {% csrf_token %}
               {{form.as_p}}
               
-              <button type="submit" class=" my-3 btn btn-primary">Send</button>
+              <button id="btn-submit" type="submit" class=" my-3 btn btn-primary">Send</button>
             </form>
         </div>
     </div>
@@ -178,7 +178,7 @@
     const messageForm = document.querySelector('#message-form');
     const messageInput = document.querySelector('#id_content');
     
-    messageForm.addEventListener('submit', (event)=>{
+    messageForm.addEventListener('submit', function(event){
         event.preventDefault();
 
         if(!messageInput.value.trim()){
@@ -192,56 +192,57 @@
 
         if(message !==''){
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', `{% url 'order_viewCBV' object.id %}`);
-            //xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.open('POST', `{% url 'order_viewCBV' object.id %}`);            
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             xhr.onreadystatechange= () =>{
-                if(xhr.readyState===XMLHttpRequest.DONE){
-                if(xhr.status===200){
+              if(xhr.readyState===XMLHttpRequest.DONE){
+                  if(xhr.status===200){
                     let response = JSON.parse(xhr.responseText);
                     if( !response.errors){
                     
-                    if(response.success){
-                        //const chatBody = document.querySelector('.accordion-body');
-                        const chatBody = document.getElementById(`body-${vendor_name}`);
-                        //"chat-row sender">
-                        const chatRow = document.createElement('div');                
-                        chatRow.classList.add('chat-row', 'sender');
-                        
-                        //"chat-message"
-                        const chatRowMes = document.createElement('div');
-                        chatRowMes.classList.add('chat-message');
+                        if(response.success){
+                            //const chatBody = document.querySelector('.accordion-body');
+                            const chatBody = document.getElementById(`body-${vendor_name}`);
+                            //"chat-row sender">
+                            const chatRow = document.createElement('div');                
+                            chatRow.classList.add('chat-row', 'sender');
+                            
+                            //"chat-message"
+                            const chatRowMes = document.createElement('div');
+                            chatRowMes.classList.add('chat-message');
 
-                        //add <p>
-                        const par = document.createElement('p');
+                            //add <p>
+                            const par = document.createElement('p');
 
-                        chatRowMes.textContent=messageInput.value;
-                        chatRow.appendChild(chatRowMes);
-                        chatBody.appendChild(chatRow);
-                        messageInput.value='';
-                        chatBody.scrollTop = chatBody.scrollHeight;
+                            chatRowMes.textContent=messageInput.value;
+                            chatRow.appendChild(chatRowMes);
+                            chatBody.appendChild(chatRow);
+                            messageInput.value='';
+                            chatBody.scrollTop = chatBody.scrollHeight;
+                        }
+
                     }
-
-                    }else{
-                    alert(response.errors)
+                    else{
+                        alert(response.errors)
                     }
-
-                }else{
-                    console.error('Request error', xhr.statusText);
-                }
-                }
-            };
+                  }
+                  else{
+                      console.error('Request error', xhr.statusText);
+                  }
+              }
+            }
             xhr.send(data);
         }
     });
 
-    messageInput.addEventListener('keydown', (event)=>{
+messageInput.addEventListener('keydown', (event)=>{
 
-        messageInput.classList.remove('is-invalid');
-        if(event.keyCode === 13 && !event.shiftKey){
-          event.preventDefault();
-          messageForm.dispatchEvent(new Event('submit'));
-        }
-    });
+    messageInput.classList.remove('is-invalid');
+    if(event.keyCode === 13 && !event.shiftKey){
+        event.preventDefault();
+        document.getElementById('btn-submit').click();
+        //messageForm.dispatchEvent(new Event('submit'));
+    }
+});
 </script>
 {% endblock scripts %}
