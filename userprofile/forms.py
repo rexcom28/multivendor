@@ -93,6 +93,11 @@ class customerProfileForm(forms.ModelForm):
                'class': inputs+' my_custom_selector'
          }),
       }
+   def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['stripe_cus_id'].required = False
+
 class customerSignUp(forms.Form):
    city     = forms.CharField(label="Ciudad:",max_length=15,required=False,
       widget=forms.TextInput(attrs={'class':inputs})

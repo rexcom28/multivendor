@@ -484,7 +484,8 @@ def delete_product(request, pk):
 @login_required
 def myaccount(request):
     try:
-        u = User.objects.get(pk=request.user.id)
+        u = User.objects.get(pk=request.user.id)        
+        
         customer, error= retrive_customer(str(u.customer.stripe_cus_id))
     except Exception as e:
         messages.error(request,f"An error ocurred while retrive the customer {e}")
@@ -495,19 +496,22 @@ def myaccount(request):
         customer_form = customerProfileForm(request.POST,instance=u.customer)
         if form.is_valid() and customer_form.is_valid():
             form.save()
+            
             #send customer values to stripe API for update customer
             # there is not needs to update the customerProfileForm with the user and cus_id_stripe cus are not needed
             customer,error = update_customer(str(u.customer.stripe_cus_id),customer_form.cleaned_data)
+        
             if error:
                 messages.error(request, f"An error occurred while updating customer information: {error}")
             else:
                 messages.success(request, "Your account information has been updated successfully.")
                 return redirect('myaccount')
     else:
+
         form = UserEditForm(instance=u)
         
         customer_form = customerProfileForm(instance=u.customer, initial=customer)
-
+        
     return render(request, 'userprofile/myaccount.html', {'form':form, 'customer_form':customer_form})
 
 def customer_signup(request):

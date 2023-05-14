@@ -67,6 +67,17 @@ def vendor_customer(user):
         return stripe.Customer.create(email=user.email), ''
     except stripe.error.StripeError as e:
         return None, StripeErrorHandler.handle_error(e)
+def raw_create_customer():
+    try:
+        client = stripe.Customer.create()
+        return client, ''
+    except stripe.error.InvalidRequestError as E:
+        return '', E
+    except stripe.error.StripeError as e:
+        return '', E
+    except Exception as E:
+    
+        return '', E
 #create customer
 def create_customer(form, customer):
     Semail=customer.pop('email2')
@@ -88,7 +99,7 @@ def create_customer(form, customer):
             shipping=Sshipping
         )
         
-        return client.id, ''
+        return client, ''
     except stripe.error.InvalidRequestError as E:
         return '', E
     # except stripe.error.APIConnectError as E:
