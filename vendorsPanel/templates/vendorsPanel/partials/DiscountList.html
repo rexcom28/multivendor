@@ -1,4 +1,4 @@
-<div id="products-table">
+<div id="discounts-table">
     
     <div class="table-responsive">
         <table class="table">
@@ -9,41 +9,46 @@
                         Name
                     </th>
                     <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                        Slug
+                        stock
                     </th>
 
-                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">Price</th>
-                    
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                        Times redeemed
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                        % Discount
+                    </th>
                     {% if request.user.userprofile.is_vendor %}
                     <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                      <a href="{% url 'add_product' %}" class="btn btn-primary">Add Product</a>
+                      <a href="{% url 'addDiscount' %}" class="btn btn-primary">Add Discount</a>
                     </th>
                     {% endif %}
                     
                 </tr>
             </thead>
             <tbody>
-                {% for product in object_list %}
+                {% for discount in discounts %}
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{product.title}}
+                        {{discount.code_name}}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{product.slug}}
+                        {{discount.stock}}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        $ <strong> {{product.get_display_price}} </strong>  
-                        <a href="{% url 'priceCreateFromProduct' product.id %}">Add Price</a>                        
+                        {{discount.check_times_redeemed}}
                     </td>
+                    <td>{{discount.discount_percent}}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <a href="{% url 'edit_product' product.id %}" class="btn btn-primary btn-sm">edit/view</a>
+                        <a href="{% url 'editDiscount' discount.id %}" class="btn btn-primary btn-sm">edit/view</a>
+                        
                     </td>
                     
                 </tr>
                 {% empty %}
                 <tr>
                     <td colspan="3" class="text-center">
-                        No product found.
+                        No discounts found.
                     </td>
                 </tr>
                 {% endfor %}

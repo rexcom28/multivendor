@@ -1,49 +1,58 @@
-<div id="products-table">
+<div id="prices-table">
     
     <div class="table-responsive">
         <table class="table">
             <thead class="bg-gray-60">
 
                 <tr>
-                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">                        
-                        Name
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                        Stripe id
                     </th>
                     <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                        Slug
+                        Default price
+                    </th>
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                        product
                     </th>
 
-                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">Price</th>
+                    <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                        Price
+                    </th>
                     
                     {% if request.user.userprofile.is_vendor %}
                     <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                      <a href="{% url 'add_product' %}" class="btn btn-primary">Add Product</a>
+                      <a href="{% url 'priceCreate' %}" class="btn btn-primary">Add Price</a>
                     </th>
                     {% endif %}
                     
                 </tr>
             </thead>
             <tbody>
-                {% for product in object_list %}
+                {% for price in prices %}
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{product.title}}
+                        {{price.stripe_id}}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        
+                        <span class="badge text-bg-{% if price.active_price %}success{% else %}secondary{% endif %}">{% if price.active_price %}Yes{% else %}No {% endif %}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{product.slug}}
+                        {{price.product}}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        $ <strong> {{product.get_display_price}} </strong>  
-                        <a href="{% url 'priceCreateFromProduct' product.id %}">Add Price</a>                        
+                        {{price.price_amount}}
                     </td>
+                    
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <a href="{% url 'edit_product' product.id %}" class="btn btn-primary btn-sm">edit/view</a>
+                        <a href="{% url 'priceUpdate' price.pk %}" class="btn btn-primary btn-sm">edit/view</a>                        
                     </td>
                     
                 </tr>
                 {% empty %}
                 <tr>
                     <td colspan="3" class="text-center">
-                        No product found.
+                        No prices found.
                     </td>
                 </tr>
                 {% endfor %}

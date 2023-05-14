@@ -7,12 +7,14 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% comment %}
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">as</a>
           </li>
+          {% endcomment %}
           <li class="nav-item dropdown">
             {% menu %}
           </li>
@@ -41,6 +43,7 @@
                 <ul class="dropdown-menu">  
                     {% if request.user.userprofile.is_vendor %}
                       <li><a class="dropdown-item" href="{% url 'my_store' %}">My store</a></li>
+                      <li><a class="dropdown-item" href="{% url 'MyProducts_ListView' %}">My NEW store</a></li>
                       <li><a class="dropdown-item" href="{% url 'categories_list' %}">Categories</a></li>
                       <li><a class="dropdown-item" href="{% url 'discount_view' %}">Discounts</a></li>
                       <li><a class="dropdown-item" href="{% url 'add_product' %}">Add product</a></li>

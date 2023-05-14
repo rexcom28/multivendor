@@ -67,13 +67,26 @@ class Cart(object):
         
         total_cost = 0
         discount = 0
+        d_price =0
         for item in self.cart.values():
+
+            if hasattr(item['product'],'prices'):
+                for price in item['product'].prices.all():
+                    if price.active_price:
+                        d_price = price.price_amount
+                        break
+            else:
+                d_price = item['product'].price
+
             # Apply discount to the specific product
             if item['discount_code'] != None :
                 if item['product'].discount.check_times_redeemed < item['product'].discount.stock:                    
-                    total_cost += self.get_discount_amount(item, item['product'].discount.discount_percent, item['product'].price * item['quantity'])
+                    total_cost += self.get_discount_amount(item, item['product'].discount.discount_percent, d_price  * item['quantity'])
+                    
+                    #total_cost += self.get_discount_amount(item, item['product'].discount.discount_percent, item['product'].price * item['quantity'])
             else:
-                total_cost += item['product'].price * item['quantity']
+                #total_cost += item['product'].price * item['quantity']
+                total_cost += d_price * item['quantity']
                 
         return int(total_cost) / 100
         #return int(sum(item['product'].price * item['quantity'] for item in self.cart.values())) / 100

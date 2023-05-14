@@ -47,7 +47,7 @@
 
             {% render_field form.id  %}
             
-            <div id="errors" class="hidden my-3 px-4 py-4 bg-red-200 rounded-xl"></div>
+            <div id="errors" class="hidden badge text-bg-danger rounded-xl my-3"></div>
             <div width="10%">
                 <button type="submit" class="btn btn-success rounded-xl" onclick="buy(event)">Checkout</button>
             </div>
@@ -121,7 +121,7 @@
         let html =''
         
         for(let i =0; i < errors.length; i++){
-            html += errors[i] + '<br>';
+            html += '<p>-'+errors[i] + '</p>';
         }
 
         let errorElement = document.getElementById('errors');
@@ -186,12 +186,12 @@
                 console.log(result)
                 if(result.error){
 
-                    //location.reload()
+                    location.reload()
                 }
             })
             .catch(function(error){
                 console.log(error)
-                //location.reload()
+                location.reload()
             });
         }
         return false;

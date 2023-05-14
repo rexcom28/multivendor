@@ -32,6 +32,8 @@ class Discount(models.Model):
             if 'times_redeemed' in times[0]:
                 times_redeemed = times[0]['times_redeemed']
                 self.times_redeemed=times_redeemed
+                if times_redeemed == self.stock:
+                    self.active=False
                 self.save()
         return times_redeemed
     def __str__(self):
@@ -107,6 +109,10 @@ class Product(models.Model):
         return super().save(*args, **kwargs)
         
     def get_display_price(self):
+        
+        for price in self.prices.all().filter(product=self):
+            if price.active_price and price !=self:
+                return price.price_amount/100                    
         return self.price /100
     
     

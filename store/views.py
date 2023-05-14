@@ -224,6 +224,10 @@ def re_order(request):
                             messages.error(request, 'The coupon its not valid')                        
                             return JsonResponse({'error':'The coupon its not valid'},status=401)
 
+
+                
+
+                
                 if valid:  
                     stripe.api_key = settings.STRIPE_SECRET_KEY
                     params ={
@@ -308,7 +312,9 @@ def checkout(request):
     cart = Cart(request)
     
     if cart.get_total_cost() == 0:
-        return redirect('cart_view')    
+        return redirect('cart_view')
+
+   
     if request.method == 'POST':
         
         if  request.headers.get('X-Requested-With') != 'XMLHttpRequest':
@@ -353,6 +359,7 @@ def checkout(request):
             session=''
             payment_intent=''
             discount=0
+
             params={
                 'payment_method_types':['card'],
                 'line_items':items,
@@ -387,36 +394,39 @@ def checkout(request):
                         "paid_amount":total_price-discount,
                     })
 
-            
-            session = stripe.checkout.Session.create(
-                **params,                
-            )
-            
-            payment_intent = session.payment_intent
-            if len(payment_intent) > 0:                
-                order_params.update({"payment_intent": payment_intent,})
+            try:
+                session = stripe.checkout.Session.create(
+                    **params,                
+                )
+                payment_intent = session.payment_intent
+                if len(payment_intent) > 0:                
+                    order_params.update({"payment_intent": payment_intent,})
+                    
+                #if the order has the discount code the store.signals
+                order = Order.objects.create(
+                    **order_params
+                )
                 
-            #if the order has the discount code the store.signals
-            order = Order.objects.create(
-                **order_params
-            )
-            
-            
-            #create order
-            for item in cart:
-                product = item['product']
-                quantity = int(item['quantity'])
-                price = product.price
-                item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
-            
-            cart.clear()    
-            
-            return JsonResponse({'session':session, 'order':payment_intent}, status=200) #redirect('myaccount')
- 
+                
+                #create order
+                for item in cart:
+                    product = item['product']
+                    quantity = int(item['quantity'])
+                    price = product.price
+                    item = OrderItem.objects.create(order=order, product=product, price=price, quantity=quantity)
+                
+                cart.clear()
+                
+                return JsonResponse({'session':session, 'order':payment_intent}, status=200)
+            except Exception as e:
+                messages.error(request, f'ERROR: {e}')                
+                return JsonResponse({'error':f'{e}'}, status=200)
+
+    ##--------GET METHOD----###
     else:
         cus = request.user
         init ={}
-        if cus.customer.stripe_cus_id!='':
+        if cus.customer.stripe_cus_id !='':
             customer, error= retrive_customer(cus.customer.stripe_cus_id)
             
             if customer:
@@ -428,7 +438,7 @@ def checkout(request):
                         'city':customer.get('city')
                     }
             if error!='':
-                messages.error(request,error)
+                messages.error(request,f'Type the form values above, there was an error: {error}')
 
         form = OrderForm(initial=init)
     return render(request, 'store/checkout.html', {

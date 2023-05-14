@@ -18,6 +18,10 @@ urlpatterns = [
     path('my-store/delete-product/<int:pk>/', views.delete_product, name='delete_product'),    
     path('vendors/products/<int:pk>/', views.vendor_detail, name='vendor_detail'),    
     path('discount/', views.discount_view, name='discount_view'),
+    path('editDiscount/<int:pk>/',views.EditDiscount_UpdateView.as_view(), name='editDiscount'),
+    path('addDiscount/',views.AddDiscount_CreateView.as_view(), name='addDiscount'),
+
+    
     path('check_code_name/', views.check_code_name, name='check_code_name'),
     path('customer/update/<str:pk>/', views.CustomerUpdateView.as_view(), name='stripe_CustomerUpdateView'),
     path('customer/create/<str:pk>/',views.create_customer_already_signup.as_view(),name='create_customer_already_signup'),

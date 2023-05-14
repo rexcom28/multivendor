@@ -1,0 +1,23 @@
+{% extends 'core/mainBase.html' %}
+
+{% block content %}
+
+<form action="." method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button id="btnsubmit" type="submit" class="py-2 px-8 btn btn-success">Save Price</button>
+</form>
+
+{% endblock content %}
+
+
+{% block scripts %}
+<script>
+
+    function btn_submit(event){        
+        //event.preventDefault();
+        //alert(event.value)
+
+    }
+</script>
+{% endblock scripts %}

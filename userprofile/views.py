@@ -1,4 +1,4 @@
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView,UpdateView
 from django.views.generic import DetailView
 from django.http import HttpResponse, Http404
 
@@ -43,7 +43,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.utils.decorators import method_decorator
 from django import forms
-from .api_stripe import get_cupon
+
+from django.http import QueryDict
 
 
 def vendor_detail(request, pk):
@@ -127,6 +128,39 @@ def check_code_name(request):
                  data = {'res':'invalid'} 
             return JsonResponse(data, content_type='application/json')
     return JsonResponse({},status=400)
+
+
+class AddDiscount_CreateView(CreateView):
+    model = Discount
+    form_class = DiscountForm
+    context_object_name = 'discounts'
+    template_name = 'userprofile/inventory/EditDiscount.html'
+    success_url = reverse_lazy('MyProducts_ListView')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == 'GET':
+            context['form']= DiscountForm(initial={'created_by':self.request.user})
+        return context
+
+    def get_success_url(self):
+        url = super().get_success_url()
+        query_dict =QueryDict(mutable=True)
+        query_dict.update({'discountTab':'active'})
+        return f'{url}?{query_dict.urlencode()}'
+
+class EditDiscount_UpdateView(UpdateView):
+    model =Discount
+    form_class = DiscountForm
+    context_object_name = 'discounts'
+    template_name = 'userprofile/inventory/EditDiscount.html'
+    success_url = reverse_lazy('MyProducts_ListView')
+
+    def get_success_url(self):
+        url = super().get_success_url()
+        query_dict =QueryDict(mutable=True)
+        query_dict.update({'discountTab':'active'})
+        return f'{url}?{query_dict.urlencode()}'
 
 @login_required
 @is_vendor()
@@ -219,7 +253,7 @@ def add_product(request):
                 
             if err:
                 product.delete()
-                messages.success(request, f'{err}')
+                messages.error(request, f'{err}')
             else:
                 product.id_stripe= api_prod.id
                 product.save()                    
@@ -295,7 +329,7 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     
     form_class = ProductForm
     template_name = 'userprofile/product_update.html'
-    success_url = reverse_lazy('my_store')
+    success_url = reverse_lazy('MyProducts_ListView')
     def get_object(self, queryset=None):
         obj = super().get_object(queryset=queryset)
         self.object = obj
@@ -311,10 +345,16 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         if self.request.POST:
             data['carousel_formset'] = CarouselImageFormSet(self.request.POST, self.request.FILES, instance=self.object)
         else:
-            data['carousel_formset'] = CarouselImageFormSet(instance=self.object, queryset=self.object.carousel.all())
-            
+            data['carousel_formset'] = CarouselImageFormSet(instance=self.object, queryset=self.object.carousel.all())            
         return data
-    
+
+    def get_success_url(self):
+        url = super().get_success_url()
+        query_dict =QueryDict(mutable=True)
+        query_dict.update({'productTab':'active'})
+        return f'{url}?{query_dict.urlencode()}'
+
+
     def post(self, request, *args, **kwargs):
         product = self.get_object()
         form = self.get_form()

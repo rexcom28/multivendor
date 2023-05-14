@@ -248,20 +248,51 @@ class StripeAPI:
 
 class StripePrice:
 
-    def createPrice(self,productObj):
+    def createPrice(self,product,price_amount, currency, active_price):
         try:
-            
-            return stripe.Price.create(
-                product=''
+            price = stripe.Price.create(
+                product=product.id_stripe,
+                unit_amount=price_amount,
+                currency=currency,
+                active=active_price,
                 
-            ), None
+            )
+
+            if active_price:
+                product = stripe.Product.modify(
+                    product.id_stripe,
+                    default_price=price.id
+                )
+                product.save()
+            return price, None
         except stripe.error.StripeError as e: #type: ignore
             return None , StripeErrorHandler.handle_error(e)
         
-    def retrivePrice(self,product):
-        pass
+    def retrivePrice(self,price_id):
+        try:
+            return stripe.Price.retrieve(
+                price_id,
+            ), None
+        except stripe.error.StripeError as e: #type: ignore
+            return None, StripeErrorHandler.handle_error(e) 
 
-    
+    def editPrice(self,price_id, price_amount, active_price):
+        try:
+            
+            price =  stripe.Price.retrieve(price_id)
+            
+            price.active=active_price            
+            price.save()
+
+            if active_price:
+                product = stripe.Product.modify(
+                    price.product,
+                    default_price=price.id
+                )
+                product.save()
+            return price, None
+        except stripe.error.StripeError as e: #type: ignore
+            return None, StripeErrorHandler.handle_error(e) 
 
 
 

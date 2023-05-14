@@ -1,0 +1,11 @@
+{% extends 'core/mainBase.html' %}
+
+{% block content %}
+
+    <h2 class="my-3">Times redeemed: {% if discounts.times_redeemed  > 0 %} {{discounts.times_redeemed}}  {% else %} 0 {% endif %}</h2>
+    <form action="." method="post" class="my-2 mb-10">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button class="btn btn-success mb-4">Submit</button>
+    </form>
+{% endblock content %}
